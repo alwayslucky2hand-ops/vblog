@@ -54,25 +54,7 @@
     body { 
       font-family: -apple-system, BlinkMacSystemFont, sans-serif; 
       background: #ffffff; color: #0f172a; line-height: 1.8; margin: 0; padding: 0; 
-      -webkit-user-select: none; -moz-user-select: none; -ms-user-select: none; user-select: none;
-      -webkit-touch-callout: none;
     }
-    input, textarea, select, button {
-      -webkit-user-select: auto; user-select: auto;
-    }
-    img, video {
-      pointer-events: none; 
-    }
-    video { pointer-events: auto; }
-
-    .secure-overlay {
-      display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-      background: rgba(255,255,255,0.98); z-index: 2147483647; 
-      justify-content: center; align-items: center; text-align: center;
-      flex-direction: column; gap: 16px; padding: 20px;
-    }
-    .secure-overlay-title { font-size: 22px; font-weight: 800; color: #ef4444; }
-    .secure-overlay-desc { font-size: 15px; color: #64748b; }
 
     .container { max-width: 720px; margin: 0 auto; padding: 32px 20px 60px 20px; }
     .markdown-body { font-size: 17px; line-height: 2.1; color: #1e293b; }
@@ -92,11 +74,6 @@
   </style>
 </head>
 <body>
-  <div id="secureOverlay" class="secure-overlay">
-    <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#ef4444" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="m9 12 2 2 4-4"/></svg>
-    <div class="secure-overlay-title">為保護智慧財產權，已暫停顯示內容</div>
-    <div class="secure-overlay-desc">系統偵測到視窗切換、截圖或錄影行為。<br>請點擊畫面或返回本視窗繼續閱讀。</div>
-  </div>
 
   <div class="container">
     <a href="index.html" style="color:#64748b; text-decoration:none; font-weight:600; display:inline-block; margin-bottom:24px;">← 返回沙龍</a>
@@ -544,30 +521,6 @@
   
     
     document.addEventListener("DOMContentLoaded", function() {
-      document.addEventListener('contextmenu', e => e.preventDefault());
-      document.addEventListener('selectstart', e => {
-        if(e.target.tagName !== 'INPUT' && e.target.tagName !== 'TEXTAREA' && e.target.tagName !== 'SELECT') e.preventDefault();
-      });
-      
-      document.addEventListener('copy', e => { e.preventDefault(); alert('版權所有，禁止複製！'); });
-      document.addEventListener('cut', e => { e.preventDefault(); });
-      
-      document.addEventListener('keydown', e => {
-        if (e.key === 'PrintScreen' || (e.ctrlKey && e.key === 'p') || (e.metaKey && e.key === 'p') || (e.ctrlKey && e.key === 's') || (e.metaKey && e.key === 's')) {
-          e.preventDefault();
-        }
-      });
-      
-      const overlay = document.getElementById('secureOverlay');
-      const showOverlay = () => { overlay.style.display = 'flex'; };
-      const hideOverlay = () => { overlay.style.display = 'none'; };
-
-      window.addEventListener('blur', showOverlay);
-      window.addEventListener('focus', hideOverlay);
-      document.addEventListener('visibilitychange', () => {
-        if (document.hidden) showOverlay(); else hideOverlay();
-      });
-
       let rawMdEl = document.getElementById("raw-md");
       if (rawMdEl && rawMdEl.value) {
         let rawMd = rawMdEl.value.replace(/^#\s+.+\n/, '');
