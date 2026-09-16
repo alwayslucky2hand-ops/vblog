@@ -775,7 +775,8 @@
       </div>
       <div class="flex-wrap-gap">
         <a id="authorGitHubLink" href="#" target="_blank" class="action-btn-sm" style="display:none; color:var(--text); border-color:var(--text);"><i data-lucide="external-link" style="width:14px; height:14px;"></i> 沙龍</a>
-        <button id="btnSyncHome" onclick="syncHomepageToGithub()" class="action-btn-sm" style="color: var(--accent); border-color: var(--accent);"><i data-lucide="refresh-ccw" style="width: 14px; height: 14px;"></i> 同步首頁</button>
+        
+        <button id="btnSyncHome" onclick="deployAllPublishedPages(this)" class="action-btn-sm" style="color: var(--accent); border-color: var(--accent);"><i data-lucide="upload-cloud" style="width: 14px; height: 14px;"></i> 更新部署</button>
         <button onclick="loadDashboardLogs(true)" class="action-btn-sm"><i data-lucide="refresh-cw" style="width: 14px; height: 14px;"></i> 重整</button>
       </div>
     </div>
@@ -885,7 +886,8 @@
         </div>
       </div>
 
-      <div style="display: flex; justify-content: flex-end; margin-top: 16px;">
+      <div style="display: flex; justify-content: flex-end; gap: 12px; margin-top: 16px;">
+        <button class="action-btn-sm" style="color: var(--text); border-color: var(--text);" onclick="deployAllPublishedPages(this)"><i data-lucide="upload-cloud" style="width: 14px; height: 14px;"></i> 全局部署</button>
         <button class="action-btn-sm action-btn-primary" onclick="saveAuthorProfile(this)"><i data-lucide="save" style="width: 14px; height: 14px;"></i> 儲存</button>
       </div>
     </div>
@@ -1379,6 +1381,31 @@
       if(document.getElementById('tab-dashboard').classList.contains('active')) loadDashboardLogs(false);
     } catch (e) {
       alert(e.message);
+    } finally {
+      btn.innerHTML = originalHtml;
+      lucide.createIcons();
+      btn.disabled = false;
+    }
+  }
+
+  
+  async function deployAllPublishedPages(btn) {
+    const email = localStorage.getItem('bvlog_user_email');
+    if (!email) return;
+
+    
+    if (!confirm("確定要將最新的作者資訊部署到「首頁」及「所有已發布的文章」嗎？\n(若文章數量較多，可能需要幾十秒至一分鐘的時間，請耐心等候)")) return;
+
+    const originalHtml = btn.innerHTML;
+    btn.innerHTML = '<i data-lucide="loader" class="spin" style="width:14px; height:14px;"></i> 部署中...';
+    lucide.createIcons();
+    btn.disabled = true;
+
+    try {
+      const res = await api({ action: "syncAllPublishedPages", email: email });
+      showToast("全局部署完成！共更新了 " + res.count + " 篇文章");
+    } catch (e) {
+      alert("部署失敗：" + e.message);
     } finally {
       btn.innerHTML = originalHtml;
       lucide.createIcons();
@@ -2288,8 +2315,10 @@
              <span class="badge ${isPublished ? 'published' : 'draft'}">${isPublished ? '已發布' : '草稿'}</span>
              <span style="font-size:12px; font-weight:600; padding:2px 8px; border-radius:4px; background: #f1f5f9; color: var(--text-muted);">${log.tier || '公開'}</span>
              <div style="margin-left: auto; display:flex; gap:6px;">
-                <button class="action-btn-sm action-btn-icon danger" onclick="deleteHistoryLog('${log.logId}')" title="刪除"><i data-lucide="trash-2" style="width: 14px; height: 14px;"></i></button>
+                <!-- 🌟 新增：單篇文章專屬的「部署」按鈕 -->
+                <button class="action-btn-sm" style="color: var(--accent); border-color: var(--accent);" onclick="deploySingleArticle('${log.logId}', this)"><i data-lucide="upload-cloud" style="width: 14px; height: 14px;"></i> 部署</button>
                 <button class="action-btn-sm" onclick="openArticleWorkshop('${log.logId}')"><i data-lucide="edit-3" style="width: 14px; height: 14px;"></i> 編輯</button>
+                <button class="action-btn-sm action-btn-icon danger" onclick="deleteHistoryLog('${log.logId}')" title="刪除"><i data-lucide="trash-2" style="width: 14px; height: 14px;"></i></button>
              </div>
           </div>
         </div>
@@ -3017,6 +3046,35 @@
   }
 
   
+  async function deploySingleArticle(logId, btn) {
+    const email = localStorage.getItem('bvlog_user_email');
+    if (!email) return;
+
+    if (!confirm("確定要將這篇文章的「最新內容」部署到 GitHub 嗎？\n\n(系統將會自動套用最頂級的 SEO 結構化資料，並同時更新您的沙龍首頁！)")) return;
+
+    const originalHtml = btn.innerHTML;
+    btn.innerHTML = '<i data-lucide="loader" class="spin" style="width:14px; height:14px;"></i> 部署中...';
+    lucide.createIcons();
+    btn.disabled = true;
+
+    try {
+      
+      await api({ action: "pushToGithub", email: email, logId: logId });
+      showToast("單篇部署完成！已推播至 GitHub");
+      
+      
+      isLogsFetched = false; 
+      isDashboardRendered = false;
+      loadDashboardLogs(false);
+    } catch (e) {
+      alert("部署失敗：" + e.message);
+      btn.innerHTML = originalHtml;
+      lucide.createIcons();
+      btn.disabled = false;
+    }
+  }
+
+  
   function deleteHistoryLog(logId) {
     if (!confirm("確定刪除此文章/草稿嗎？\n(此操作將同步清空紀錄，若已發布將自動移除 GitHub 單頁並重構首頁)")) return;
     const email = localStorage.getItem('bvlog_user_email');
@@ -3124,7 +3182,7 @@
       const res = await api({ action: "generateArticleStep", step: 2, title: title, content: window.currentSelectedLog.content, email: email });
       
       if (res.hook === "（無輸出）") {
-         hookInput.value = "⚠️ 生成被安全機制阻擋，或產出為空。已取消自動儲存。\n請調整提示詞或檢查逐字稿後重試。";
+         hookInput.value = "[系統提示] 生成被安全機制阻擋，或產出為空。已取消自動儲存。\n請調整提示詞或檢查逐字稿後重試。";
          showToast("生成失敗，未儲存");
       } else {
          hookInput.value = res.hook || "";
@@ -3145,7 +3203,7 @@
       const res = await api({ action: "generateArticleStep", step: 3, title: title, hook: hook, content: window.currentSelectedLog.content, email: email });
       
       if (res.body === "（無輸出）") {
-         bodyInput.value = "⚠️ 生成被安全機制阻擋，或產出為空。已取消自動儲存。\n請調整提示詞或檢查逐字稿後重試。";
+         bodyInput.value = "[系統提示] 生成被安全機制阻擋，或產出為空。已取消自動儲存。\n請調整提示詞或檢查逐字稿後重試。";
          showToast("生成失敗，未儲存");
       } else {
          bodyInput.value = res.body || "";
@@ -3163,7 +3221,7 @@
       const res = await api({ action: "generateArticleStep", step: 4, title: title, email: email });
       
       if (res.ending === "（無輸出）") {
-         endingInput.value = "⚠️ 生成被安全機制阻擋，或產出為空。已取消自動儲存。\n請調整提示詞後重試。";
+         endingInput.value = "[系統提示] 生成被安全機制阻擋，或產出為空。已取消自動儲存。\n請調整提示詞後重試。";
          showToast("生成失敗，未儲存");
       } else {
          endingInput.value = res.ending || "";
