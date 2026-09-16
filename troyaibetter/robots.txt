@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://alwayslucky2hand-ops.github.io/vblog/troyaibetter/sitemap.xml
