@@ -742,6 +742,10 @@
           <option value="會員限定">會員限定</option>
           <option value="VIP私塾">VIP私塾特定</option>
         </select>
+        <select id="articleShowVideo" class="login-input" style="width: auto; flex-shrink: 0;" onchange="handleShowVideoChange()">
+          <option value="true">發布顯示影音</option>
+          <option value="false">不顯示影音播放器</option>
+        </select>
         <input type="email" id="articleVipEmail" class="login-input" placeholder="讀者專屬信箱(必填)" style="display: none; flex: 1;">
       </div>
 
@@ -2393,8 +2397,11 @@
     const authorNameText = profile.authorName || '作者';
     const authorBioText = profile.bio || '簡介';
 
+    const showVideoEl = document.getElementById('articleShowVideo');
+    const isShowVideo = showVideoEl ? (showVideoEl.value === 'true') : (window.currentSelectedLog && window.currentSelectedLog.showVideo !== false && String(window.currentSelectedLog.showVideo) !== 'false');
+
     let videoHtml = '';
-    if (urls && urls.length > 0) {
+    if (isShowVideo && urls && urls.length > 0) {
       if (urls[0].includes('youtube.com') || urls[0].includes('youtu.be')) {
         const ytMatch = urls[0].match(/(?:youtu\.be\/|youtube\.com\/(?:embed\/|v\/|watch\?v=|watch\?.+&v=|shorts\/))((\w|-){11})/);
         const ytId = ytMatch ? ytMatch[1] : '';
@@ -2805,6 +2812,16 @@
     lucide.createIcons(); 
   };
 
+  window.handleShowVideoChange = function() {
+    if (!window.currentSelectedLog) return;
+    const isShow = document.getElementById('articleShowVideo').value === 'true';
+    window.currentSelectedLog.showVideo = isShow;
+    saveCurrentStepData('full');
+    if (window.currentSelectedFullMd) {
+      renderBlogPreview(window.currentSelectedFullMd);
+    }
+  };
+
   function openArticleWorkshop(logId) {
     const logItem = globalLogsCache.find(l => l.logId === logId);
     if (!logItem) return;
@@ -2820,6 +2837,10 @@
     document.getElementById('articleTier').value = logItem.tier || '公開';
     document.getElementById('articleVipEmail').value = logItem.vipEmail || '';
     toggleVipEmail();
+
+    const showVideo = (logItem.showVideo !== false && String(logItem.showVideo) !== 'false');
+    const showVideoEl = document.getElementById('articleShowVideo');
+    if (showVideoEl) showVideoEl.value = showVideo ? 'true' : 'false';
 
     const coverPreview = document.getElementById('workshopCoverPreview');
     const statusText = document.getElementById('coverStatusText');
@@ -2988,6 +3009,7 @@
 
     const tier = document.getElementById('articleTier').value;
     const vipEmail = document.getElementById('articleVipEmail').value;
+    const showVideo = document.getElementById('articleShowVideo') ? (document.getElementById('articleShowVideo').value === 'true') : true;
 
     if(field === 'title') window.currentSelectedLog.articleTitle = content;
     if(field === 'hook') window.currentSelectedLog.articleHook = content;
@@ -3000,6 +3022,7 @@
     
     window.currentSelectedLog.tier = tier;
     window.currentSelectedLog.vipEmail = vipEmail;
+    window.currentSelectedLog.showVideo = showVideo;
     
     
     isDashboardRendered = false; 
@@ -3012,7 +3035,8 @@
       field: field, 
       content: content,
       tier: tier,
-      vipEmail: vipEmail
+      vipEmail: vipEmail,
+      showVideo: showVideo
     }).catch (e => { showToast("背景儲存失敗"); });
   }
 
