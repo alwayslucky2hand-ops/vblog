@@ -449,15 +449,15 @@ AI Agent 時代的終極差距不是技術，而是說故事的能力。
     <div style="display: flex; flex-direction: column; gap: 16px; margin-bottom: 24px; padding: 20px; background: #fff; border: 1px solid #e2e8f0; border-radius: 8px;">
       <div style="display: flex; align-items: center; gap: 12px; width: 100%;">
         <div style="color: #64748b; display: flex; align-items: center;"><svg xmlns="http://www.w3.org/2000/svg" style="width:18px;height:18px;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg></div>
-        <input type="text" id="frontendSearch" class="search-input" placeholder="輸入關鍵字搜尋標題或內容..." onkeyup="filterAndSortArticles()" style="flex: 1; border: none; outline: none; padding: 0; font-size: 15px; margin: 0; background: transparent;">
+        <input type="text" id="frontendSearch" class="search-input" placeholder="輸入關鍵字搜尋標題或內容..." onkeyup="filterAndSortArticles(true)" style="flex: 1; border: none; outline: none; padding: 0; font-size: 15px; margin: 0; background: transparent;">
       </div>
       <div style="display: flex; flex-wrap: wrap; gap: 12px; align-items: center; border-top: 1px solid #e2e8f0; padding-top: 16px;">
-        <select id="tierFilter" onchange="filterAndSortArticles()" style="padding: 8px 16px; border-radius: 20px; border: 1px solid #e2e8f0; font-size: 14px; outline: none; background: #fff; cursor: pointer;">
+        <select id="tierFilter" onchange="filterAndSortArticles(true)" style="padding: 8px 16px; border-radius: 20px; border: 1px solid #e2e8f0; font-size: 14px; outline: none; background: #fff; cursor: pointer;">
           <option value="all">所有權限</option>
           <option value="公開">公開</option>
           <option value="會員限定">會員限定</option>
         </select>
-        <select id="catFilter" onchange="filterAndSortArticles()" style="padding: 8px 16px; border-radius: 20px; border: 1px solid #e2e8f0; font-size: 14px; outline: none; background: #fff; cursor: pointer;">
+        <select id="catFilter" onchange="filterAndSortArticles(true)" style="padding: 8px 16px; border-radius: 20px; border: 1px solid #e2e8f0; font-size: 14px; outline: none; background: #fff; cursor: pointer;">
           <option value="all">全部分類</option>
           <option value="創業日記">創業日記</option><option value="AI實戰">AI實戰</option><option value="學習心得">學習心得</option>
         </select>
@@ -729,7 +729,7 @@ AI Agent 時代的終極差距不是技術，而是說故事的能力。
     </a>
     <a href="c194d2e0.html" class="feed-item" data-search="我們帶著夢想創業，為什麼最後又窮又忙？｜特洛伊ai賦能師［創業日記］ 嗨！各位初創業者們好！我是特洛伊，你是否也跟我一樣，在那個熱血的年紀，或是上班時不甘平凡的，挪出時間，聽完一場演講、看完一本書、與一位朋友交談、甚至一次旅行，一次、兩次、三次....幾次後，
 
-你那種想逃離辦公室、想逃離教室，想要為自己認認真真活一次的那種感覺，湧上心頭。那種不再為人作嫁、不再人為刀... 2026/09/15 創業日記" data-cat="創業日記" data-tier="公開" data-date="1789473424000" data-views="3" style="display: flex; align-items: flex-start; gap: 32px; padding: 24px; border: 1px solid #e2e8f0; border-radius: 8px; background: #fff; text-decoration: none; color: inherit; transition: transform 0.2s, box-shadow 0.2s; margin-bottom: 24px;">
+你那種想逃離辦公室、想逃離教室，想要為自己認認真真活一次的那種感覺，湧上心頭。那種不再為人作嫁、不再人為刀... 2026/09/15 創業日記" data-cat="創業日記" data-tier="公開" data-date="1789473424000" data-views="4" style="display: flex; align-items: flex-start; gap: 32px; padding: 24px; border: 1px solid #e2e8f0; border-radius: 8px; background: #fff; text-decoration: none; color: inherit; transition: transform 0.2s, box-shadow 0.2s; margin-bottom: 24px;">
       <div class="feed-content" style="flex: 1; min-width: 0; display: flex; flex-direction: column;">
         <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px;">
           <div style="display: flex; align-items: center; gap: 8px; font-weight: 600; font-size: 14px;">
@@ -744,8 +744,8 @@ AI Agent 時代的終極差距不是技術，而是說故事的能力。
 你那種想逃離辦公室、想逃離教室，想要為自己認認真真活一次的那種感覺，湧上心頭。那種不再為人作嫁、不再人為刀...</p>
         
         <div style="display: flex; gap: 16px; margin-bottom: 16px; font-size: 13px; color: #64748b; flex-wrap: wrap;">
-           <span style="display:flex; align-items:center; gap:4px;" title="觀看數"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/></svg> 3</span>
-           <span style="display:flex; align-items:center; gap:4px;" title="完讀數"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg> 2</span>
+           <span style="display:flex; align-items:center; gap:4px;" title="觀看數"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/></svg> 4</span>
+           <span style="display:flex; align-items:center; gap:4px;" title="完讀數"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg> 3</span>
            <span style="display:flex; align-items:center; gap:4px;" title="點播數"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polygon points="10 8 16 12 10 16 10 8"/></svg> 0</span>
         </div>
 
@@ -756,7 +756,7 @@ AI Agent 時代的終極差距不是技術，而是說故事的能力。
       </div>
       <div style="width: 240px; aspect-ratio: 16 / 9; height: auto; border-radius: 8px; overflow: hidden; flex-shrink: 0; border: 1px solid #e2e8f0;"><img src="https://drive.google.com/thumbnail?id=11giOTlCrQir31V_3FV1ebumhJb2xe8dO&sz=w1280" style="width: 100%; height: 100%; object-fit: cover; border-radius: 8px; display: block;" alt="Cover"></div>
     </a>
-    <a href="aca9bd5y.html" class="feed-item" data-search="讓系統為你效勞，讓創業不再過勞：一個交大電機男孩的八年飲料夢、貨車後斗的眼淚，與ai時代的生命救贖｜特洛伊ai賦能師［創業日記］ 這不是一篇坐在冷氣房裡敲出來的科技成功學，更不是大企業動輒上百萬的空洞管理論。這是一個在台中二中打著籃球校隊、考上交大電機系的普通好學生，在滿手茶香的吧台裡泡了八年、在台北深夜冒雨跑外送痛哭、跌落至貨車後斗當搬家師傅、深入工廠拆解廢棄床墊，最後在二○二四年四月母親安息主懷的悲痛中，徹底痛醒的真實生命... 2026/09/18 創業日記" data-cat="創業日記" data-tier="公開" data-date="1789735179000" data-views="3" style="display: flex; align-items: flex-start; gap: 32px; padding: 24px; border: 1px solid #e2e8f0; border-radius: 8px; background: #fff; text-decoration: none; color: inherit; transition: transform 0.2s, box-shadow 0.2s; margin-bottom: 24px;">
+    <a href="aca9bd5y.html" class="feed-item" data-search="讓系統為你效勞，讓創業不再過勞：一個交大電機男孩的八年飲料夢、貨車後斗的眼淚，與ai時代的生命救贖｜特洛伊ai賦能師［創業日記］ 這不是一篇坐在冷氣房裡敲出來的科技成功學，更不是大企業動輒上百萬的空洞管理論。這是一個在台中二中打著籃球校隊、考上交大電機系的普通好學生，在滿手茶香的吧台裡泡了八年、在台北深夜冒雨跑外送痛哭、跌落至貨車後斗當搬家師傅、深入工廠拆解廢棄床墊，最後在二○二四年四月母親安息主懷的悲痛中，徹底痛醒的真實生命... 2026/09/18 創業日記" data-cat="創業日記" data-tier="公開" data-date="1789735179000" data-views="4" style="display: flex; align-items: flex-start; gap: 32px; padding: 24px; border: 1px solid #e2e8f0; border-radius: 8px; background: #fff; text-decoration: none; color: inherit; transition: transform 0.2s, box-shadow 0.2s; margin-bottom: 24px;">
       <div class="feed-content" style="flex: 1; min-width: 0; display: flex; flex-direction: column;">
         <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px;">
           <div style="display: flex; align-items: center; gap: 8px; font-weight: 600; font-size: 14px;">
@@ -769,8 +769,8 @@ AI Agent 時代的終極差距不是技術，而是說故事的能力。
         <p style="font-size: 15px; color: #64748b; line-height: 1.6; margin-bottom: 16px; display: -webkit-box; -webkit-line-clamp: 5; -webkit-box-orient: vertical; overflow: hidden;">這不是一篇坐在冷氣房裡敲出來的科技成功學，更不是大企業動輒上百萬的空洞管理論。這是一個在台中二中打著籃球校隊、考上交大電機系的普通好學生，在滿手茶香的吧台裡泡了八年、在台北深夜冒雨跑外送痛哭、跌落至貨車後斗當搬家師傅、深入工廠拆解廢棄床墊，最後在二○二四年四月母親安息主懷的悲痛中，徹底痛醒的真實生命...</p>
         
         <div style="display: flex; gap: 16px; margin-bottom: 16px; font-size: 13px; color: #64748b; flex-wrap: wrap;">
-           <span style="display:flex; align-items:center; gap:4px;" title="觀看數"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/></svg> 3</span>
-           <span style="display:flex; align-items:center; gap:4px;" title="完讀數"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg> 2</span>
+           <span style="display:flex; align-items:center; gap:4px;" title="觀看數"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/></svg> 4</span>
+           <span style="display:flex; align-items:center; gap:4px;" title="完讀數"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg> 3</span>
            <span style="display:flex; align-items:center; gap:4px;" title="點播數"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polygon points="10 8 16 12 10 16 10 8"/></svg> 0</span>
         </div>
 
@@ -951,6 +951,9 @@ AI Agent 時代的終極差距不是技術，而是說故事的能力。
       <div style="width: 240px; aspect-ratio: 16 / 9; height: auto; border-radius: 8px; overflow: hidden; flex-shrink: 0; border: 1px solid #e2e8f0;"><img src="https://drive.google.com/thumbnail?id=1_RpW17rM29RSRg0OntlmSUeIo-grIsW6&sz=w1280" style="width: 100%; height: 100%; object-fit: cover; border-radius: 8px; display: block;" alt="Cover"></div>
     </a>
     </div>
+    <div id="loadMoreContainer" style="text-align: center; margin-top: 8px; margin-bottom: 24px; display: none;">
+      <button onclick="loadMoreFeeds()" style="padding: 10px 24px; border: none; border-radius: 20px; background: #fff; font-size: 14px; font-weight: 600; cursor: pointer; color: #0f172a; box-shadow: 0 1px 3px rgba(0,0,0,0.1);"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: middle; margin-right: 4px; margin-top: -2px;"><path d="m6 9 6 6 6-6"/></svg> 載入更多 (<span id="moreCount">0</span>)</button>
+    </div>
   </div>
   
   <script>
@@ -976,6 +979,12 @@ AI Agent 時代的終極差距不是技術，而是說故事的能力。
     };
 
     let currentSortMode = 'new';
+    let currentFeedRenderCount = 10;
+
+    function loadMoreFeeds() {
+      currentFeedRenderCount += 10;
+      filterAndSortArticles(false);
+    }
     
     function setSortMode(mode) {
       currentSortMode = mode;
@@ -987,17 +996,18 @@ AI Agent 時代的終極差距不是技術，而是說故事的能力。
       document.getElementById('btnSortHot').style.color = mode === 'hot' ? '#0f172a' : '#64748b';
       document.getElementById('btnSortHot').style.boxShadow = mode === 'hot' ? '0 1px 3px rgba(0,0,0,0.1)' : 'none';
       
-      filterAndSortArticles();
+      filterAndSortArticles(true);
     }
 
-    function filterAndSortArticles() {
+    function filterAndSortArticles(resetCount = false) {
+      if (resetCount) currentFeedRenderCount = 10;
       const searchKeyword = document.getElementById('frontendSearch').value.toLowerCase().trim();
       const catFilter = document.getElementById('catFilter').value;
       const tierFilter = document.getElementById('tierFilter') ? document.getElementById('tierFilter').value : 'all';
       const container = document.getElementById('feedListContainer');
       const items = Array.from(container.querySelectorAll('.feed-item'));
       
-      let visibleCount = 0;
+      let matchedItems = [];
       
       items.forEach(item => {
         const searchData = item.getAttribute('data-search');
@@ -1009,15 +1019,14 @@ AI Agent 時代的終極差距不是技術，而是說故事的能力。
         const matchTier = tierFilter === 'all' || itemTier.includes(tierFilter);
         
         if (matchSearch && matchCat && matchTier) {
-          item.style.display = 'flex';
-          visibleCount++;
+          matchedItems.push(item);
         } else {
           item.style.display = 'none';
         }
       });
       
       // 排序
-      items.sort((a, b) => {
+      matchedItems.sort((a, b) => {
         if (currentSortMode === 'new') {
           return parseInt(b.getAttribute('data-date')) - parseInt(a.getAttribute('data-date'));
         } else {
@@ -1025,18 +1034,36 @@ AI Agent 時代的終極差距不是技術，而是說故事的能力。
         }
       });
       
-      // 重新附加到 container 以套用排序
-      items.forEach(item => container.appendChild(item));
+      // 重新附加到 container 以套用排序並控制顯示數量
+      matchedItems.forEach((item, index) => {
+        if (index < currentFeedRenderCount) {
+          item.style.display = 'flex';
+        } else {
+          item.style.display = 'none';
+        }
+        container.appendChild(item);
+      });
+
+      const loadMoreBtn = document.getElementById('loadMoreContainer');
+      if (matchedItems.length > currentFeedRenderCount) {
+        if(loadMoreBtn) {
+          loadMoreBtn.style.display = 'block';
+          document.getElementById('moreCount').innerText = matchedItems.length - currentFeedRenderCount;
+        }
+      } else {
+        if(loadMoreBtn) loadMoreBtn.style.display = 'none';
+      }
       
       let noResultMsg = document.getElementById('noResultMsg');
-      if (visibleCount === 0 && !noResultMsg) {
+      if (matchedItems.length === 0 && !noResultMsg) {
          container.insertAdjacentHTML('beforeend', '<div id="noResultMsg" style="text-align:center; color:#64748b; padding:40px; width:100%;">找不到符合條件的文章。</div>');
-      } else if (visibleCount > 0 && noResultMsg) {
+      } else if (matchedItems.length > 0 && noResultMsg) {
          noResultMsg.remove();
       }
     }
 
     document.addEventListener("DOMContentLoaded", function() {
+      filterAndSortArticles(true);
       const wrapper = document.getElementById("salonIntroWrapper");
       const btn = document.getElementById("expandIntroBtn");
       const gradient = document.getElementById("introGradient");
