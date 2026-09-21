@@ -147,7 +147,10 @@
     .feed-list { display: flex; flex-direction: column; gap: 32px; }
     .feed-cover img { width: 100%; height: 100%; object-fit: cover; }
     
-    .feed-item:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(0,0,0,0.06) !important; border-color: #cbd5e1 !important; }
+    .feed-item:hover, .hover-card:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(0,0,0,0.06) !important; border-color: #cbd5e1 !important; }
+    /* 隱藏捲動條 */
+    .carousel-container::-webkit-scrollbar { display: none; }
+    .carousel-container { -ms-overflow-style: none; scrollbar-width: none; }
     @media (max-width: 768px) { 
       .feed-item { flex-direction: column-reverse; padding: 16px !important; } 
       .feed-item > div:last-child { width: 100% !important; height: auto !important; aspect-ratio: 16/9; } 
@@ -165,13 +168,13 @@
           
       <div class="intro-container" style="position: relative; margin-bottom: 24px;">
         <div id="salonIntroWrapper" style="max-height: 100px; overflow: hidden; position: relative; transition: max-height 0.3s ease;">
-          <p class="intro" style="white-space: pre-wrap; font-size: 15px; color: #0f172a; line-height: 1.8;">各位讀者們好，你閱讀一篇文章，就是我傳遞祝福的一小步，而我相信這每一步，都在幫助人類學習與AI的協作，我始終相信，AI的出現不是為了取代人類，而是妥善運用，可以讓人類活得更像人。而為了讓這份祝福，可以更被妥善的運用，我將我的知識內容，分類為公開文章、會員限定、VIP私塾。
+          <p class="intro" style="white-space: pre-wrap; font-size: 15px; color: #0f172a; line-height: 1.8;">各位讀者們好，你閱讀一篇文章，就是我傳遞祝福的一小步，而我相信這每一步，都在幫助人類學習與AI的協作，我始終相信，AI的出現不是為了取代人類，而是妥善運用，可以讓人類活得更像人。而為了讓這份祝福，可以更被妥善的運用，我將我的知識內容，分類為公開文章、會員限定。
 
 1. 公開文章：這裡記錄我的所見所聞、所思所想，帶著祝福的心意，分享創業與AI實戰應用。幫助我們一起同頻共振，一同解放工時。
 
-2. 會員限定：這裡將紀錄我所錄製的線上課程，有我現在最夯的官方LINE智能客系統，以及Venture Coding 客製化系統。直接透過實作教學，帶你一步步做出自己「解放工時」的WebAPP，瀏覽器打開，隨時登入隨時用，不用再負擔訂閱制的費用。另外，我輔導的學員若是有產出很值得應用在生意、生命、生活，我也會經由授權，來將程式碼與WebAPP的介紹，直接開放在這個專區，提供給大家做使用。
+2. 會員限定：這裡將紀錄我所錄製的線上課程，有我現在最夯的官方LINE智能客系統，以及Venture Coding 客製化系統。直接透過實作教學，帶你一步步做出自己「解放工時」的WebAPP，瀏覽器打開，隨時登入隨時用，不用再負擔訂閱制的費用。
 
-3. VIP私塾：這是一個陪跑機制，如果上完課程，又或者是下載了程式碼，不知如何運作、部署、客製化修改成自己的專屬WebAPP，可以透過上方的Email 圖示，點擊後，可以寄發你的實作影音、文字記錄，而我回覆時，我將直接在這個類別，發佈一篇手把手文章，「專門就只有你」可以閱讀這篇文章。你想看，隨時就能上來看。
+另外，我輔導的學員若是有產出很值得應用在生意、生命、生活，我也會經由授權，來將程式碼與WebAPP的介紹，直接開放在這個專區，提供給大家做使用。
 
 ----
 
@@ -182,9 +185,6 @@
 
 ［享學會員］：$168/月。
 可享有無時空限制，·不限會員限定專區的文章和閱讀次數，只要有網路和電腦/行動裝置，就能開啟我的線上課程文章，持續的學習；以及實用WebAPP介紹與代碼文章，讓你省去Vibe Coding的時間，就能使用「解放工時」的WebAPP。
-
-［VIP 會員］：『本人還在想，持續確認架構ing....』
-可享有無時空限制，專屬私塾的陪跑機制。只要有網路和電腦/行動裝置，就能開啟我的文章，持續的學習。不限次數瀏覽專屬於你的私塾文章。同時也享有一般會員的權益，不限次數、無時空限制的瀏覽會員限定文章。
 
 -----
 
@@ -227,19 +227,136 @@
   
     </div>
 
-    <!-- 關鍵字搜尋列 -->
-    <div class="filter-bar">
-      <div style="color: #64748b; display:flex; align-items:center;"><svg xmlns="http://www.w3.org/2000/svg" style="width:18px;height:18px;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg></div>
-      <input type="text" id="frontendSearch" class="search-input" placeholder="輸入關鍵字搜尋標題、內容或日期 (如 2026/09)..." onkeyup="filterArticles()">
+    <!-- 上半部：各分類 Top 5 卡片 -->
+    <div id="topCarouselsContainer">
+      
+      <div class="category-carousel-section" style="margin-bottom: 48px;">
+        <h2 style="font-size: 20px; font-weight: 800; color: #0f172a; margin-bottom: 16px;">未分類</h2>
+        <div class="carousel-container" style="display: flex; gap: 20px; overflow-x: auto; padding-bottom: 16px; scroll-snap-type: x mandatory;">
+        <a href="2bf6f1e7.html" style="flex: 0 0 calc(33.333% - 14px); min-width: 260px; max-width: 320px; border: 1px solid #e2e8f0; border-radius: 8px; overflow: hidden; background: #fff; text-decoration: none; color: inherit; display: flex; flex-direction: column; scroll-snap-align: start; transition: transform 0.2s, box-shadow 0.2s;" class="hover-card">
+          <img src="https://drive.google.com/thumbnail?id=16XmrM_FlmphvGrJPtlz9A1aJOaKu6Qz2&sz=w1280" style="width: 100%; aspect-ratio: 16/9; object-fit: cover; border-bottom: 1px solid #e2e8f0;">
+          <div style="padding: 16px; flex: 1; display: flex; flex-direction: column;">
+            <h3 style="font-size: 16px; font-weight: 800; margin: 0 0 8px 0; line-height: 1.4; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;">別再傻傻寫稿！我用「講」的就能變現，微型創業者的自動化內容金礦｜特洛伊AI賦能師［AI實戰］</h3>
+            <p style="font-size: 13px; color: #64748b; line-height: 1.5; margin: 0 0 12px 0; display: -webkit-box; -webkit-line-clamp: 5; -webkit-box-orient: vertical; overflow: hidden; flex: 1;">我實測一套自動化工作流，對著鏡頭說話，AI 隨即將影音、逐字稿與畫面描述轉化為高權威文章。這是我每日節省 80% 創作時間，將口說內容無縫變現為數位資產的實戰驗證，也是微型創業者翻身的關鍵。
+
+身為微型創業者，你一定經歷過這種焦慮。
+大腦裡裝滿了專業知識與實戰心得，但只要坐在電腦前對著空白文件，那一閃而逝的靈感就消失得無影無蹤。
+
+想經營個人品牌，卻發現寫出一篇高品質、符合 SEO 且具備專業信譽的文章，往往需要耗費數小時甚至一整天。
+在時間即金錢的創業初期，這種低效率的產出模式，正是阻礙你規模化的最大障礙。
+
+最近我觀察到一段令人驚豔的實戰展示，這正是數位轉型的深水區。
+這不是教你如何用 AI 生成劣質內容，而是一套完整的「影音轉資產」自動化系統。
+
+它直接擊碎了創業者最核心的痛點。
+你不再需要苦思標題、鋪陳結構，甚至是費心堆疊關鍵字。
+當你按下錄影鍵的那一刻，系統就開始以 30 秒為單位進行雲端切片與即時解析。
+
+更關鍵的技術細節在於，AI 不只是在聽你說什麼。
+它同步分析你的手勢、眼神與情境描述，將這些充滿溫度的「現場感」精準轉化為文字。
+最後，透過預設的專業指令，將你的口語直接梳理成符合 Google E-E-A-T 規範的高品質內容。
+
+這種流程完整保留了你最真實的語氣與專業深度。
+內容具備權威感的同時，依然保有創作者的獨特靈魂。
+對於需要累積數位足跡、建立專業私塾或經營 VIP 會員制的創業者來說，這就是將「大腦智慧」轉化為「自動化財富」的最短路徑。</p>
+            <div style="font-size: 12px; color: #94a3b8;">2026/09/13</div>
+          </div>
+        </a>
+        <a href="aca9bd5y.html" style="flex: 0 0 calc(33.333% - 14px); min-width: 260px; max-width: 320px; border: 1px solid #e2e8f0; border-radius: 8px; overflow: hidden; background: #fff; text-decoration: none; color: inherit; display: flex; flex-direction: column; scroll-snap-align: start; transition: transform 0.2s, box-shadow 0.2s;" class="hover-card">
+          <img src="https://drive.google.com/thumbnail?id=1KcT4AIw7QNXmT02oNWT77xrQpjtuz9n9&sz=w1280" style="width: 100%; aspect-ratio: 16/9; object-fit: cover; border-bottom: 1px solid #e2e8f0;">
+          <div style="padding: 16px; flex: 1; display: flex; flex-direction: column;">
+            <h3 style="font-size: 16px; font-weight: 800; margin: 0 0 8px 0; line-height: 1.4; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;">讓系統為你效勞，讓創業不再過勞：一個交大電機男孩的八年飲料夢、貨車後斗的眼淚，與AI時代的生命救贖｜特洛伊AI賦能師［創業日記］</h3>
+            <p style="font-size: 13px; color: #64748b; line-height: 1.5; margin: 0 0 12px 0; display: -webkit-box; -webkit-line-clamp: 5; -webkit-box-orient: vertical; overflow: hidden; flex: 1;">這不是一篇坐在冷氣房裡敲出來的科技成功學，更不是大企業動輒上百萬的空洞管理論。這是一個在台中二中打著籃球校隊、考上交大電機系的普通好學生，在滿手茶香的吧台裡泡了八年、在台北深夜冒雨跑外送痛哭、跌落至貨車後斗當搬家師傅、深入工廠拆解廢棄床墊，最後在二○二四年四月母親安息主懷的悲痛中，徹底痛醒的真實生命手記。
+
+如果你現在也是一位每天在店裡校長兼撞鐘、被雜務榨乾、不敢生病、不敢休假，正用肉身硬扛生意的微型創業者，請給自己一杯咖啡的時間，讀完這篇文字。這是我用十幾年的生命跌撞，為你寫下的解藥。</p>
+            <div style="font-size: 12px; color: #94a3b8;">2026/09/18</div>
+          </div>
+        </a>
+        <a href="c194d2e0.html" style="flex: 0 0 calc(33.333% - 14px); min-width: 260px; max-width: 320px; border: 1px solid #e2e8f0; border-radius: 8px; overflow: hidden; background: #fff; text-decoration: none; color: inherit; display: flex; flex-direction: column; scroll-snap-align: start; transition: transform 0.2s, box-shadow 0.2s;" class="hover-card">
+          <img src="https://drive.google.com/thumbnail?id=11giOTlCrQir31V_3FV1ebumhJb2xe8dO&sz=w1280" style="width: 100%; aspect-ratio: 16/9; object-fit: cover; border-bottom: 1px solid #e2e8f0;">
+          <div style="padding: 16px; flex: 1; display: flex; flex-direction: column;">
+            <h3 style="font-size: 16px; font-weight: 800; margin: 0 0 8px 0; line-height: 1.4; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;">我們帶著夢想創業，為什麼最後又窮又忙？｜特洛伊AI賦能師［創業日記］</h3>
+            <p style="font-size: 13px; color: #64748b; line-height: 1.5; margin: 0 0 12px 0; display: -webkit-box; -webkit-line-clamp: 5; -webkit-box-orient: vertical; overflow: hidden; flex: 1;">嗨！各位初創業者們好！我是特洛伊，你是否也跟我一樣，在那個熱血的年紀，或是上班時不甘平凡的，挪出時間，聽完一場演講、看完一本書、與一位朋友交談、甚至一次旅行，一次、兩次、三次....幾次後，
+
+你那種想逃離辦公室、想逃離教室，想要為自己認認真真活一次的那種感覺，湧上心頭。那種不再為人作嫁、不再人為刀俎我為魚肉的想法，開始促使你行動，開始上網查資料、開始請教創業圈的前輩、開始關注一些部落格、書籍，讓自己預備那場，人生為自己工作、為摯愛而活的創業之旅，就此展開了，對嗎？
+
+熬過5年的創業者，僅剩不到1%
+
+根據統計處統計，台灣中小企業開店，能挺過第一年的不到10%，能挺過五年的，不到1%。
+
+想開小店的我們，夢想盤算著兩到三年後，可以開放加盟，夢想像連鎖品牌一樣，可以邁向多店收入的企業人生，結果卻發現，花了幾百萬裝潢，花了錢做行銷，結果來客數不如預期，結果產品反應不好，怎麼辦？租金、原料成本、庫存，錢不斷地燒，我們也開始焦急如焚，最後輾轉難眠，身心俱疲，店收了，賠了百萬，這時的你，如果20幾歲還好，但是如果你有家庭、上有老下有小，40幾歲，中年創業失敗，你怎麼辦？
+
+又或者，我們想要自己接案，在原本的工作，也許是攝影、也許是行銷、也許是設計、也許是業務，在上班時養足了有了一身能力、人脈、資源，但從專業技術者，變成商業企業主，是完全不同的面向，很多時候是管理誤區、更多時候是財務盲區，還有頭痛的行銷錯誤認知，以為下了廣告，就有變現，以為準備好了預備金，結果錢燒的比想像快，以為自己是領袖，結果員工一個個兩袖清風拍拍屁股走人；又或者有溝通力，結果不小心遇到合作廠商經營不善倒閉，錢拿不過來。
+
+這些，就是活生生的、血淋淋的寫照，在準備滿腔熱血投入創業的我們，想都沒想到，對嗎？
+
+你可能會問：「Troy，你怎麼說的這麼寫實？」
+我會跟你說：「因為我親身走過，人生五次創業，從紀念品零售、手搖飲店、到貨運廢清、組織行銷，有兩次事業活下來延續了下去，有一次苟延殘喘、而這一次才剛起步。而我這五次創業，一開始跟你一樣，都只有我一人，甚至我的第五次，還是我負債千萬，裸辭創業。」
+
+也許是魯莽、也許是勇敢，只是這次的創業「GrowthX｜微企AI實戰學院」，我有一個想望，透過我走過的冤枉路，我想要幫助那些，跟我曾經一樣的微型企業，透過我的創業避坑思維、以及我獨創的微型企業的FFS-AI運營術，我希望在一開始創業的前幾年，用對方式運營，才不會讓我們忙過頭，忙到沒時間想下一步，忙到沒時間陪家人愛人，一路忙個兩三年，還是怕生意不好店倒，生意好了結果忙到人倒，人突然生病，結果公司沒有了創辦人老闆，變成一團糟，盈餘不夠支撐生活起居。一路窮忙，到頭來一場空又負債。
+
+但是我之前讀過阿里巴巴的創辦人馬雲，曾經在書中說過的一句話：「創業要成功，就是讓失敗慢一點。」
+
+對啊！我們不用求什麼馬上被投資、參與加速器市值破億，也不用求什麼瞬間銷量倍增再倍增，超出認知和能力範圍，也不用去想當什麼獨角獸，來寡占市場當龍頭。其實我們只要想明白：「創業是一場無限賽局，不是誰贏在起跑點，或是誰贏在轉捩點，而是『永續』的活著，而且經營生意，可以越來越輕省，每個月有盈餘，在這場賽局，我們就是一種『得勝有餘』！」
+
+至於，我們要去想，生意會倒，原因究竟是什麼？
+
+成功的創業百百種，失敗的原因就幾種，避免失敗，就得永續！</p>
+            <div style="font-size: 12px; color: #94a3b8;">2026/09/15</div>
+          </div>
+        </a>
+        <a href="aca9bd5z.html" style="flex: 0 0 calc(33.333% - 14px); min-width: 260px; max-width: 320px; border: 1px solid #e2e8f0; border-radius: 8px; overflow: hidden; background: #fff; text-decoration: none; color: inherit; display: flex; flex-direction: column; scroll-snap-align: start; transition: transform 0.2s, box-shadow 0.2s;" class="hover-card">
+          <img src="https://drive.google.com/thumbnail?id=1020mX2JZRMJmd4kihJlR_mjjLzIitSbs&sz=w1280" style="width: 100%; aspect-ratio: 16/9; object-fit: cover; border-bottom: 1px solid #e2e8f0;">
+          <div style="padding: 16px; flex: 1; display: flex; flex-direction: column;">
+            <h3 style="font-size: 16px; font-weight: 800; margin: 0 0 8px 0; line-height: 1.4; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;">從 2 人 4 億美元的 AI 奇蹟看商業本質：為什麼我不羨慕「一人獨角獸」，而是追求心安與長期複利？｜特洛伊AI賦能師［學習心得］</h3>
+            <p style="font-size: 13px; color: #64748b; line-height: 1.5; margin: 0 0 12px 0; display: -webkit-box; -webkit-line-clamp: 5; -webkit-box-orient: vertical; overflow: hidden; flex: 1;">14 個月、2 個人、4 億美元年營收——當所有人都在為 MEDVi 的「一人獨角獸」神話瘋狂時，我看到的卻不是未來的奇蹟，而是一座隨時會塌陷的海砂屋。
+
+身為一名每天用 AI 寫程式、做自動化、輔導學員的 AI 賦能教練，同時也是扛著家族搬家貨運事業走過重資產泥淖的創業者，如果現在有人拿著 2 萬美元跟我說想複製這套神話，我只會告訴他一句話：「方向不對，用 AI 加速只會讓你更快打水漂。」
+
+這篇文章，是我深入拆解這場商業狂潮後，結合自己從踩坑到落地的實戰經驗，毫無保留整理出的 10 個商業底層剖析。如果你也渴望用科技賦能事業，而不是被虛假數據牽著鼻子走，這篇乾貨請務必靜下心來讀完。</p>
+            <div style="font-size: 12px; color: #94a3b8;">2026/09/17</div>
+          </div>
+        </a>
+        <a href="d082f5b4.html" style="flex: 0 0 calc(33.333% - 14px); min-width: 260px; max-width: 320px; border: 1px solid #e2e8f0; border-radius: 8px; overflow: hidden; background: #fff; text-decoration: none; color: inherit; display: flex; flex-direction: column; scroll-snap-align: start; transition: transform 0.2s, box-shadow 0.2s;" class="hover-card">
+          <img src="https://drive.google.com/thumbnail?id=1ocnR0qZ-qVG9uR53jfYgoiydDHdzQ6sZ&sz=w1280" style="width: 100%; aspect-ratio: 16/9; object-fit: cover; border-bottom: 1px solid #e2e8f0;">
+          <div style="padding: 16px; flex: 1; display: flex; flex-direction: column;">
+            <h3 style="font-size: 16px; font-weight: 800; margin: 0 0 8px 0; line-height: 1.4; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;">【創業，回家沒？】微型企業的反脆弱救星：用 AI 槓桿降低成本，一人公司也能兼顧賺錢與陪伴！｜特洛伊AI賦能師［創業日記］</h3>
+            <p style="font-size: 13px; color: #64748b; line-height: 1.5; margin: 0 0 12px 0; display: -webkit-box; -webkit-line-clamp: 5; -webkit-box-orient: vertical; overflow: hidden; flex: 1;">嗨！各位，我是特洛伊，正在創業的你，多久沒回家了？
+
+你會時不時擔心一下父母的狀況嗎？又或者，你有每天回家，可是回到家，孩子都睡了呢？
+
+選擇創業模式，就影響你的生活方式，也進階影響生命品質！ 我會有這個體悟，是剛好近期，又是我最親的母親，那年回天家的日子。
+
+愚人節的地牛翻身，我的至親安息了主懷。
+
+今天是2026年4月3日，距離那次事件，已經過了2年，那是在2024年的4月1日，台灣地牛翻身，早上的驚心動魄，沒有阻擋我繼續跑case，跑演講，在晚上我在商會的演講完後，已經是晚上11:00，一早我起床，打電話傳訊息給我的媽媽，媽媽一個人在家，我問他是否安好，沒有回應，到我11:30左右到家，我已經看到骨瘦如柴的媽媽，躺在沙發上，我走上前，叫了聲：「媽，我回來了！」
+
+媽媽沒有睜開眼，我拍拍肩，還是沒有反應，我手指往媽媽的鼻子伸過去，還有呼吸，我看肺部腹部還有微微的上下浮動，但是叫不醒媽媽，我不敢移動媽媽的身體，我立馬叫了救護車！</p>
+            <div style="font-size: 12px; color: #94a3b8;">2026/09/15</div>
+          </div>
+        </a></div></div>
     </div>
 
-    <div id="feedListContainer">
+    <!-- 下半部：搜尋與篩選列 -->
+    <div style="display: flex; flex-direction: column; gap: 16px; margin-bottom: 24px; padding: 20px; background: #fff; border: 1px solid #e2e8f0; border-radius: 8px;">
+      <div style="display: flex; align-items: center; gap: 12px; width: 100%;">
+        <div style="color: #64748b; display: flex; align-items: center;"><svg xmlns="http://www.w3.org/2000/svg" style="width:18px;height:18px;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg></div>
+        <input type="text" id="frontendSearch" class="search-input" placeholder="輸入關鍵字搜尋標題或內容..." onkeyup="filterAndSortArticles()" style="flex: 1; border: none; outline: none; padding: 0; font-size: 15px; margin: 0; background: transparent;">
+      </div>
+      <div style="display: flex; flex-wrap: wrap; gap: 12px; align-items: center; border-top: 1px solid #e2e8f0; padding-top: 16px;">
+        <select id="catFilter" onchange="filterAndSortArticles()" style="padding: 8px 16px; border-radius: 20px; border: 1px solid #e2e8f0; font-size: 14px; outline: none; background: #fff; cursor: pointer;">
+          <option value="all">全部分類</option>
+          <option value="未分類">未分類</option>
+        </select>
+        <div style="display: flex; background: #f1f5f9; border-radius: 20px; padding: 4px;">
+          <button id="btnSortNew" onclick="setSortMode('new')" style="padding: 6px 16px; border: none; background: #fff; border-radius: 16px; font-size: 13px; font-weight: 600; cursor: pointer; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">最新發布</button>
+          <button id="btnSortHot" onclick="setSortMode('hot')" style="padding: 6px 16px; border: none; background: transparent; color: #64748b; border-radius: 16px; font-size: 13px; font-weight: 600; cursor: pointer;">熱門精選</button>
+        </div>
+      </div>
+    </div>
+
+    <div id="feedListContainer" style="display: flex; flex-direction: column;">
       
-      <div class="tier-section" id="sec-public" style="margin-top: 48px;">
-        <h2 style="font-size: 22px; font-weight: 800; border-bottom: 2px solid #0f172a; color: #0f172a; display: inline-flex; align-items: center; gap: 8px; padding-bottom: 8px; margin-bottom: 24px;">
-          <svg xmlns="http://www.w3.org/2000/svg" style="width:20px;height:20px;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20"/><path d="M2 12h20"/></svg> 公開文章
-        </h2>
-        <div class="feed-list">
     <a href="71b3df6e.html" class="feed-item" data-search="拆解 24 小時免薪水客服神話：只需要 1 個 gemini 連結與 5 個工作表設定｜特洛伊ai賦能師［ai實戰］ 本文核心摘要
 
 不需要懂程式碼，只需 1 張 google 試算表與 1 個 gemini 連結，半天時間即可免費打造精準、不亂講話的 24 小時 ai 數位員工。
@@ -256,7 +373,7 @@
 
 普通人做客服，只是把一堆零散的 pdf 或文字檔，一股腦扔給 ai，賭它能自己通靈。
 
-高手做客服，是在對話開始前，就先幫它把腦袋裡的資料夾分門別類。 2026/09/15" style="display: flex; align-items: flex-start; gap: 32px; padding: 24px; border: 1px solid #e2e8f0; border-radius: 8px; background: #fff; text-decoration: none; color: inherit; transition: transform 0.2s, box-shadow 0.2s;">
+高手做客服，是在對話開始前，就先幫它把腦袋裡的資料夾分門別類。 2026/09/15 未分類" data-cat="未分類" data-date="1789473424000" data-views="0" style="display: flex; align-items: flex-start; gap: 32px; padding: 24px; border: 1px solid #e2e8f0; border-radius: 8px; background: #fff; text-decoration: none; color: inherit; transition: transform 0.2s, box-shadow 0.2s; margin-bottom: 24px;">
       <div class="feed-content" style="flex: 1; min-width: 0; display: flex; flex-direction: column;">
         <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px;">
           <div style="display: flex; align-items: center; gap: 8px; font-weight: 600; font-size: 14px;">
@@ -266,7 +383,7 @@
           <div style="font-size: 13px; color: #64748b;">2026/09/15</div>
         </div>
         <h3 style="font-size: 22px; font-weight: 800; margin-bottom: 12px; line-height: 1.4; display: block;">拆解 24 小時免薪水客服神話：只需要 1 個 Gemini 連結與 5 個工作表設定｜特洛伊AI賦能師［AI實戰］</h3>
-        <p style="font-size: 15px; color: #64748b; line-height: 1.6; margin-bottom: 16px; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden;">本文核心摘要
+        <p style="font-size: 15px; color: #64748b; line-height: 1.6; margin-bottom: 16px; display: -webkit-box; -webkit-line-clamp: 5; -webkit-box-orient: vertical; overflow: hidden;">本文核心摘要
 
 不需要懂程式碼，只需 1 張 Google 試算表與 1 個 Gemini 連結，半天時間即可免費打造精準、不亂講話的 24 小時 AI 數位員工。
 
@@ -288,18 +405,18 @@
            <span style="display:flex; align-items:center; gap:4px;" title="觀看數"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/></svg> 0</span>
            <span style="display:flex; align-items:center; gap:4px;" title="完讀數"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg> 0</span>
            <span style="display:flex; align-items:center; gap:4px;" title="點播數"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polygon points="10 8 16 12 10 16 10 8"/></svg> 0</span>
-           <span style="display:flex; align-items:center; gap:4px; color: #3175B5; font-weight:600;" title="經由此文章收集的訂閱數"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg> 0</span>
         </div>
 
         <div style="display:flex; align-items:center; gap: 16px; margin-top: auto; padding-top: 12px; border-top: 1px solid #e2e8f0;">
            <span style="font-size:12px; font-weight:600; padding:4px 10px; border-radius:4px; background: #f1f5f9; color: #475569;">公開</span>
+           <span style="font-size:12px; font-weight:600; padding:4px 10px; border-radius:4px; background: #e0f2fe; color: #0284c7;">未分類</span>
         </div>
       </div>
       <div style="width: 240px; aspect-ratio: 16 / 9; height: auto; border-radius: 8px; overflow: hidden; flex-shrink: 0; border: 1px solid #e2e8f0;"><img src="https://drive.google.com/thumbnail?id=1v85E5zILFlncCQycFy_CAQpQLZlxjq7R&sz=w1280" style="width: 100%; height: 100%; object-fit: cover; border-radius: 8px; display: block;" alt="Cover"></div>
     </a>
     <a href="aca9bd5y.html" class="feed-item" data-search="讓系統為你效勞，讓創業不再過勞：一個交大電機男孩的八年飲料夢、貨車後斗的眼淚，與ai時代的生命救贖｜特洛伊ai賦能師［創業日記］ 這不是一篇坐在冷氣房裡敲出來的科技成功學，更不是大企業動輒上百萬的空洞管理論。這是一個在台中二中打著籃球校隊、考上交大電機系的普通好學生，在滿手茶香的吧台裡泡了八年、在台北深夜冒雨跑外送痛哭、跌落至貨車後斗當搬家師傅、深入工廠拆解廢棄床墊，最後在二○二四年四月母親安息主懷的悲痛中，徹底痛醒的真實生命手記。
 
-如果你現在也是一位每天在店裡校長兼撞鐘、被雜務榨乾、不敢生病、不敢休假，正用肉身硬扛生意的微型創業者，請給自己一杯咖啡的時間，讀完這篇文字。這是我用十幾年的生命跌撞，為你寫下的解藥。 2026/09/18" style="display: flex; align-items: flex-start; gap: 32px; padding: 24px; border: 1px solid #e2e8f0; border-radius: 8px; background: #fff; text-decoration: none; color: inherit; transition: transform 0.2s, box-shadow 0.2s;">
+如果你現在也是一位每天在店裡校長兼撞鐘、被雜務榨乾、不敢生病、不敢休假，正用肉身硬扛生意的微型創業者，請給自己一杯咖啡的時間，讀完這篇文字。這是我用十幾年的生命跌撞，為你寫下的解藥。 2026/09/18 未分類" data-cat="未分類" data-date="1789735179000" data-views="3" style="display: flex; align-items: flex-start; gap: 32px; padding: 24px; border: 1px solid #e2e8f0; border-radius: 8px; background: #fff; text-decoration: none; color: inherit; transition: transform 0.2s, box-shadow 0.2s; margin-bottom: 24px;">
       <div class="feed-content" style="flex: 1; min-width: 0; display: flex; flex-direction: column;">
         <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px;">
           <div style="display: flex; align-items: center; gap: 8px; font-weight: 600; font-size: 14px;">
@@ -309,7 +426,7 @@
           <div style="font-size: 13px; color: #64748b;">2026/09/18</div>
         </div>
         <h3 style="font-size: 22px; font-weight: 800; margin-bottom: 12px; line-height: 1.4; display: block;">讓系統為你效勞，讓創業不再過勞：一個交大電機男孩的八年飲料夢、貨車後斗的眼淚，與AI時代的生命救贖｜特洛伊AI賦能師［創業日記］</h3>
-        <p style="font-size: 15px; color: #64748b; line-height: 1.6; margin-bottom: 16px; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden;">這不是一篇坐在冷氣房裡敲出來的科技成功學，更不是大企業動輒上百萬的空洞管理論。這是一個在台中二中打著籃球校隊、考上交大電機系的普通好學生，在滿手茶香的吧台裡泡了八年、在台北深夜冒雨跑外送痛哭、跌落至貨車後斗當搬家師傅、深入工廠拆解廢棄床墊，最後在二○二四年四月母親安息主懷的悲痛中，徹底痛醒的真實生命手記。
+        <p style="font-size: 15px; color: #64748b; line-height: 1.6; margin-bottom: 16px; display: -webkit-box; -webkit-line-clamp: 5; -webkit-box-orient: vertical; overflow: hidden;">這不是一篇坐在冷氣房裡敲出來的科技成功學，更不是大企業動輒上百萬的空洞管理論。這是一個在台中二中打著籃球校隊、考上交大電機系的普通好學生，在滿手茶香的吧台裡泡了八年、在台北深夜冒雨跑外送痛哭、跌落至貨車後斗當搬家師傅、深入工廠拆解廢棄床墊，最後在二○二四年四月母親安息主懷的悲痛中，徹底痛醒的真實生命手記。
 
 如果你現在也是一位每天在店裡校長兼撞鐘、被雜務榨乾、不敢生病、不敢休假，正用肉身硬扛生意的微型創業者，請給自己一杯咖啡的時間，讀完這篇文字。這是我用十幾年的生命跌撞，為你寫下的解藥。</p>
         
@@ -317,11 +434,11 @@
            <span style="display:flex; align-items:center; gap:4px;" title="觀看數"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/></svg> 3</span>
            <span style="display:flex; align-items:center; gap:4px;" title="完讀數"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg> 2</span>
            <span style="display:flex; align-items:center; gap:4px;" title="點播數"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polygon points="10 8 16 12 10 16 10 8"/></svg> 0</span>
-           <span style="display:flex; align-items:center; gap:4px; color: #3175B5; font-weight:600;" title="經由此文章收集的訂閱數"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg> 0</span>
         </div>
 
         <div style="display:flex; align-items:center; gap: 16px; margin-top: auto; padding-top: 12px; border-top: 1px solid #e2e8f0;">
            <span style="font-size:12px; font-weight:600; padding:4px 10px; border-radius:4px; background: #f1f5f9; color: #475569;">公開</span>
+           <span style="font-size:12px; font-weight:600; padding:4px 10px; border-radius:4px; background: #e0f2fe; color: #0284c7;">未分類</span>
         </div>
       </div>
       <div style="width: 240px; aspect-ratio: 16 / 9; height: auto; border-radius: 8px; overflow: hidden; flex-shrink: 0; border: 1px solid #e2e8f0;"><img src="https://drive.google.com/thumbnail?id=1KcT4AIw7QNXmT02oNWT77xrQpjtuz9n9&sz=w1280" style="width: 100%; height: 100%; object-fit: cover; border-radius: 8px; display: block;" alt="Cover"></div>
@@ -330,7 +447,7 @@
 
 身為一名每天用 ai 寫程式、做自動化、輔導學員的 ai 賦能教練，同時也是扛著家族搬家貨運事業走過重資產泥淖的創業者，如果現在有人拿著 2 萬美元跟我說想複製這套神話，我只會告訴他一句話：「方向不對，用 ai 加速只會讓你更快打水漂。」
 
-這篇文章，是我深入拆解這場商業狂潮後，結合自己從踩坑到落地的實戰經驗，毫無保留整理出的 10 個商業底層剖析。如果你也渴望用科技賦能事業，而不是被虛假數據牽著鼻子走，這篇乾貨請務必靜下心來讀完。 2026/09/17" style="display: flex; align-items: flex-start; gap: 32px; padding: 24px; border: 1px solid #e2e8f0; border-radius: 8px; background: #fff; text-decoration: none; color: inherit; transition: transform 0.2s, box-shadow 0.2s;">
+這篇文章，是我深入拆解這場商業狂潮後，結合自己從踩坑到落地的實戰經驗，毫無保留整理出的 10 個商業底層剖析。如果你也渴望用科技賦能事業，而不是被虛假數據牽著鼻子走，這篇乾貨請務必靜下心來讀完。 2026/09/17 未分類" data-cat="未分類" data-date="1789648779000" data-views="4" style="display: flex; align-items: flex-start; gap: 32px; padding: 24px; border: 1px solid #e2e8f0; border-radius: 8px; background: #fff; text-decoration: none; color: inherit; transition: transform 0.2s, box-shadow 0.2s; margin-bottom: 24px;">
       <div class="feed-content" style="flex: 1; min-width: 0; display: flex; flex-direction: column;">
         <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px;">
           <div style="display: flex; align-items: center; gap: 8px; font-weight: 600; font-size: 14px;">
@@ -340,7 +457,7 @@
           <div style="font-size: 13px; color: #64748b;">2026/09/17</div>
         </div>
         <h3 style="font-size: 22px; font-weight: 800; margin-bottom: 12px; line-height: 1.4; display: block;">從 2 人 4 億美元的 AI 奇蹟看商業本質：為什麼我不羨慕「一人獨角獸」，而是追求心安與長期複利？｜特洛伊AI賦能師［學習心得］</h3>
-        <p style="font-size: 15px; color: #64748b; line-height: 1.6; margin-bottom: 16px; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden;">14 個月、2 個人、4 億美元年營收——當所有人都在為 MEDVi 的「一人獨角獸」神話瘋狂時，我看到的卻不是未來的奇蹟，而是一座隨時會塌陷的海砂屋。
+        <p style="font-size: 15px; color: #64748b; line-height: 1.6; margin-bottom: 16px; display: -webkit-box; -webkit-line-clamp: 5; -webkit-box-orient: vertical; overflow: hidden;">14 個月、2 個人、4 億美元年營收——當所有人都在為 MEDVi 的「一人獨角獸」神話瘋狂時，我看到的卻不是未來的奇蹟，而是一座隨時會塌陷的海砂屋。
 
 身為一名每天用 AI 寫程式、做自動化、輔導學員的 AI 賦能教練，同時也是扛著家族搬家貨運事業走過重資產泥淖的創業者，如果現在有人拿著 2 萬美元跟我說想複製這套神話，我只會告訴他一句話：「方向不對，用 AI 加速只會讓你更快打水漂。」
 
@@ -350,11 +467,11 @@
            <span style="display:flex; align-items:center; gap:4px;" title="觀看數"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/></svg> 4</span>
            <span style="display:flex; align-items:center; gap:4px;" title="完讀數"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg> 1</span>
            <span style="display:flex; align-items:center; gap:4px;" title="點播數"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polygon points="10 8 16 12 10 16 10 8"/></svg> 0</span>
-           <span style="display:flex; align-items:center; gap:4px; color: #3175B5; font-weight:600;" title="經由此文章收集的訂閱數"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg> 0</span>
         </div>
 
         <div style="display:flex; align-items:center; gap: 16px; margin-top: auto; padding-top: 12px; border-top: 1px solid #e2e8f0;">
            <span style="font-size:12px; font-weight:600; padding:4px 10px; border-radius:4px; background: #f1f5f9; color: #475569;">公開</span>
+           <span style="font-size:12px; font-weight:600; padding:4px 10px; border-radius:4px; background: #e0f2fe; color: #0284c7;">未分類</span>
         </div>
       </div>
       <div style="width: 240px; aspect-ratio: 16 / 9; height: auto; border-radius: 8px; overflow: hidden; flex-shrink: 0; border: 1px solid #e2e8f0;"><img src="https://drive.google.com/thumbnail?id=1020mX2JZRMJmd4kihJlR_mjjLzIitSbs&sz=w1280" style="width: 100%; height: 100%; object-fit: cover; border-radius: 8px; display: block;" alt="Cover"></div>
@@ -371,7 +488,7 @@
 
 「兩者都不可或缺，但是『意圖 &gt; 編碼』！」
 
-這不是空口白話，而是我昨天在一家會計事務所，帶著一位從未寫過程式的 25 歲助理，在 1 天之內親手印證的實戰故事。 2026/09/15" style="display: flex; align-items: flex-start; gap: 32px; padding: 24px; border: 1px solid #e2e8f0; border-radius: 8px; background: #fff; text-decoration: none; color: inherit; transition: transform 0.2s, box-shadow 0.2s;">
+這不是空口白話，而是我昨天在一家會計事務所，帶著一位從未寫過程式的 25 歲助理，在 1 天之內親手印證的實戰故事。 2026/09/15 未分類" data-cat="未分類" data-date="1789473424000" data-views="0" style="display: flex; align-items: flex-start; gap: 32px; padding: 24px; border: 1px solid #e2e8f0; border-radius: 8px; background: #fff; text-decoration: none; color: inherit; transition: transform 0.2s, box-shadow 0.2s; margin-bottom: 24px;">
       <div class="feed-content" style="flex: 1; min-width: 0; display: flex; flex-direction: column;">
         <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px;">
           <div style="display: flex; align-items: center; gap: 8px; font-weight: 600; font-size: 14px;">
@@ -381,7 +498,7 @@
           <div style="font-size: 13px; color: #64748b;">2026/09/15</div>
         </div>
         <h3 style="font-size: 22px; font-weight: 800; margin-bottom: 12px; line-height: 1.4; display: block;">Vibe Coding 重點是 Vibe 還是 Coding？一位 AI 賦能師的告白：意圖搞錯，寫再多程式都是海砂屋｜特洛伊AI賦能師［AI實戰］</h3>
-        <p style="font-size: 15px; color: #64748b; line-height: 1.6; margin-bottom: 16px; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden;">「好的意圖，讓編碼者上天堂；爛的意圖，讓編碼者住套房。」
+        <p style="font-size: 15px; color: #64748b; line-height: 1.6; margin-bottom: 16px; display: -webkit-box; -webkit-line-clamp: 5; -webkit-box-orient: vertical; overflow: hidden;">「好的意圖，讓編碼者上天堂；爛的意圖，讓編碼者住套房。」
 
 最近科技圈與創業圈最火熱的話題，莫過於 Vibe Coding（意圖編碼）。
 
@@ -399,11 +516,11 @@
            <span style="display:flex; align-items:center; gap:4px;" title="觀看數"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/></svg> 0</span>
            <span style="display:flex; align-items:center; gap:4px;" title="完讀數"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg> 0</span>
            <span style="display:flex; align-items:center; gap:4px;" title="點播數"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polygon points="10 8 16 12 10 16 10 8"/></svg> 0</span>
-           <span style="display:flex; align-items:center; gap:4px; color: #3175B5; font-weight:600;" title="經由此文章收集的訂閱數"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg> 0</span>
         </div>
 
         <div style="display:flex; align-items:center; gap: 16px; margin-top: auto; padding-top: 12px; border-top: 1px solid #e2e8f0;">
            <span style="font-size:12px; font-weight:600; padding:4px 10px; border-radius:4px; background: #f1f5f9; color: #475569;">公開</span>
+           <span style="font-size:12px; font-weight:600; padding:4px 10px; border-radius:4px; background: #e0f2fe; color: #0284c7;">未分類</span>
         </div>
       </div>
       <div style="width: 240px; aspect-ratio: 16 / 9; height: auto; border-radius: 8px; overflow: hidden; flex-shrink: 0; border: 1px solid #e2e8f0;"><img src="https://drive.google.com/thumbnail?id=1NzvrV37loHgp3vNqN1mKAZddbr8mmVSl&sz=w1280" style="width: 100%; height: 100%; object-fit: cover; border-radius: 8px; display: block;" alt="Cover"></div>
@@ -433,7 +550,7 @@
 
 至於，我們要去想，生意會倒，原因究竟是什麼？
 
-成功的創業百百種，失敗的原因就幾種，避免失敗，就得永續！ 2026/09/15" style="display: flex; align-items: flex-start; gap: 32px; padding: 24px; border: 1px solid #e2e8f0; border-radius: 8px; background: #fff; text-decoration: none; color: inherit; transition: transform 0.2s, box-shadow 0.2s;">
+成功的創業百百種，失敗的原因就幾種，避免失敗，就得永續！ 2026/09/15 未分類" data-cat="未分類" data-date="1789473424000" data-views="3" style="display: flex; align-items: flex-start; gap: 32px; padding: 24px; border: 1px solid #e2e8f0; border-radius: 8px; background: #fff; text-decoration: none; color: inherit; transition: transform 0.2s, box-shadow 0.2s; margin-bottom: 24px;">
       <div class="feed-content" style="flex: 1; min-width: 0; display: flex; flex-direction: column;">
         <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px;">
           <div style="display: flex; align-items: center; gap: 8px; font-weight: 600; font-size: 14px;">
@@ -443,7 +560,7 @@
           <div style="font-size: 13px; color: #64748b;">2026/09/15</div>
         </div>
         <h3 style="font-size: 22px; font-weight: 800; margin-bottom: 12px; line-height: 1.4; display: block;">我們帶著夢想創業，為什麼最後又窮又忙？｜特洛伊AI賦能師［創業日記］</h3>
-        <p style="font-size: 15px; color: #64748b; line-height: 1.6; margin-bottom: 16px; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden;">嗨！各位初創業者們好！我是特洛伊，你是否也跟我一樣，在那個熱血的年紀，或是上班時不甘平凡的，挪出時間，聽完一場演講、看完一本書、與一位朋友交談、甚至一次旅行，一次、兩次、三次....幾次後，
+        <p style="font-size: 15px; color: #64748b; line-height: 1.6; margin-bottom: 16px; display: -webkit-box; -webkit-line-clamp: 5; -webkit-box-orient: vertical; overflow: hidden;">嗨！各位初創業者們好！我是特洛伊，你是否也跟我一樣，在那個熱血的年紀，或是上班時不甘平凡的，挪出時間，聽完一場演講、看完一本書、與一位朋友交談、甚至一次旅行，一次、兩次、三次....幾次後，
 
 你那種想逃離辦公室、想逃離教室，想要為自己認認真真活一次的那種感覺，湧上心頭。那種不再為人作嫁、不再人為刀俎我為魚肉的想法，開始促使你行動，開始上網查資料、開始請教創業圈的前輩、開始關注一些部落格、書籍，讓自己預備那場，人生為自己工作、為摯愛而活的創業之旅，就此展開了，對嗎？
 
@@ -474,15 +591,15 @@
            <span style="display:flex; align-items:center; gap:4px;" title="觀看數"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/></svg> 3</span>
            <span style="display:flex; align-items:center; gap:4px;" title="完讀數"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg> 2</span>
            <span style="display:flex; align-items:center; gap:4px;" title="點播數"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polygon points="10 8 16 12 10 16 10 8"/></svg> 0</span>
-           <span style="display:flex; align-items:center; gap:4px; color: #3175B5; font-weight:600;" title="經由此文章收集的訂閱數"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg> 0</span>
         </div>
 
         <div style="display:flex; align-items:center; gap: 16px; margin-top: auto; padding-top: 12px; border-top: 1px solid #e2e8f0;">
            <span style="font-size:12px; font-weight:600; padding:4px 10px; border-radius:4px; background: #f1f5f9; color: #475569;">公開</span>
+           <span style="font-size:12px; font-weight:600; padding:4px 10px; border-radius:4px; background: #e0f2fe; color: #0284c7;">未分類</span>
         </div>
       </div>
       <div style="width: 240px; aspect-ratio: 16 / 9; height: auto; border-radius: 8px; overflow: hidden; flex-shrink: 0; border: 1px solid #e2e8f0;"><img src="https://drive.google.com/thumbnail?id=11giOTlCrQir31V_3FV1ebumhJb2xe8dO&sz=w1280" style="width: 100%; height: 100%; object-fit: cover; border-radius: 8px; display: block;" alt="Cover"></div>
-    </a></div><div id="rest-w2hh159q8" style="display:none;" class="feed-list" style="margin-top: 32px;">
+    </a>
     <a href="d082f5b4.html" class="feed-item" data-search="【創業，回家沒？】微型企業的反脆弱救星：用 ai 槓桿降低成本，一人公司也能兼顧賺錢與陪伴！｜特洛伊ai賦能師［創業日記］ 嗨！各位，我是特洛伊，正在創業的你，多久沒回家了？
 
 你會時不時擔心一下父母的狀況嗎？又或者，你有每天回家，可是回到家，孩子都睡了呢？
@@ -493,7 +610,7 @@
 
 今天是2026年4月3日，距離那次事件，已經過了2年，那是在2024年的4月1日，台灣地牛翻身，早上的驚心動魄，沒有阻擋我繼續跑case，跑演講，在晚上我在商會的演講完後，已經是晚上11:00，一早我起床，打電話傳訊息給我的媽媽，媽媽一個人在家，我問他是否安好，沒有回應，到我11:30左右到家，我已經看到骨瘦如柴的媽媽，躺在沙發上，我走上前，叫了聲：「媽，我回來了！」
 
-媽媽沒有睜開眼，我拍拍肩，還是沒有反應，我手指往媽媽的鼻子伸過去，還有呼吸，我看肺部腹部還有微微的上下浮動，但是叫不醒媽媽，我不敢移動媽媽的身體，我立馬叫了救護車！ 2026/09/15" style="display: flex; align-items: flex-start; gap: 32px; padding: 24px; border: 1px solid #e2e8f0; border-radius: 8px; background: #fff; text-decoration: none; color: inherit; transition: transform 0.2s, box-shadow 0.2s;">
+媽媽沒有睜開眼，我拍拍肩，還是沒有反應，我手指往媽媽的鼻子伸過去，還有呼吸，我看肺部腹部還有微微的上下浮動，但是叫不醒媽媽，我不敢移動媽媽的身體，我立馬叫了救護車！ 2026/09/15 未分類" data-cat="未分類" data-date="1789473424000" data-views="3" style="display: flex; align-items: flex-start; gap: 32px; padding: 24px; border: 1px solid #e2e8f0; border-radius: 8px; background: #fff; text-decoration: none; color: inherit; transition: transform 0.2s, box-shadow 0.2s; margin-bottom: 24px;">
       <div class="feed-content" style="flex: 1; min-width: 0; display: flex; flex-direction: column;">
         <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px;">
           <div style="display: flex; align-items: center; gap: 8px; font-weight: 600; font-size: 14px;">
@@ -503,7 +620,7 @@
           <div style="font-size: 13px; color: #64748b;">2026/09/15</div>
         </div>
         <h3 style="font-size: 22px; font-weight: 800; margin-bottom: 12px; line-height: 1.4; display: block;">【創業，回家沒？】微型企業的反脆弱救星：用 AI 槓桿降低成本，一人公司也能兼顧賺錢與陪伴！｜特洛伊AI賦能師［創業日記］</h3>
-        <p style="font-size: 15px; color: #64748b; line-height: 1.6; margin-bottom: 16px; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden;">嗨！各位，我是特洛伊，正在創業的你，多久沒回家了？
+        <p style="font-size: 15px; color: #64748b; line-height: 1.6; margin-bottom: 16px; display: -webkit-box; -webkit-line-clamp: 5; -webkit-box-orient: vertical; overflow: hidden;">嗨！各位，我是特洛伊，正在創業的你，多久沒回家了？
 
 你會時不時擔心一下父母的狀況嗎？又或者，你有每天回家，可是回到家，孩子都睡了呢？
 
@@ -519,11 +636,11 @@
            <span style="display:flex; align-items:center; gap:4px;" title="觀看數"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/></svg> 3</span>
            <span style="display:flex; align-items:center; gap:4px;" title="完讀數"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg> 1</span>
            <span style="display:flex; align-items:center; gap:4px;" title="點播數"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polygon points="10 8 16 12 10 16 10 8"/></svg> 0</span>
-           <span style="display:flex; align-items:center; gap:4px; color: #3175B5; font-weight:600;" title="經由此文章收集的訂閱數"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg> 0</span>
         </div>
 
         <div style="display:flex; align-items:center; gap: 16px; margin-top: auto; padding-top: 12px; border-top: 1px solid #e2e8f0;">
            <span style="font-size:12px; font-weight:600; padding:4px 10px; border-radius:4px; background: #f1f5f9; color: #475569;">公開</span>
+           <span style="font-size:12px; font-weight:600; padding:4px 10px; border-radius:4px; background: #e0f2fe; color: #0284c7;">未分類</span>
         </div>
       </div>
       <div style="width: 240px; aspect-ratio: 16 / 9; height: auto; border-radius: 8px; overflow: hidden; flex-shrink: 0; border: 1px solid #e2e8f0;"><img src="https://drive.google.com/thumbnail?id=1ocnR0qZ-qVG9uR53jfYgoiydDHdzQ6sZ&sz=w1280" style="width: 100%; height: 100%; object-fit: cover; border-radius: 8px; display: block;" alt="Cover"></div>
@@ -540,7 +657,7 @@
 
 這不是一篇刻意賣慘的故事。這是一個踩過商業地獄、經歷過負債千萬，最後靠著一套 ai 系統救回自己與生活的真實告白。
 
-如果你也正走在過勞創業的崖邊，也許，這篇文章，可以讓你有找到知音的感覺。 2026/09/15" style="display: flex; align-items: flex-start; gap: 32px; padding: 24px; border: 1px solid #e2e8f0; border-radius: 8px; background: #fff; text-decoration: none; color: inherit; transition: transform 0.2s, box-shadow 0.2s;">
+如果你也正走在過勞創業的崖邊，也許，這篇文章，可以讓你有找到知音的感覺。 2026/09/15 未分類" data-cat="未分類" data-date="1789473424000" data-views="1" style="display: flex; align-items: flex-start; gap: 32px; padding: 24px; border: 1px solid #e2e8f0; border-radius: 8px; background: #fff; text-decoration: none; color: inherit; transition: transform 0.2s, box-shadow 0.2s; margin-bottom: 24px;">
       <div class="feed-content" style="flex: 1; min-width: 0; display: flex; flex-direction: column;">
         <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px;">
           <div style="display: flex; align-items: center; gap: 8px; font-weight: 600; font-size: 14px;">
@@ -550,7 +667,7 @@
           <div style="font-size: 13px; color: #64748b;">2026/09/15</div>
         </div>
         <h3 style="font-size: 22px; font-weight: 800; margin-bottom: 12px; line-height: 1.4; display: block;">交大電機不去台積電，做搬家事業年營收 1600 萬。為什麼我在除夕夜，戶頭只剩 2000 元？｜特洛伊AI賦能師［創業日誌］</h3>
-        <p style="font-size: 15px; color: #64748b; line-height: 1.6; margin-bottom: 16px; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden;">從負債千萬的搬家業務，到 AI 賦能師的真實告白
+        <p style="font-size: 15px; color: #64748b; line-height: 1.6; margin-bottom: 16px; display: -webkit-box; -webkit-line-clamp: 5; -webkit-box-orient: vertical; overflow: hidden;">從負債千萬的搬家業務，到 AI 賦能師的真實告白
 
 每天睜開眼，你是不是也被回不完的訊息、做不完的行政雜事盯著看？
 
@@ -568,11 +685,11 @@
            <span style="display:flex; align-items:center; gap:4px;" title="觀看數"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/></svg> 1</span>
            <span style="display:flex; align-items:center; gap:4px;" title="完讀數"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg> 0</span>
            <span style="display:flex; align-items:center; gap:4px;" title="點播數"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polygon points="10 8 16 12 10 16 10 8"/></svg> 0</span>
-           <span style="display:flex; align-items:center; gap:4px; color: #3175B5; font-weight:600;" title="經由此文章收集的訂閱數"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg> 0</span>
         </div>
 
         <div style="display:flex; align-items:center; gap: 16px; margin-top: auto; padding-top: 12px; border-top: 1px solid #e2e8f0;">
            <span style="font-size:12px; font-weight:600; padding:4px 10px; border-radius:4px; background: #f1f5f9; color: #475569;">公開</span>
+           <span style="font-size:12px; font-weight:600; padding:4px 10px; border-radius:4px; background: #e0f2fe; color: #0284c7;">未分類</span>
         </div>
       </div>
       <div style="width: 240px; aspect-ratio: 16 / 9; height: auto; border-radius: 8px; overflow: hidden; flex-shrink: 0; border: 1px solid #e2e8f0;"><img src="https://drive.google.com/thumbnail?id=1uM5GXM6bW-7A4PMlGnBfVS34Um1r45K4&sz=w1280" style="width: 100%; height: 100%; object-fit: cover; border-radius: 8px; display: block;" alt="Cover"></div>
@@ -595,7 +712,7 @@ venture coding 是以「解決實際商業痛點、釋放人力時間」為核�
 
 與單純強調隨性嘗試的 vibe coding 不同，venture coding 主張「意圖大於編碼（intent &gt; coding）」，從真實工作經驗出發，透過一人指揮「6 大 ai 虛擬團隊角色」，並採用「堆積木式微疊代 sop」，將模糊的業務需求精準轉化為專屬的自動化營運系統。
 
-這能讓微型企業與一人公司徹底擺脫校長兼撞鐘的過勞陷阱，重獲時間自主與家庭平衡。 2026/09/15" style="display: flex; align-items: flex-start; gap: 32px; padding: 24px; border: 1px solid #e2e8f0; border-radius: 8px; background: #fff; text-decoration: none; color: inherit; transition: transform 0.2s, box-shadow 0.2s;">
+這能讓微型企業與一人公司徹底擺脫校長兼撞鐘的過勞陷阱，重獲時間自主與家庭平衡。 2026/09/15 未分類" data-cat="未分類" data-date="1789473424000" data-views="0" style="display: flex; align-items: flex-start; gap: 32px; padding: 24px; border: 1px solid #e2e8f0; border-radius: 8px; background: #fff; text-decoration: none; color: inherit; transition: transform 0.2s, box-shadow 0.2s; margin-bottom: 24px;">
       <div class="feed-content" style="flex: 1; min-width: 0; display: flex; flex-direction: column;">
         <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px;">
           <div style="display: flex; align-items: center; gap: 8px; font-weight: 600; font-size: 14px;">
@@ -605,7 +722,7 @@ venture coding 是以「解決實際商業痛點、釋放人力時間」為核�
           <div style="font-size: 13px; color: #64748b;">2026/09/15</div>
         </div>
         <h3 style="font-size: 22px; font-weight: 800; margin-bottom: 12px; line-height: 1.4; display: block;">從 Vibe Coding 到 Venture Coding：會計助理 1 天完成客製化系統，解放時間的 AI 實戰指南［AI實戰］</h3>
-        <p style="font-size: 15px; color: #64748b; line-height: 1.6; margin-bottom: 16px; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden;">為什麼一人創業與微型企業總是深陷「校長兼撞鐘」？
+        <p style="font-size: 15px; color: #64748b; line-height: 1.6; margin-bottom: 16px; display: -webkit-box; -webkit-line-clamp: 5; -webkit-box-orient: vertical; overflow: hidden;">為什麼一人創業與微型企業總是深陷「校長兼撞鐘」？
 
 每天早晨醒來，你的第一反應是期待今天的業務突破，還是被無休止的雜務壓得喘不過氣？
 
@@ -629,11 +746,11 @@ Venture Coding 是以「解決實際商業痛點、釋放人力時間」為核�
            <span style="display:flex; align-items:center; gap:4px;" title="觀看數"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/></svg> 0</span>
            <span style="display:flex; align-items:center; gap:4px;" title="完讀數"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg> 0</span>
            <span style="display:flex; align-items:center; gap:4px;" title="點播數"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polygon points="10 8 16 12 10 16 10 8"/></svg> 0</span>
-           <span style="display:flex; align-items:center; gap:4px; color: #3175B5; font-weight:600;" title="經由此文章收集的訂閱數"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg> 0</span>
         </div>
 
         <div style="display:flex; align-items:center; gap: 16px; margin-top: auto; padding-top: 12px; border-top: 1px solid #e2e8f0;">
            <span style="font-size:12px; font-weight:600; padding:4px 10px; border-radius:4px; background: #f1f5f9; color: #475569;">公開</span>
+           <span style="font-size:12px; font-weight:600; padding:4px 10px; border-radius:4px; background: #e0f2fe; color: #0284c7;">未分類</span>
         </div>
       </div>
       <div style="width: 240px; aspect-ratio: 16 / 9; height: auto; border-radius: 8px; overflow: hidden; flex-shrink: 0; border: 1px solid #e2e8f0;"><img src="https://drive.google.com/thumbnail?id=1fFEheQlPER9hmTD6QjCSQZyeZ9AaX1XQ&sz=w1280" style="width: 100%; height: 100%; object-fit: cover; border-radius: 8px; display: block;" alt="Cover"></div>
@@ -644,7 +761,7 @@ Venture Coding 是以「解決實際商業痛點、釋放人力時間」為核�
 
 人類先透過 sop 將業務流程抽絲剝繭，寫死成有底層邏輯的程式碼（如 google apps script），只把 ai 當作編寫程式碼的互動大腦。
 
-如此一來，重複性的例行公事運行將達到「零 token 消耗」，在極低成本下實現真正的 ai 智能化與自動化。 2026/09/15" style="display: flex; align-items: flex-start; gap: 32px; padding: 24px; border: 1px solid #e2e8f0; border-radius: 8px; background: #fff; text-decoration: none; color: inherit; transition: transform 0.2s, box-shadow 0.2s;">
+如此一來，重複性的例行公事運行將達到「零 token 消耗」，在極低成本下實現真正的 ai 智能化與自動化。 2026/09/15 未分類" data-cat="未分類" data-date="1789473424000" data-views="1" style="display: flex; align-items: flex-start; gap: 32px; padding: 24px; border: 1px solid #e2e8f0; border-radius: 8px; background: #fff; text-decoration: none; color: inherit; transition: transform 0.2s, box-shadow 0.2s; margin-bottom: 24px;">
       <div class="feed-content" style="flex: 1; min-width: 0; display: flex; flex-direction: column;">
         <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px;">
           <div style="display: flex; align-items: center; gap: 8px; font-weight: 600; font-size: 14px;">
@@ -654,7 +771,7 @@ Venture Coding 是以「解決實際商業痛點、釋放人力時間」為核�
           <div style="font-size: 13px; color: #64748b;">2026/09/15</div>
         </div>
         <h3 style="font-size: 22px; font-weight: 800; margin-bottom: 12px; line-height: 1.4; display: block;">矽谷掀「AI保姆」回聘潮！微型創業必學的 Venture Coding 結構化思維，拒當科技韭菜｜特洛伊AI賦能師［學習心得］</h3>
-        <p style="font-size: 15px; color: #64748b; line-height: 1.6; margin-bottom: 16px; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden;">微型創業與一人公司在導入 AI 時，若過度依賴 AI Agent 進行無限制的思考與整理，將會面臨高昂的 Token 算力成本與 API 賬單災難。
+        <p style="font-size: 15px; color: #64748b; line-height: 1.6; margin-bottom: 16px; display: -webkit-box; -webkit-line-clamp: 5; -webkit-box-orient: vertical; overflow: hidden;">微型創業與一人公司在導入 AI 時，若過度依賴 AI Agent 進行無限制的思考與整理，將會面臨高昂的 Token 算力成本與 API 賬單災難。
 
 真正的經濟型解法是「Venture Coding（創業式編程）」：
 
@@ -666,11 +783,11 @@ Venture Coding 是以「解決實際商業痛點、釋放人力時間」為核�
            <span style="display:flex; align-items:center; gap:4px;" title="觀看數"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/></svg> 1</span>
            <span style="display:flex; align-items:center; gap:4px;" title="完讀數"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg> 0</span>
            <span style="display:flex; align-items:center; gap:4px;" title="點播數"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polygon points="10 8 16 12 10 16 10 8"/></svg> 0</span>
-           <span style="display:flex; align-items:center; gap:4px; color: #3175B5; font-weight:600;" title="經由此文章收集的訂閱數"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg> 0</span>
         </div>
 
         <div style="display:flex; align-items:center; gap: 16px; margin-top: auto; padding-top: 12px; border-top: 1px solid #e2e8f0;">
            <span style="font-size:12px; font-weight:600; padding:4px 10px; border-radius:4px; background: #f1f5f9; color: #475569;">公開</span>
+           <span style="font-size:12px; font-weight:600; padding:4px 10px; border-radius:4px; background: #e0f2fe; color: #0284c7;">未分類</span>
         </div>
       </div>
       <div style="width: 240px; aspect-ratio: 16 / 9; height: auto; border-radius: 8px; overflow: hidden; flex-shrink: 0; border: 1px solid #e2e8f0;"><img src="https://drive.google.com/thumbnail?id=1aUlCrR0aJ-sc99hBl7aE2zZM2BwYbH9W&sz=w1280" style="width: 100%; height: 100%; object-fit: cover; border-radius: 8px; display: block;" alt="Cover"></div>
@@ -691,7 +808,7 @@ hello 各位，今天是我人生第四次創業、專注做 ai 教學與自製�
 
 這座系統不僅能處理外面的客戶諮詢，還兼具內部行政幫手的功用——老闆平常只要把自己的行程隨手丟進對話框，系統就能協助員工排入行程；現場有客人來到公司時，能提示員工協助接待；甚至還能幫老闆記住所有重要的行程細節。
 
-這篇文章，我想跟你完整分享我們是怎麼在 6 小時內辦到的，以及這背後一套能幫助一人公司與微型創業老闆擺脫決策疲勞的 venture coding（創業式編程）核心方法論。 2026/09/15" style="display: flex; align-items: flex-start; gap: 32px; padding: 24px; border: 1px solid #e2e8f0; border-radius: 8px; background: #fff; text-decoration: none; color: inherit; transition: transform 0.2s, box-shadow 0.2s;">
+這篇文章，我想跟你完整分享我們是怎麼在 6 小時內辦到的，以及這背後一套能幫助一人公司與微型創業老闆擺脫決策疲勞的 venture coding（創業式編程）核心方法論。 2026/09/15 未分類" data-cat="未分類" data-date="1789473424000" data-views="0" style="display: flex; align-items: flex-start; gap: 32px; padding: 24px; border: 1px solid #e2e8f0; border-radius: 8px; background: #fff; text-decoration: none; color: inherit; transition: transform 0.2s, box-shadow 0.2s; margin-bottom: 24px;">
       <div class="feed-content" style="flex: 1; min-width: 0; display: flex; flex-direction: column;">
         <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px;">
           <div style="display: flex; align-items: center; gap: 8px; font-weight: 600; font-size: 14px;">
@@ -701,7 +818,7 @@ hello 各位，今天是我人生第四次創業、專注做 ai 教學與自製�
           <div style="font-size: 13px; color: #64748b;">2026/09/15</div>
         </div>
         <h3 style="font-size: 22px; font-weight: 800; margin-bottom: 12px; line-height: 1.4; display: block;">吃了 7 顆水煮蛋，帶著學員 6 小時從 0 到1，做出會計事務所的智能客服系統！｜特洛伊AI賦能師［AI實戰］</h3>
-        <p style="font-size: 15px; color: #64748b; line-height: 1.6; margin-bottom: 16px; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden;">吃了 7 顆水煮蛋，特洛伊 AI 賦能師帶著學員 6 小時從 0 做出會計事務所的智能客服系統！
+        <p style="font-size: 15px; color: #64748b; line-height: 1.6; margin-bottom: 16px; display: -webkit-box; -webkit-line-clamp: 5; -webkit-box-orient: vertical; overflow: hidden;">吃了 7 顆水煮蛋，特洛伊 AI 賦能師帶著學員 6 小時從 0 做出會計事務所的智能客服系統！
 
 擺脫一人創業校長兼撞鐘與決策疲勞。
 
@@ -723,11 +840,11 @@ Hello 各位，今天是我人生第四次創業、專注做 AI 教學與自製�
            <span style="display:flex; align-items:center; gap:4px;" title="觀看數"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/></svg> 0</span>
            <span style="display:flex; align-items:center; gap:4px;" title="完讀數"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg> 0</span>
            <span style="display:flex; align-items:center; gap:4px;" title="點播數"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polygon points="10 8 16 12 10 16 10 8"/></svg> 0</span>
-           <span style="display:flex; align-items:center; gap:4px; color: #3175B5; font-weight:600;" title="經由此文章收集的訂閱數"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg> 0</span>
         </div>
 
         <div style="display:flex; align-items:center; gap: 16px; margin-top: auto; padding-top: 12px; border-top: 1px solid #e2e8f0;">
            <span style="font-size:12px; font-weight:600; padding:4px 10px; border-radius:4px; background: #f1f5f9; color: #475569;">公開</span>
+           <span style="font-size:12px; font-weight:600; padding:4px 10px; border-radius:4px; background: #e0f2fe; color: #0284c7;">未分類</span>
         </div>
       </div>
       <div style="width: 240px; aspect-ratio: 16 / 9; height: auto; border-radius: 8px; overflow: hidden; flex-shrink: 0; border: 1px solid #e2e8f0;"><img src="https://drive.google.com/thumbnail?id=1GcrR0LR1VDHkbi23KnpXdEilgbXM3m9a&sz=w1280" style="width: 100%; height: 100%; object-fit: cover; border-radius: 8px; display: block;" alt="Cover"></div>
@@ -744,7 +861,7 @@ Hello 各位，今天是我人生第四次創業、專注做 AI 教學與自製�
 
 這份背景，讓我有機會跟上這波 ai 浪潮，透過高度可控的 ai agent，為微型創業者釋放繁瑣的工作流。
 
-然而，在推動這場「時間贖回」革命的路上，我卻迎面撞上了一個巨大的挑戰。 2026/09/15" style="display: flex; align-items: flex-start; gap: 32px; padding: 24px; border: 1px solid #e2e8f0; border-radius: 8px; background: #fff; text-decoration: none; color: inherit; transition: transform 0.2s, box-shadow 0.2s;">
+然而，在推動這場「時間贖回」革命的路上，我卻迎面撞上了一個巨大的挑戰。 2026/09/15 未分類" data-cat="未分類" data-date="1789473424000" data-views="0" style="display: flex; align-items: flex-start; gap: 32px; padding: 24px; border: 1px solid #e2e8f0; border-radius: 8px; background: #fff; text-decoration: none; color: inherit; transition: transform 0.2s, box-shadow 0.2s; margin-bottom: 24px;">
       <div class="feed-content" style="flex: 1; min-width: 0; display: flex; flex-direction: column;">
         <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px;">
           <div style="display: flex; align-items: center; gap: 8px; font-weight: 600; font-size: 14px;">
@@ -754,7 +871,7 @@ Hello 各位，今天是我人生第四次創業、專注做 AI 教學與自製�
           <div style="font-size: 13px; color: #64748b;">2026/09/15</div>
         </div>
         <h3 style="font-size: 22px; font-weight: 800; margin-bottom: 12px; line-height: 1.4; display: block;">數位轉型的終極痛點：當 AI 自動化遇上「工作太忙」大魔王，我如何用三張試算表發動時間贖回革命？｜特洛伊AI賦能師［AI實戰］</h3>
-        <p style="font-size: 15px; color: #64748b; line-height: 1.6; margin-bottom: 16px; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden;">近年來，AI 技術的迭代速度堪稱瘋狂。
+        <p style="font-size: 15px; color: #64748b; line-height: 1.6; margin-bottom: 16px; display: -webkit-box; -webkit-line-clamp: 5; -webkit-box-orient: vertical; overflow: hidden;">近年來，AI 技術的迭代速度堪稱瘋狂。
 
 自今年二月份我開始投入 AI 落地實戰教學以來，市場從最初的「AI 落地串接 n8n」自動化客服機制，在短短幾個月內，已經集體跨入資料庫建置、AI Agent（智慧代理）、自我迭代與自主決策的全新賽道。
 
@@ -772,11 +889,11 @@ Hello 各位，今天是我人生第四次創業、專注做 AI 教學與自製�
            <span style="display:flex; align-items:center; gap:4px;" title="觀看數"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/></svg> 0</span>
            <span style="display:flex; align-items:center; gap:4px;" title="完讀數"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg> 0</span>
            <span style="display:flex; align-items:center; gap:4px;" title="點播數"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polygon points="10 8 16 12 10 16 10 8"/></svg> 0</span>
-           <span style="display:flex; align-items:center; gap:4px; color: #3175B5; font-weight:600;" title="經由此文章收集的訂閱數"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg> 0</span>
         </div>
 
         <div style="display:flex; align-items:center; gap: 16px; margin-top: auto; padding-top: 12px; border-top: 1px solid #e2e8f0;">
            <span style="font-size:12px; font-weight:600; padding:4px 10px; border-radius:4px; background: #f1f5f9; color: #475569;">公開</span>
+           <span style="font-size:12px; font-weight:600; padding:4px 10px; border-radius:4px; background: #e0f2fe; color: #0284c7;">未分類</span>
         </div>
       </div>
       <div style="width: 240px; aspect-ratio: 16 / 9; height: auto; border-radius: 8px; overflow: hidden; flex-shrink: 0; border: 1px solid #e2e8f0;"><img src="https://drive.google.com/thumbnail?id=1wPMjbi5XZZI2gbeVPlzART2Zti3ITisD&sz=w1280" style="width: 100%; height: 100%; object-fit: cover; border-radius: 8px; display: block;" alt="Cover"></div>
@@ -793,7 +910,7 @@ ai agent 時代的終極差距不是技術，而是說故事的能力。
 
 但我必須告訴你一個殘酷的真相：
 
-真正會淘汰你的，從來不是 ai，而是你無法精確「說出好故事」的能力。 2026/09/15" style="display: flex; align-items: flex-start; gap: 32px; padding: 24px; border: 1px solid #e2e8f0; border-radius: 8px; background: #fff; text-decoration: none; color: inherit; transition: transform 0.2s, box-shadow 0.2s;">
+真正會淘汰你的，從來不是 ai，而是你無法精確「說出好故事」的能力。 2026/09/15 未分類" data-cat="未分類" data-date="1789473424000" data-views="0" style="display: flex; align-items: flex-start; gap: 32px; padding: 24px; border: 1px solid #e2e8f0; border-radius: 8px; background: #fff; text-decoration: none; color: inherit; transition: transform 0.2s, box-shadow 0.2s; margin-bottom: 24px;">
       <div class="feed-content" style="flex: 1; min-width: 0; display: flex; flex-direction: column;">
         <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px;">
           <div style="display: flex; align-items: center; gap: 8px; font-weight: 600; font-size: 14px;">
@@ -803,7 +920,7 @@ ai agent 時代的終極差距不是技術，而是說故事的能力。
           <div style="font-size: 13px; color: #64748b;">2026/09/15</div>
         </div>
         <h3 style="font-size: 22px; font-weight: 800; margin-bottom: 12px; line-height: 1.4; display: block;">AI 不會毀滅你，不會「說故事」才會被淘汰！黃仁勳沒說的 AI Agent 幕後真相｜特洛伊AI賦能師［學習心得］</h3>
-        <p style="font-size: 15px; color: #64748b; line-height: 1.6; margin-bottom: 16px; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden;">【 本文核心摘要 】
+        <p style="font-size: 15px; color: #64748b; line-height: 1.6; margin-bottom: 16px; display: -webkit-box; -webkit-line-clamp: 5; -webkit-box-orient: vertical; overflow: hidden;">【 本文核心摘要 】
 
 AI Agent 時代的終極差距不是技術，而是說故事的能力。
 
@@ -821,11 +938,11 @@ AI Agent 時代的終極差距不是技術，而是說故事的能力。
            <span style="display:flex; align-items:center; gap:4px;" title="觀看數"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/></svg> 0</span>
            <span style="display:flex; align-items:center; gap:4px;" title="完讀數"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg> 0</span>
            <span style="display:flex; align-items:center; gap:4px;" title="點播數"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polygon points="10 8 16 12 10 16 10 8"/></svg> 0</span>
-           <span style="display:flex; align-items:center; gap:4px; color: #3175B5; font-weight:600;" title="經由此文章收集的訂閱數"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg> 0</span>
         </div>
 
         <div style="display:flex; align-items:center; gap: 16px; margin-top: auto; padding-top: 12px; border-top: 1px solid #e2e8f0;">
            <span style="font-size:12px; font-weight:600; padding:4px 10px; border-radius:4px; background: #f1f5f9; color: #475569;">公開</span>
+           <span style="font-size:12px; font-weight:600; padding:4px 10px; border-radius:4px; background: #e0f2fe; color: #0284c7;">未分類</span>
         </div>
       </div>
       <div style="width: 240px; aspect-ratio: 16 / 9; height: auto; border-radius: 8px; overflow: hidden; flex-shrink: 0; border: 1px solid #e2e8f0;"><img src="https://drive.google.com/thumbnail?id=1rYSaAs6WehpcwvJmse8Hr7rmHEvBP2TO&sz=w1280" style="width: 100%; height: 100%; object-fit: cover; border-radius: 8px; display: block;" alt="Cover"></div>
@@ -854,7 +971,7 @@ AI Agent 時代的終極差距不是技術，而是說故事的能力。
 
 大家有興趣可以去看我之前搬家阿岳時，寫的一篇文章的第三個故事，就有寫到：「 從搬家到回家，其實我們搬的是「關係」！那些物品背後，有不捨丟掉的回憶與愛」
 
-成交了，服務了，客戶開心，還能做跨國生意， 而從那一刻我也才開始想，ai有沒有機會「商用」？ 2026/09/15" style="display: flex; align-items: flex-start; gap: 32px; padding: 24px; border: 1px solid #e2e8f0; border-radius: 8px; background: #fff; text-decoration: none; color: inherit; transition: transform 0.2s, box-shadow 0.2s;">
+成交了，服務了，客戶開心，還能做跨國生意， 而從那一刻我也才開始想，ai有沒有機會「商用」？ 2026/09/15 未分類" data-cat="未分類" data-date="1789473424000" data-views="0" style="display: flex; align-items: flex-start; gap: 32px; padding: 24px; border: 1px solid #e2e8f0; border-radius: 8px; background: #fff; text-decoration: none; color: inherit; transition: transform 0.2s, box-shadow 0.2s; margin-bottom: 24px;">
       <div class="feed-content" style="flex: 1; min-width: 0; display: flex; flex-direction: column;">
         <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px;">
           <div style="display: flex; align-items: center; gap: 8px; font-weight: 600; font-size: 14px;">
@@ -864,7 +981,7 @@ AI Agent 時代的終極差距不是技術，而是說故事的能力。
           <div style="font-size: 13px; color: #64748b;">2026/09/15</div>
         </div>
         <h3 style="font-size: 22px; font-weight: 800; margin-bottom: 12px; line-height: 1.4; display: block;">【微型企業必看】不懂程式也能年省300萬？我的VibeCoding處女秀，一人公司的反脆弱指南！｜特洛伊AI賦能師［AI實戰］</h3>
-        <p style="font-size: 15px; color: #64748b; line-height: 1.6; margin-bottom: 16px; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden;">💡 導讀與精華摘要
+        <p style="font-size: 15px; color: #64748b; line-height: 1.6; margin-bottom: 16px; display: -webkit-box; -webkit-line-clamp: 5; -webkit-box-orient: vertical; overflow: hidden;">💡 導讀與精華摘要
 
 直接解答：透過 VibeCoding 與 AI 工具，不懂寫程式的創業者也能自主開發數位系統，實現營運自動化。
 
@@ -894,11 +1011,11 @@ AI Agent 時代的終極差距不是技術，而是說故事的能力。
            <span style="display:flex; align-items:center; gap:4px;" title="觀看數"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/></svg> 0</span>
            <span style="display:flex; align-items:center; gap:4px;" title="完讀數"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg> 0</span>
            <span style="display:flex; align-items:center; gap:4px;" title="點播數"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polygon points="10 8 16 12 10 16 10 8"/></svg> 0</span>
-           <span style="display:flex; align-items:center; gap:4px; color: #3175B5; font-weight:600;" title="經由此文章收集的訂閱數"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg> 0</span>
         </div>
 
         <div style="display:flex; align-items:center; gap: 16px; margin-top: auto; padding-top: 12px; border-top: 1px solid #e2e8f0;">
            <span style="font-size:12px; font-weight:600; padding:4px 10px; border-radius:4px; background: #f1f5f9; color: #475569;">公開</span>
+           <span style="font-size:12px; font-weight:600; padding:4px 10px; border-radius:4px; background: #e0f2fe; color: #0284c7;">未分類</span>
         </div>
       </div>
       <div style="width: 240px; aspect-ratio: 16 / 9; height: auto; border-radius: 8px; overflow: hidden; flex-shrink: 0; border: 1px solid #e2e8f0;"><img src="https://drive.google.com/thumbnail?id=1_RpW17rM29RSRg0OntlmSUeIo-grIsW6&sz=w1280" style="width: 100%; height: 100%; object-fit: cover; border-radius: 8px; display: block;" alt="Cover"></div>
@@ -924,7 +1041,7 @@ AI Agent 時代的終極差距不是技術，而是說故事的能力。
 
 這種流程完整保留了你最真實的語氣與專業深度。
 內容具備權威感的同時，依然保有創作者的獨特靈魂。
-對於需要累積數位足跡、建立專業私塾或經營 vip 會員制的創業者來說，這就是將「大腦智慧」轉化為「自動化財富」的最短路徑。 2026/09/13" style="display: flex; align-items: flex-start; gap: 32px; padding: 24px; border: 1px solid #e2e8f0; border-radius: 8px; background: #fff; text-decoration: none; color: inherit; transition: transform 0.2s, box-shadow 0.2s;">
+對於需要累積數位足跡、建立專業私塾或經營 vip 會員制的創業者來說，這就是將「大腦智慧」轉化為「自動化財富」的最短路徑。 2026/09/13 未分類" data-cat="未分類" data-date="1789301597000" data-views="10" style="display: flex; align-items: flex-start; gap: 32px; padding: 24px; border: 1px solid #e2e8f0; border-radius: 8px; background: #fff; text-decoration: none; color: inherit; transition: transform 0.2s, box-shadow 0.2s; margin-bottom: 24px;">
       <div class="feed-content" style="flex: 1; min-width: 0; display: flex; flex-direction: column;">
         <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px;">
           <div style="display: flex; align-items: center; gap: 8px; font-weight: 600; font-size: 14px;">
@@ -934,7 +1051,7 @@ AI Agent 時代的終極差距不是技術，而是說故事的能力。
           <div style="font-size: 13px; color: #64748b;">2026/09/13</div>
         </div>
         <h3 style="font-size: 22px; font-weight: 800; margin-bottom: 12px; line-height: 1.4; display: block;">別再傻傻寫稿！我用「講」的就能變現，微型創業者的自動化內容金礦｜特洛伊AI賦能師［AI實戰］</h3>
-        <p style="font-size: 15px; color: #64748b; line-height: 1.6; margin-bottom: 16px; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden;">我實測一套自動化工作流，對著鏡頭說話，AI 隨即將影音、逐字稿與畫面描述轉化為高權威文章。這是我每日節省 80% 創作時間，將口說內容無縫變現為數位資產的實戰驗證，也是微型創業者翻身的關鍵。
+        <p style="font-size: 15px; color: #64748b; line-height: 1.6; margin-bottom: 16px; display: -webkit-box; -webkit-line-clamp: 5; -webkit-box-orient: vertical; overflow: hidden;">我實測一套自動化工作流，對著鏡頭說話，AI 隨即將影音、逐字稿與畫面描述轉化為高權威文章。這是我每日節省 80% 創作時間，將口說內容無縫變現為數位資產的實戰驗證，也是微型創業者翻身的關鍵。
 
 身為微型創業者，你一定經歷過這種焦慮。
 大腦裡裝滿了專業知識與實戰心得，但只要坐在電腦前對著空白文件，那一閃而逝的靈感就消失得無影無蹤。
@@ -961,20 +1078,15 @@ AI Agent 時代的終極差距不是技術，而是說故事的能力。
            <span style="display:flex; align-items:center; gap:4px;" title="觀看數"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/></svg> 10</span>
            <span style="display:flex; align-items:center; gap:4px;" title="完讀數"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg> 5</span>
            <span style="display:flex; align-items:center; gap:4px;" title="點播數"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polygon points="10 8 16 12 10 16 10 8"/></svg> 1</span>
-           <span style="display:flex; align-items:center; gap:4px; color: #3175B5; font-weight:600;" title="經由此文章收集的訂閱數"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg> 0</span>
         </div>
 
         <div style="display:flex; align-items:center; gap: 16px; margin-top: auto; padding-top: 12px; border-top: 1px solid #e2e8f0;">
            <span style="font-size:12px; font-weight:600; padding:4px 10px; border-radius:4px; background: #f1f5f9; color: #475569;">公開</span>
+           <span style="font-size:12px; font-weight:600; padding:4px 10px; border-radius:4px; background: #e0f2fe; color: #0284c7;">未分類</span>
         </div>
       </div>
       <div style="width: 240px; aspect-ratio: 16 / 9; height: auto; border-radius: 8px; overflow: hidden; flex-shrink: 0; border: 1px solid #e2e8f0;"><img src="https://drive.google.com/thumbnail?id=16XmrM_FlmphvGrJPtlz9A1aJOaKu6Qz2&sz=w1280" style="width: 100%; height: 100%; object-fit: cover; border-radius: 8px; display: block;" alt="Cover"></div>
-    </a></div>
-               <div style="text-align: center; margin-top: 24px;">
-                 <button onclick="document.getElementById('rest-w2hh159q8').style.display='flex'; this.style.display='none';" style="background: #fff; border: 1px solid #cbd5e1; padding: 10px 24px; border-radius: 20px; font-weight: 600; color: #475569; cursor: pointer; transition: 0.2s;">
-                   看更多 (9)
-                 </button>
-               </div></div>
+    </a>
     </div>
   </div>
   
@@ -1000,36 +1112,60 @@ AI Agent 時代的終極差距不是技術，而是說故事的能力。
       });
     };
 
-    // 即時關鍵字搜尋邏輯 (過濾三個區塊內的所有卡片)
-    function filterArticles() {
-      const searchKeyword = document.getElementById('frontendSearch').value.toLowerCase().trim();
-      const sections = document.querySelectorAll('.tier-section');
-      let totalVisible = 0;
+    let currentSortMode = 'new';
+    
+    function setSortMode(mode) {
+      currentSortMode = mode;
+      document.getElementById('btnSortNew').style.background = mode === 'new' ? '#fff' : 'transparent';
+      document.getElementById('btnSortNew').style.color = mode === 'new' ? '#0f172a' : '#64748b';
+      document.getElementById('btnSortNew').style.boxShadow = mode === 'new' ? '0 1px 3px rgba(0,0,0,0.1)' : 'none';
       
-      sections.forEach(section => {
-        const items = section.querySelectorAll('.feed-item');
-        let secVisible = 0;
+      document.getElementById('btnSortHot').style.background = mode === 'hot' ? '#fff' : 'transparent';
+      document.getElementById('btnSortHot').style.color = mode === 'hot' ? '#0f172a' : '#64748b';
+      document.getElementById('btnSortHot').style.boxShadow = mode === 'hot' ? '0 1px 3px rgba(0,0,0,0.1)' : 'none';
+      
+      filterAndSortArticles();
+    }
+
+    function filterAndSortArticles() {
+      const searchKeyword = document.getElementById('frontendSearch').value.toLowerCase().trim();
+      const catFilter = document.getElementById('catFilter').value;
+      const container = document.getElementById('feedListContainer');
+      const items = Array.from(container.querySelectorAll('.feed-item'));
+      
+      let visibleCount = 0;
+      
+      items.forEach(item => {
+        const searchData = item.getAttribute('data-search');
+        const itemCat = item.getAttribute('data-cat');
         
-        items.forEach(item => {
-          const searchData = item.getAttribute('data-search');
-          if (searchKeyword === '' || searchData.includes(searchKeyword)) {
-            item.style.display = 'flex';
-            secVisible++;
-            totalVisible++;
-          } else {
-            item.style.display = 'none';
-          }
-        });
+        const matchSearch = searchKeyword === '' || searchData.includes(searchKeyword);
+        const matchCat = catFilter === 'all' || itemCat === catFilter;
         
-        // 區塊內無資料時，隱藏標題
-        section.style.display = secVisible > 0 ? 'block' : 'none';
+        if (matchSearch && matchCat) {
+          item.style.display = 'flex';
+          visibleCount++;
+        } else {
+          item.style.display = 'none';
+        }
       });
       
-      let container = document.getElementById('feedListContainer');
+      // 排序
+      items.sort((a, b) => {
+        if (currentSortMode === 'new') {
+          return parseInt(b.getAttribute('data-date')) - parseInt(a.getAttribute('data-date'));
+        } else {
+          return parseInt(b.getAttribute('data-views')) - parseInt(a.getAttribute('data-views'));
+        }
+      });
+      
+      // 重新附加到 container 以套用排序
+      items.forEach(item => container.appendChild(item));
+      
       let noResultMsg = document.getElementById('noResultMsg');
-      if (totalVisible === 0 && !noResultMsg) {
-         container.insertAdjacentHTML('beforeend', '<div id="noResultMsg" style="text-align:center; color:#64748b; padding:40px; width:100%;">找不到符合關鍵字的文章。</div>');
-      } else if (totalVisible > 0 && noResultMsg) {
+      if (visibleCount === 0 && !noResultMsg) {
+         container.insertAdjacentHTML('beforeend', '<div id="noResultMsg" style="text-align:center; color:#64748b; padding:40px; width:100%;">找不到符合條件的文章。</div>');
+      } else if (visibleCount > 0 && noResultMsg) {
          noResultMsg.remove();
       }
     }
