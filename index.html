@@ -2500,10 +2500,10 @@
         const cover = log.coverUrl || 'https://ui-avatars.com/api/?name=T&background=f1f5f9&color=cbd5e1';
         const title = log.articleTitle || "未命名";
         let rawExcerpt = log.articleHook || log.articleBody || '暫無內容預覽';
-        const excerpt = rawExcerpt.length > 100 ? rawExcerpt.substring(0, 100) + '...' : rawExcerpt;
+        const excerpt = rawExcerpt.length > 150 ? rawExcerpt.substring(0, 150) + '...' : rawExcerpt;
         const date = log.timestamp ? log.timestamp.split(' ')[0] : '';
         
-        topCarouselHtml += '<div onclick="openArticleWorkshop(\'' + log.logId + '\')" style="cursor:pointer; flex: 0 0 calc(33.333% - 11px); min-width: 280px; max-width: 320px; border: 1px solid var(--border); border-radius: 8px; overflow: hidden; background: #fff; scroll-snap-align: start; transition: transform 0.2s; display: flex; flex-direction: column;">' +
+        topCarouselHtml += '<div onclick="openArticleWorkshop(\'' + log.logId + '\')" style="cursor:pointer; flex: 0 0 calc(35% - 11px); min-width: 280px; max-width: 340px; border: 1px solid var(--border); border-radius: 8px; overflow: hidden; background: #fff; scroll-snap-align: start; transition: transform 0.2s; display: flex; flex-direction: column;">' +
           '<img src="' + cover + '" style="width: 100%; aspect-ratio: 16/9; object-fit: cover; border-bottom: 1px solid var(--border-subtle);">' +
           '<div style="padding: 16px; flex: 1; display: flex; flex-direction: column;">' +
             '<div style="font-size: 15px; font-weight: 800; margin-bottom: 12px; line-height: 1.4; display: block; word-break: break-all;">' + escapeHtml(title) + '</div>' +
@@ -2535,10 +2535,10 @@
         const cover = log.coverUrl || 'https://ui-avatars.com/api/?name=T&background=f1f5f9&color=cbd5e1';
         const title = log.articleTitle || "未命名";
         let rawExcerpt = log.articleHook || log.articleBody || '暫無內容預覽';
-        const excerpt = rawExcerpt.length > 100 ? rawExcerpt.substring(0, 100) + '...' : rawExcerpt;
+        const excerpt = rawExcerpt.length > 150 ? rawExcerpt.substring(0, 150) + '...' : rawExcerpt;
         const date = log.timestamp ? log.timestamp.split(' ')[0] : '';
         
-        topCarouselHtml += '<div onclick="openArticleWorkshop(\'' + log.logId + '\')" style="cursor:pointer; flex: 0 0 calc(33.333% - 11px); min-width: 280px; max-width: 320px; border: 1px solid var(--border); border-radius: 8px; overflow: hidden; background: #fff; scroll-snap-align: start; transition: transform 0.2s; display: flex; flex-direction: column;">' +
+        topCarouselHtml += '<div onclick="openArticleWorkshop(\'' + log.logId + '\')" style="cursor:pointer; flex: 0 0 calc(35% - 11px); min-width: 280px; max-width: 340px; border: 1px solid var(--border); border-radius: 8px; overflow: hidden; background: #fff; scroll-snap-align: start; transition: transform 0.2s; display: flex; flex-direction: column;">' +
           '<img src="' + cover + '" style="width: 100%; aspect-ratio: 16/9; object-fit: cover; border-bottom: 1px solid var(--border-subtle);">' +
           '<div style="padding: 16px; flex: 1; display: flex; flex-direction: column;">' +
             '<div style="font-size: 15px; font-weight: 800; margin-bottom: 12px; line-height: 1.4; display: block; word-break: break-all;">' + escapeHtml(title) + '</div>' +
@@ -2596,7 +2596,7 @@
       const cleanTime = sanitizeTimestamp(log.timestamp);
       const isPublished = log.status && log.status.includes('已發布'); 
       let rawExcerpt = log.articleHook || log.articleBody || '暫無內容預覽';
-      const excerpt = rawExcerpt.length > 100 ? rawExcerpt.substring(0, 100) + '...' : rawExcerpt;
+      const excerpt = rawExcerpt.length > 150 ? rawExcerpt.substring(0, 150) + '...' : rawExcerpt;
       const coverImg = log.coverUrl ? '<img src="' + log.coverUrl + '" class="feed-cover" alt="Cover">' : '<div class="feed-cover" style="background:#f1f5f9; display:flex; align-items:center; justify-content:center; color:var(--text-muted); font-size:12px;">無圖</div>';
       const badgeCls = isPublished ? 'published' : 'draft';
       const badgeTxt = isPublished ? '已發布' : '草稿';
