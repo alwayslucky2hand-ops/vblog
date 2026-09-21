@@ -418,7 +418,7 @@
     .feed-author-avatar { width: 28px; height: 28px; border-radius: 50%; object-fit: cover; }
     .feed-date { font-size: 13px; color: var(--text-muted); }
     .feed-title { font-size: 22px; font-weight: 800; margin-bottom: 12px; line-height: 1.4; display: block; color: var(--text); }
-    .feed-excerpt { font-size: 15px; color: var(--text-muted); line-height: 1.6; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; margin-bottom: 16px; }
+    .feed-excerpt { font-size: 15px; color: var(--text-muted); line-height: 1.6; display: -webkit-box; -webkit-line-clamp: 5; -webkit-box-orient: vertical; overflow: hidden; margin-bottom: 16px; }
     
     .feed-cover { width: 240px; aspect-ratio: 16 / 9; height: auto; border-radius: 8px; object-fit: cover; flex-shrink: 0; border: 1px solid var(--border); }
     
@@ -426,6 +426,10 @@
       .feed-item { flex-direction: column-reverse; gap: 16px; padding: 16px; }
       .feed-cover { width: 100%; height: auto; aspect-ratio: 16/9; }
     }
+    
+     
+    .dashboard-carousel { display: flex; gap: 16px; overflow-x: auto; padding-bottom: 12px; scroll-snap-type: x mandatory; -ms-overflow-style: none; scrollbar-width: none; }
+    .dashboard-carousel::-webkit-scrollbar { display: none; }
 
      
     .medium-link-tooltip {
@@ -555,6 +559,14 @@
   <div id="tab-live" class="tab-content active">
 
     
+    <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 8px;">
+      <span style="font-size: 13px; font-weight: 600; color: var(--text-muted); white-space: nowrap;"><i data-lucide="file-text" style="width: 14px; height: 14px;"></i> 總結指令</span>
+      <select id="liveLogPromptSelect" class="login-input" style="margin-bottom: 0; padding: 6px 12px; height: auto; flex: 1;">
+        <option value="請幫我摘要以下重點：">預設總結</option>
+      </select>
+    </div>
+
+    
     <div style="display: flex; gap: 8px; margin-bottom: 8px;">
       <div class="input-group" style="flex: 1;">
         <span class="input-group-addon"><i data-lucide="youtube" style="width: 16px; height: 16px; color: var(--danger);"></i></span>
@@ -643,9 +655,15 @@
 
   
   <div id="tab-article" class="tab-content">
-    <div style="display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 12px;">
-      <div>
-        <h3 style="font-size: 18px; font-weight: 700;">工坊</h3>
+    <div style="display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 12px; margin-bottom: 8px;">
+      <div style="display: flex; align-items: center; gap: 16px; flex-wrap: wrap;">
+        <h3 style="font-size: 18px; font-weight: 700; margin: 0;">工坊</h3>
+        <div style="display: flex; align-items: center; gap: 8px;">
+           <span style="font-size: 13px; font-weight: 600; color: var(--text-muted);">文章類別</span>
+           <select id="articleCategorySelect" class="login-input" style="width: auto; margin-bottom: 0; padding: 6px 12px; height: auto;" onchange="saveCurrentStepData('category')">
+             <option value="未分類">未分類</option>
+           </select>
+        </div>
       </div>
       <div id="workshopActiveLogBadge" style="font-size: 12px; font-weight: 600; color: var(--text-muted); padding: 4px 10px; border: 1px solid var(--border); border-radius: 4px;">未選</div>
     </div>
@@ -737,14 +755,13 @@
 
       
       <div style="display: flex; gap: 12px; margin-top: 16px; flex-wrap: wrap;">
-        <select id="articleTier" class="login-input" style="width: auto; flex-shrink: 0;" onchange="toggleVipEmail()">
+        <select id="articleTier" class="login-input" style="width: auto; flex-shrink: 0;" onchange="saveCurrentStepData('tier')">
           <option value="公開">公開文章</option>
           <option value="會員限定">會員限定</option>
-          <option value="VIP私塾">VIP私塾特定</option>
         </select>
         <select id="articleShowVideo" class="login-input" style="width: auto; flex-shrink: 0;" onchange="handleShowVideoChange()">
-          <option value="true">發布顯示影音</option>
-          <option value="false">不顯示影音播放器</option>
+          <option value="true">發布顯示錄誌影音</option>
+          <option value="false">不顯示錄誌影音</option>
         </select>
         <input type="email" id="articleVipEmail" class="login-input" placeholder="讀者專屬信箱(必填)" style="display: none; flex: 1;">
       </div>
@@ -763,23 +780,9 @@
     <div style="display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 12px; margin-bottom: 8px;">
       <div style="display: flex; align-items: center; gap: 12px;">
         <h3 style="font-size: 18px; font-weight: 700;">文章</h3>
-        
-        
-        <select id="dashboardFilter" class="login-input" style="width: auto; margin-bottom: 0; padding: 4px 12px; height: 32px;" onchange="currentDashboardRenderCount = 10; renderDashboardLogsView()">
-          <option value="all">全部文章</option>
-          <option value="published">已發布</option>
-          <option value="draft">草稿</option>
-        </select>
-        <select id="dashboardTierFilter" class="login-input" style="width: auto; margin-bottom: 0; padding: 4px 12px; height: 32px;" onchange="currentDashboardRenderCount = 10; renderDashboardLogsView()">
-          <option value="all">所有權限</option>
-          <option value="公開">公開文章</option>
-          <option value="會員限定">會員限定</option>
-          <option value="VIP">VIP專屬</option>
-        </select>
       </div>
       <div class="flex-wrap-gap">
         <a id="authorGitHubLink" href="#" target="_blank" class="action-btn-sm" style="display:none; color:var(--text); border-color:var(--text);"><i data-lucide="external-link" style="width:14px; height:14px;"></i> 沙龍</a>
-        
         <button id="btnSyncHome" onclick="deployAllPublishedPages(this)" class="action-btn-sm" style="color: var(--accent); border-color: var(--accent);"><i data-lucide="upload-cloud" style="width: 14px; height: 14px;"></i> 更新部署</button>
         <button onclick="loadDashboardLogs(true)" class="action-btn-sm"><i data-lucide="refresh-cw" style="width: 14px; height: 14px;"></i> 重整</button>
       </div>
@@ -789,11 +792,35 @@
     <div id="dashboardHeroContainer"></div>
 
     
-    <div style="display:flex; gap:12px; margin-bottom: 24px; flex-wrap: wrap; background: #fff; padding: 8px 16px; border-radius: 8px; border: 1px solid var(--border);">
-      <div style="display: flex; align-items: center; gap: 8px; color: var(--text-muted);">
-        <i data-lucide="search" style="width: 18px; height: 18px;"></i>
+    <div id="dashTopCarouselsContainer"></div>
+
+    
+    <div style="display:flex; flex-direction: column; gap:12px; margin-bottom: 24px; background: #fff; padding: 16px; border-radius: 8px; border: 1px solid var(--border);">
+      <div style="display:flex; gap:12px; align-items: center;">
+        <div style="display: flex; align-items: center; gap: 8px; color: var(--text-muted);">
+          <i data-lucide="search" style="width: 18px; height: 18px;"></i>
+        </div>
+        <input type="text" id="dashboardSearch" class="login-input" placeholder="輸入關鍵字搜尋標題、內容或日期 (如 2026/09)..." style="flex:1; margin-bottom:0; border: none; outline: none; background: transparent; padding: 0; height: 32px;" onkeyup="currentDashboardRenderCount = 10; renderDashboardLogsView()">
       </div>
-      <input type="text" id="dashboardSearch" class="login-input" placeholder="輸入關鍵字搜尋標題、內容或日期 (如 2026/09)..." style="flex:1; margin-bottom:0; border: none; outline: none; background: transparent; padding: 0; height: 32px;" onkeyup="currentDashboardRenderCount = 10; renderDashboardLogsView()">
+      <div style="border-top: 1px solid var(--border-subtle); padding-top: 12px; display: flex; flex-wrap: wrap; gap: 12px; align-items: center;">
+        <select id="dashboardFilter" class="login-input" style="width: auto; margin-bottom: 0; padding: 4px 12px; height: 32px;" onchange="currentDashboardRenderCount = 10; renderDashboardLogsView()">
+          <option value="all">全部狀態</option>
+          <option value="published">已發布</option>
+          <option value="draft">草稿</option>
+        </select>
+        <select id="dashboardTierFilter" class="login-input" style="width: auto; margin-bottom: 0; padding: 4px 12px; height: 32px;" onchange="currentDashboardRenderCount = 10; renderDashboardLogsView()">
+          <option value="all">所有權限</option>
+          <option value="公開">公開文章</option>
+          <option value="會員限定">會員限定</option>
+        </select>
+        <select id="dashboardCatFilter" class="login-input" style="width: auto; margin-bottom: 0; padding: 4px 12px; height: 32px;" onchange="currentDashboardRenderCount = 10; renderDashboardLogsView()">
+          <option value="all">全部分類</option>
+        </select>
+        <div style="display: flex; background: var(--bg); border: 1px solid var(--border); border-radius: 4px; padding: 2px;">
+          <button id="dashSortNew" onclick="setDashSort('new')" class="action-btn-sm" style="border: none; background: #fff; box-shadow: 0 1px 2px rgba(0,0,0,0.1); height: 26px; padding: 0 10px;">最新</button>
+          <button id="dashSortHot" onclick="setDashSort('hot')" class="action-btn-sm" style="border: none; background: transparent; color: var(--text-muted); height: 26px; padding: 0 10px;">熱門</button>
+        </div>
+      </div>
     </div>
 
     <div id="dashboardContainer" style="width: 100%;">
@@ -898,15 +925,29 @@
 
     <div class="settings-section">
       <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
-        <div class="settings-title" style="margin-bottom: 0;"><i data-lucide="bot" style="width: 18px; height: 18px; color: var(--accent);"></i> 指令</div>
-        <button class="action-btn-sm action-btn-primary" onclick="saveAllPrompts(this)"><i data-lucide="save" style="width: 14px; height: 14px;"></i> 儲存</button>
+        <div class="settings-title" style="margin-bottom: 0;"><i data-lucide="bot" style="width: 18px; height: 18px; color: var(--accent);"></i> 指令設定區</div>
+        <button class="action-btn-sm action-btn-primary" onclick="saveAllPrompts(this)"><i data-lucide="save" style="width: 14px; height: 14px;"></i> 儲存所有指令</button>
       </div>
-      
-      <div class="form-group"><label class="form-label">日誌總結</label><textarea id="promptStep0" class="workshop-textarea" style="min-height: 250px; font-size: 13.5px;" placeholder="請輸入影片錄製完畢後，系統自動執行的全局重點摘要提示詞..."></textarea></div>
-      <div class="form-group"><label class="form-label">提案</label><textarea id="promptStep1" class="workshop-textarea" style="min-height: 120px; font-size: 13.5px;" placeholder="提案"></textarea></div>
-      <div class="form-group"><label class="form-label">開頭</label><textarea id="promptStep2" class="workshop-textarea" style="min-height: 120px; font-size: 13.5px;" placeholder="開頭"></textarea></div>
-      <div class="form-group"><label class="form-label">內文</label><textarea id="promptStep3" class="workshop-textarea" style="min-height: 120px; font-size: 13.5px;" placeholder="內文"></textarea></div>
-      <div class="form-group"><label class="form-label">結尾</label><textarea id="promptStep4" class="workshop-textarea" style="min-height: 120px; font-size: 13.5px;" placeholder="結尾"></textarea></div>
+
+      <div style="font-size: 14px; font-weight: 700; color: var(--text); margin-bottom: 16px; display: flex; align-items: center; gap: 8px;">
+        <i data-lucide="file-text" style="width: 16px; height: 16px; color: var(--accent);"></i> 錄誌總結專屬指令
+      </div>
+      <div id="logPromptsContainer" style="display: flex; flex-direction: column; gap: 16px;">
+        
+      </div>
+      <div style="padding: 16px; border-top: 1px solid var(--border); background: var(--bg); text-align: center; margin-top: 16px; margin-bottom: 32px; border-radius: 4px;">
+        <button class="action-btn-sm" onclick="addLogPrompt()"><i data-lucide="plus" style="width: 14px; height: 14px;"></i> 新增總結指令</button>
+      </div>
+
+      <div style="font-size: 14px; font-weight: 700; color: var(--text); margin-bottom: 16px; display: flex; align-items: center; gap: 8px;">
+        <i data-lucide="layers" style="width: 16px; height: 16px; color: var(--accent);"></i> 文章類別與專屬指令
+      </div>
+      <div id="categoryPromptsContainer" style="display: flex; flex-direction: column; gap: 16px;">
+        
+      </div>
+      <div style="padding: 16px; border-top: 1px solid var(--border); background: var(--bg); text-align: center; margin-top: 16px; border-radius: 4px;">
+        <button class="action-btn-sm" onclick="addCategoryPrompt()"><i data-lucide="plus" style="width: 14px; height: 14px;"></i> 新增文章類別</button>
+      </div>
     </div>
   </div>
 
@@ -1418,45 +1459,228 @@
   }
 
   async function loadPrompts(email) {
-    const fallback = {
-      step1: "你是一位資深總編輯。針對逐字稿與畫面描述，為微型創業者設計 10 組標題提案。格式必須嚴格依照：「你的吸睛標題｜特洛伊AI賦能師|||[標題類型] 戰略切入點說明」，絕對不要加數字序號。",
-      step2: "你是一位商業雜誌首席特約作家，深諳 Google E-E-A-T。根據文章標題與內容，寫一段兼具價值與黃金3秒Hook的文章開頭。首段50-80字點出實戰經驗價值，第二段直擊痛點。零 Emoji 政策。",
-      step3: "你是一位頂尖主筆，深諳 Google E-E-A-T。將原始畫面描述與語音逐字稿專業重構：1. 內容完整保留口語與案例 2. 白話文字描述 3. 零 Emoji 政策 4. 分為 3 到 5 個次級標題（###），段落間使用分隔線（---）5. 開門見山，不重複標題與開頭。",
-      step4: "你是一位商業導師。寫一段結尾祝福與行動呼籲（CTA）。最後一字不漏加上：「讓ＡＩ為你效勞，讓創業不再過勞\n我是特洛伊，一起用ＡＩ守住光陰」。零 Emoji 政策。"
-    };
-
     const cacheKey = 'bvlog_cache_prompts_' + email;
     const cached = localStorage.getItem(cacheKey);
     
     if (cached) {
       try {
         const res = JSON.parse(cached);
-        document.getElementById('promptStep0').value = res.step0 || ""; 
-        document.getElementById('promptStep1').value = res.step1 || fallback.step1;
-        document.getElementById('promptStep2').value = res.step2 || fallback.step2;
-        document.getElementById('promptStep3').value = res.step3 || fallback.step3;
-        document.getElementById('promptStep4').value = res.step4 || fallback.step4;
+        window.currentCategories = Array.isArray(res.categories) ? res.categories : [];
+        window.currentLogPrompts = Array.isArray(res.logPrompts) ? res.logPrompts : [];
+        renderCategoryPrompts();
+        renderLogPrompts();
       } catch(e) {}
     }
 
     try {
       const res = await api({ action: "getPrompts", email: email });
-      if (res && res.prompts) {
-        localStorage.setItem(cacheKey, JSON.stringify(res.prompts));
-        document.getElementById('promptStep0').value = res.prompts.step0 || ""; 
-        document.getElementById('promptStep1').value = res.prompts.step1 || fallback.step1;
-        document.getElementById('promptStep2').value = res.prompts.step2 || fallback.step2;
-        document.getElementById('promptStep3').value = res.prompts.step3 || fallback.step3;
-        document.getElementById('promptStep4').value = res.prompts.step4 || fallback.step4;
+      if (res) {
+        localStorage.setItem(cacheKey, JSON.stringify(res));
+        window.currentCategories = Array.isArray(res.categories) ? res.categories : [];
+        window.currentLogPrompts = Array.isArray(res.logPrompts) ? res.logPrompts : [];
+        renderCategoryPrompts();
+        renderLogPrompts();
       }
     } catch (e) {
       if(!cached) {
-        document.getElementById('promptStep0').value = ""; 
-        document.getElementById('promptStep1').value = fallback.step1;
-        document.getElementById('promptStep2').value = fallback.step2;
-        document.getElementById('promptStep3').value = fallback.step3;
-        document.getElementById('promptStep4').value = fallback.step4;
+        window.currentCategories = [];
+        window.currentLogPrompts = [];
+        renderCategoryPrompts();
+        renderLogPrompts();
       }
+    }
+  }
+
+  window.currentCategories = [];
+  window.currentLogPrompts = [];
+
+ function renderLogPrompts() {
+    const container = document.getElementById('logPromptsContainer');
+    if (!container) return;
+    let html = '';
+    window.currentLogPrompts.forEach((lp, idx) => {
+      html += `
+        <details class="history-accordion">
+          <summary>
+            <span style="display: flex; align-items: center; gap: 8px;">
+              <i data-lucide="file-text" style="width: 15px; height: 15px; color: var(--accent);"></i> 
+              <span id="lp-summary-title-${idx}">名稱：${escapeHtml(lp.name || '新總結指令')}</span>
+            </span>
+            <div style="display: flex; gap: 8px; align-items: center;">
+              <button class="action-btn-sm action-btn-icon" onclick="event.preventDefault(); duplicateLogPrompt(${idx})" title="複製"><i data-lucide="copy" style="width: 16px; height: 16px;"></i></button>
+              <button class="action-btn-sm action-btn-icon danger" onclick="event.preventDefault(); removeLogPrompt(${idx})" title="刪除"><i data-lucide="trash-2" style="width: 16px; height: 16px;"></i></button>
+              <span class="accordion-toggle-icon"><i data-lucide="chevron-down" style="width: 16px; height: 16px;"></i></span>
+            </div>
+          </summary>
+          <div class="accordion-body" style="background: #fafafa; border-top: 1px solid var(--border);">
+            <div class="form-group">
+              <label class="form-label">指令名稱</label>
+              <input type="text" class="login-input lp-name-input" data-idx="${idx}" value="${escapeHtml(lp.name)}" placeholder="例如：會議總結" style="font-weight: 700;" oninput="document.getElementById('lp-summary-title-${idx}').innerText = '名稱：' + (this.value.trim() || '新總結指令')">
+            </div>
+            <div class="form-group">
+              <label class="form-label">總結提示詞</label>
+              <textarea class="workshop-textarea lp-content-input" data-idx="${idx}" style="min-height: 80px;" placeholder="輸入總結提示詞...">${escapeHtml(lp.content || '')}</textarea>
+            </div>
+            <div style="text-align: right; margin-top: 16px;">
+              <button class="action-btn-sm action-btn-primary" onclick="saveAllPrompts(this)"><i data-lucide="save" style="width: 14px; height: 14px;"></i> 儲存所有指令</button>
+            </div>
+          </div>
+        </details>
+      `;
+    });
+    if (window.currentLogPrompts.length === 0) html = '<div style="text-align:center; color:var(--text-muted); font-size:13px; padding:20px;">尚未建立總結指令。</div>';
+    container.innerHTML = html;
+    lucide.createIcons();
+    updateLiveLogPromptSelect();
+  }
+
+  window.addLogPrompt = function() {
+    syncCategoryInputs();
+    window.currentLogPrompts.push({ name: '', content: '' });
+    renderLogPrompts();
+  };
+  window.duplicateLogPrompt = function(idx) {
+    syncCategoryInputs();
+    const lp = window.currentLogPrompts[idx];
+    window.currentLogPrompts.push({ name: lp.name + " (複製)", content: lp.content });
+    renderLogPrompts();
+  };
+  window.removeLogPrompt = function(idx) {
+    if(!confirm("確定刪除此指令？")) return;
+    syncCategoryInputs();
+    window.currentLogPrompts.splice(idx, 1);
+    renderLogPrompts();
+  };
+
+  function updateLiveLogPromptSelect() {
+    const sel = document.getElementById('liveLogPromptSelect');
+    if (!sel) return;
+    const currentVal = sel.value;
+    let html = '';
+    window.currentLogPrompts.forEach(p => {
+      if(p.name) html += `<option value="${escapeHtml(p.content)}">${escapeHtml(p.name)}</option>`;
+    });
+    sel.innerHTML = html || '<option value="請幫我摘要以下重點：">預設總結</option>';
+    if (currentVal && Array.from(sel.options).some(o => o.value === currentVal)) sel.value = currentVal;
+  }
+  
+  window.currentCategories = [];
+  window.currentLogPrompts = [];
+
+  function renderCategoryPrompts() {
+    const container = document.getElementById('categoryPromptsContainer');
+    if (!container) return;
+    let html = '';
+    window.currentCategories.forEach((cat, idx) => {
+      html += `
+        <details class="history-accordion">
+          <summary>
+            <span style="display: flex; align-items: center; gap: 8px;">
+              <i data-lucide="folder" style="width: 15px; height: 15px; color: var(--accent);"></i> 
+              <span id="cat-summary-title-${idx}">類別：${escapeHtml(cat.name || '新文章類別')}</span>
+            </span>
+            <div style="display: flex; gap: 8px; align-items: center;">
+              <button class="action-btn-sm action-btn-icon" onclick="event.preventDefault(); duplicateCategoryPrompt(${idx})" title="複製"><i data-lucide="copy" style="width: 16px; height: 16px;"></i></button>
+              <button class="action-btn-sm action-btn-icon danger" onclick="event.preventDefault(); removeCategoryPrompt(${idx})" title="刪除"><i data-lucide="trash-2" style="width: 16px; height: 16px;"></i></button>
+              <span class="accordion-toggle-icon"><i data-lucide="chevron-down" style="width: 16px; height: 16px;"></i></span>
+            </div>
+          </summary>
+          <div class="accordion-body" style="background: #fafafa; border-top: 1px solid var(--border);">
+            <div class="form-group">
+              <label class="form-label">類別名稱</label>
+              <input type="text" class="login-input cat-name-input" data-idx="${idx}" value="${escapeHtml(cat.name)}" placeholder="例如：創業日記" style="font-weight: 700;" oninput="document.getElementById('cat-summary-title-${idx}').innerText = '類別：' + (this.value.trim() || '新文章類別')">
+            </div>
+            <div class="form-group">
+              <label class="form-label">開頭指令</label>
+              <textarea class="workshop-textarea cat-prompt-step2" data-idx="${idx}" style="min-height: 80px;" placeholder="撰寫開頭Hook的提示詞...">${escapeHtml(cat.step2 || '')}</textarea>
+            </div>
+            <div class="form-group">
+              <label class="form-label">內文指令</label>
+              <textarea class="workshop-textarea cat-prompt-step3" data-idx="${idx}" style="min-height: 150px;" placeholder="重構語音紀錄為長文的提示詞...">${escapeHtml(cat.step3 || '')}</textarea>
+            </div>
+            <div class="form-group">
+              <label class="form-label">結尾指令</label>
+              <textarea class="workshop-textarea cat-prompt-step4" data-idx="${idx}" style="min-height: 80px;" placeholder="結尾CTA與呼籲提示詞...">${escapeHtml(cat.step4 || '')}</textarea>
+            </div>
+            <div style="text-align: right; margin-top: 16px;">
+               <button class="action-btn-sm action-btn-primary" onclick="saveAllPrompts(this)"><i data-lucide="save" style="width: 14px; height: 14px;"></i> 儲存所有指令</button>
+            </div>
+          </div>
+        </details>
+      `;
+    });
+    if (window.currentCategories.length === 0) {
+      html = '<div style="text-align:center; color:var(--text-muted); font-size:13px; padding:20px;">尚未建立文章類別。</div>';
+    }
+    container.innerHTML = html;
+    lucide.createIcons();
+    updateWorkshopCategorySelect();
+  }
+
+  window.addCategoryPrompt = function() {
+    syncCategoryInputs();
+    window.currentCategories.push({ name: '', step1: '', step2: '', step3: '', step4: '' });
+    renderCategoryPrompts();
+  };
+
+  window.duplicateCategoryPrompt = function(idx) {
+    syncCategoryInputs();
+    const cat = window.currentCategories[idx];
+    const newCat = JSON.parse(JSON.stringify(cat));
+    newCat.name = newCat.name + " (複製)";
+    window.currentCategories.push(newCat);
+    renderCategoryPrompts();
+  };
+
+  window.removeCategoryPrompt = function(idx) {
+    if(!confirm("確定刪除此分類？")) return;
+    syncCategoryInputs();
+    window.currentCategories.splice(idx, 1);
+    renderCategoryPrompts();
+  };
+
+  function syncCategoryInputs() {
+    document.querySelectorAll('.cat-name-input').forEach(input => {
+      const idx = input.getAttribute('data-idx');
+      if (window.currentCategories[idx]) window.currentCategories[idx].name = input.value.trim();
+    });
+    document.querySelectorAll('.cat-prompt-step1').forEach(input => {
+      const idx = input.getAttribute('data-idx');
+      if (window.currentCategories[idx]) window.currentCategories[idx].step1 = input.value;
+    });
+    document.querySelectorAll('.cat-prompt-step2').forEach(input => {
+      const idx = input.getAttribute('data-idx');
+      if (window.currentCategories[idx]) window.currentCategories[idx].step2 = input.value;
+    });
+    document.querySelectorAll('.cat-prompt-step3').forEach(input => {
+      const idx = input.getAttribute('data-idx');
+      if (window.currentCategories[idx]) window.currentCategories[idx].step3 = input.value;
+    });
+    document.querySelectorAll('.cat-prompt-step4').forEach(input => {
+      const idx = input.getAttribute('data-idx');
+      if (window.currentCategories[idx]) window.currentCategories[idx].step4 = input.value;
+    });
+    document.querySelectorAll('.lp-name-input').forEach(input => {
+      const idx = input.getAttribute('data-idx');
+      if (window.currentLogPrompts[idx]) window.currentLogPrompts[idx].name = input.value.trim();
+    });
+    document.querySelectorAll('.lp-content-input').forEach(input => {
+      const idx = input.getAttribute('data-idx');
+      if (window.currentLogPrompts[idx]) window.currentLogPrompts[idx].content = input.value;
+    });
+  }
+
+  function updateWorkshopCategorySelect() {
+    const sel = document.getElementById('articleCategorySelect');
+    if (!sel) return;
+    const currentVal = sel.value;
+    let html = '<option value="未分類">未分類</option>';
+    window.currentCategories.forEach(c => {
+      if(c.name) html += `<option value="${escapeHtml(c.name)}">${escapeHtml(c.name)}</option>`;
+    });
+    sel.innerHTML = html;
+    if (currentVal && Array.from(sel.options).some(o => o.value === currentVal)) {
+      sel.value = currentVal;
     }
   }
 
@@ -1469,17 +1693,18 @@
     lucide.createIcons();
     btn.disabled = true;
 
-    const prompts = {
-      step0: document.getElementById('promptStep0').value, 
-      step1: document.getElementById('promptStep1').value,
-      step2: document.getElementById('promptStep2').value,
-      step3: document.getElementById('promptStep3').value,
-      step4: document.getElementById('promptStep4').value
+    syncCategoryInputs();
+    const validCategories = window.currentCategories.filter(c => c.name !== '');
+    const validLogPrompts = window.currentLogPrompts.filter(p => p.name !== '');
+
+    const promptsPayload = {
+      categories: validCategories,
+      logPrompts: validLogPrompts
     };
 
     try {
-      await api({ action: "savePrompts", email: email, prompts: prompts });
-      showToast("儲存");
+      await api({ action: "savePrompts", email: email, prompts: promptsPayload, payload: promptsPayload });
+      showToast("儲存成功");
     } catch (e) { alert(e.message); } 
     finally { btn.innerHTML = originalHtml; lucide.createIcons(); btn.disabled = false; }
   }
@@ -1661,9 +1886,9 @@
     wakeControls();
   }
 
-  
-  
-  
+  // ==========================================
+  // 🌟 新增：處理前端 YouTube 連結傳送邏輯
+  // ==========================================
   async function processYouTubeLink() {
     const email = localStorage.getItem('bvlog_user_email');
     if (!email) { alert("請先登入"); return; }
@@ -1671,7 +1896,7 @@
     const urlInput = document.getElementById('ytUrlInput');
     const url = urlInput.value.trim();
     
-    
+    // 簡單的網址驗證
     if (!url || (!url.includes('youtube.com') && !url.includes('youtu.be'))) {
       showToast("請輸入有效的 YouTube 連結");
       return;
@@ -1680,7 +1905,7 @@
     const btn = document.getElementById('btnProcessYT');
     const originalHtml = btn.innerHTML;
     
-    
+    // 鎖定按鈕並顯示讀取中 UI
     btn.innerHTML = '<i data-lucide="loader" class="spin" style="width:14px; height:14px;"></i> 提取中...';
     lucide.createIcons();
     btn.disabled = true;
@@ -1688,8 +1913,9 @@
     urlInput.disabled = true;
 
     try {
-      
-      await api({ action: "processYouTube", url: url, email: email });
+      // 呼叫後端 API
+      const logPromptContent = document.getElementById('liveLogPromptSelect') ? document.getElementById('liveLogPromptSelect').value : "";
+      await api({ action: "processYouTube", url: url, email: email, logPromptContent: logPromptContent });
       
       showToast("提取歸檔完成！");
       log("[系統] YouTube 分析完成");
@@ -1857,7 +2083,8 @@
     log("[處理] 歸檔...");
 
     try {
-      const res = await api({ action: "finalizeLog", rowIndex: logSession.rowIndex, email: email });
+      const logPromptContent = document.getElementById('liveLogPromptSelect') ? document.getElementById('liveLogPromptSelect').value : "";
+      const res = await api({ action: "finalizeLog", rowIndex: logSession.rowIndex, email: email, logPromptContent: logPromptContent });
       log("[成功] 完成");
       const urls = res.urls || [];
 
@@ -2203,14 +2430,37 @@
     renderDashboardLogsView();
   }
 
+  window.currentDashSortMode = 'new';
+  window.setDashSort = function(mode) {
+    window.currentDashSortMode = mode;
+    document.getElementById('dashSortNew').style.background = mode === 'new' ? '#fff' : 'transparent';
+    document.getElementById('dashSortNew').style.color = mode === 'new' ? 'var(--text)' : 'var(--text-muted)';
+    document.getElementById('dashSortNew').style.boxShadow = mode === 'new' ? '0 1px 2px rgba(0,0,0,0.1)' : 'none';
+    document.getElementById('dashSortHot').style.background = mode === 'hot' ? '#fff' : 'transparent';
+    document.getElementById('dashSortHot').style.color = mode === 'hot' ? 'var(--text)' : 'var(--text-muted)';
+    document.getElementById('dashSortHot').style.boxShadow = mode === 'hot' ? '0 1px 2px rgba(0,0,0,0.1)' : 'none';
+    currentDashboardRenderCount = 10;
+    renderDashboardLogsView();
+  };
+
   function renderDashboardLogsView() {
     const container = document.getElementById('dashboardContainer');
+    const topCarouselsContainer = document.getElementById('dashTopCarouselsContainer');
     const filterStatus = document.getElementById('dashboardFilter') ? document.getElementById('dashboardFilter').value : 'all';
     const filterTier = document.getElementById('dashboardTierFilter') ? document.getElementById('dashboardTierFilter').value : 'all';
+    const filterCat = document.getElementById('dashboardCatFilter') ? document.getElementById('dashboardCatFilter').value : 'all';
     const searchKeyword = document.getElementById('dashboardSearch') ? document.getElementById('dashboardSearch').value.toLowerCase().trim() : '';
-
     const dashboardItems = Array.isArray(globalLogsCache) ? globalLogsCache : [];
-    
+
+    const catSelect = document.getElementById('dashboardCatFilter');
+    if (catSelect) {
+      const cats = [...new Set(dashboardItems.map(l => l.category || '未分類'))];
+      const currentVal = catSelect.value;
+      let optionsHtml = '<option value="all">全部分類</option>';
+      cats.forEach(c => optionsHtml += '<option value="' + escapeHtml(c) + '">' + escapeHtml(c) + '</option>');
+      catSelect.innerHTML = optionsHtml;
+      if (cats.includes(currentVal)) catSelect.value = currentVal;
+    }
     
     let filteredItems = dashboardItems.filter(l => {
       let matchStatus = true;
@@ -2219,15 +2469,98 @@
 
       const logTier = l.tier || '公開';
       let matchTier = (filterTier === 'all' || logTier.includes(filterTier));
+      
+      const logCat = l.category || '未分類';
+      let matchCat = (filterCat === 'all' || logCat === filterCat);
 
       const searchTarget = (l.articleTitle + " " + l.articleBody + " " + l.timestamp).toLowerCase();
       let matchKeyword = (searchKeyword === '' || searchTarget.includes(searchKeyword));
-
-      return matchStatus && matchTier && matchKeyword;
+      return matchStatus && matchTier && matchCat && matchKeyword;
     });
 
-    let allHtml = '';
+    filteredItems.sort((a, b) => {
+      if (window.currentDashSortMode === 'new') {
+        return (b.sortTime || 0) - (a.sortTime || 0);
+      } else {
+        return (b.viewCount || 0) - (a.viewCount || 0);
+      }
+    });
 
+    let topCarouselHtml = '';
+    const top5Sort = (a, b) => {
+      if (b.readCount !== a.readCount) return (b.readCount || 0) - (a.readCount || 0);
+      if (b.viewCount !== a.viewCount) return (b.viewCount || 0) - (a.viewCount || 0);
+      return (b.sortTime || 0) - (a.sortTime || 0);
+    };
+
+    const pinnedLogs = dashboardItems.filter(l => l.isPinned).sort(top5Sort).slice(0, 5);
+    if (pinnedLogs.length > 0) {
+      topCarouselHtml += '<div style="margin-bottom: 32px; position: relative;"><h2 style="font-size: 18px; font-weight: 800; color: var(--text); margin-bottom: 16px;"><i data-lucide="pin" style="width:18px;height:18px;"></i> 釘選置頂</h2><div style="position: relative;"><div class="dashboard-carousel" style="align-items: stretch;">';
+      pinnedLogs.forEach(log => {
+        const cover = log.coverUrl || 'https://ui-avatars.com/api/?name=T&background=f1f5f9&color=cbd5e1';
+        const title = log.articleTitle || "未命名";
+        let rawExcerpt = log.articleHook || log.articleBody || '暫無內容預覽';
+        const excerpt = rawExcerpt.length > 100 ? rawExcerpt.substring(0, 100) + '...' : rawExcerpt;
+        const date = log.timestamp ? log.timestamp.split(' ')[0] : '';
+        
+        topCarouselHtml += '<div onclick="openArticleWorkshop(\'' + log.logId + '\')" style="cursor:pointer; flex: 0 0 calc(33.333% - 11px); min-width: 280px; max-width: 320px; border: 1px solid var(--border); border-radius: 8px; overflow: hidden; background: #fff; scroll-snap-align: start; transition: transform 0.2s; display: flex; flex-direction: column;">' +
+          '<img src="' + cover + '" style="width: 100%; aspect-ratio: 16/9; object-fit: cover; border-bottom: 1px solid var(--border-subtle);">' +
+          '<div style="padding: 16px; flex: 1; display: flex; flex-direction: column;">' +
+            '<div style="font-size: 15px; font-weight: 800; margin-bottom: 12px; line-height: 1.4; display: block; word-break: break-all;">' + escapeHtml(title) + '</div>' +
+            '<div style="font-size: 13px; color: var(--text-muted); line-height: 1.6; margin-bottom: 16px; display: block; flex: 1; word-break: break-all;">' + escapeHtml(excerpt) + '</div>' +
+            '<div style="font-size: 12px; color: var(--text-muted); display:flex; gap:12px; margin-top: auto; align-items: center; justify-content: space-between;">' +
+              '<span>' + date + '</span>' +
+              '<span style="display:flex; align-items:center; gap:4px;"><i data-lucide="eye" style="width:12px;height:12px;"></i> ' + (log.viewCount||0) + '</span>' +
+            '</div>' +
+          '</div>' +
+        '</div>';
+      });
+      topCarouselHtml += '</div><div style="position: absolute; top: 0; right: 0; bottom: 12px; width: 40px; background: linear-gradient(to left, rgba(0,0,0,0.05), transparent); pointer-events: none; border-radius: 0 8px 8px 0;"></div></div></div>';
+    }
+
+    const categoriesMap = {};
+    dashboardItems.forEach(l => {
+      const cat = l.category || '未分類';
+      if(!categoriesMap[cat]) categoriesMap[cat] = [];
+      categoriesMap[cat].push(l);
+    });
+    
+    Object.keys(categoriesMap).forEach(cat => {
+      if (cat === '未分類') return;
+      const catLogs = categoriesMap[cat].sort(top5Sort).slice(0, 5);
+      if(catLogs.length === 0) return;
+      
+      topCarouselHtml += '<div style="margin-bottom: 32px; position: relative;"><h2 style="font-size: 18px; font-weight: 800; color: var(--text); margin-bottom: 16px;">' + escapeHtml(cat) + ' Top5</h2><div style="position: relative;"><div class="dashboard-carousel" style="align-items: stretch;">';
+      catLogs.forEach(log => {
+        const cover = log.coverUrl || 'https://ui-avatars.com/api/?name=T&background=f1f5f9&color=cbd5e1';
+        const title = log.articleTitle || "未命名";
+        let rawExcerpt = log.articleHook || log.articleBody || '暫無內容預覽';
+        const excerpt = rawExcerpt.length > 100 ? rawExcerpt.substring(0, 100) + '...' : rawExcerpt;
+        const date = log.timestamp ? log.timestamp.split(' ')[0] : '';
+        
+        topCarouselHtml += '<div onclick="openArticleWorkshop(\'' + log.logId + '\')" style="cursor:pointer; flex: 0 0 calc(33.333% - 11px); min-width: 280px; max-width: 320px; border: 1px solid var(--border); border-radius: 8px; overflow: hidden; background: #fff; scroll-snap-align: start; transition: transform 0.2s; display: flex; flex-direction: column;">' +
+          '<img src="' + cover + '" style="width: 100%; aspect-ratio: 16/9; object-fit: cover; border-bottom: 1px solid var(--border-subtle);">' +
+          '<div style="padding: 16px; flex: 1; display: flex; flex-direction: column;">' +
+            '<div style="font-size: 15px; font-weight: 800; margin-bottom: 12px; line-height: 1.4; display: block; word-break: break-all;">' + escapeHtml(title) + '</div>' +
+            '<div style="font-size: 13px; color: var(--text-muted); line-height: 1.6; margin-bottom: 16px; display: block; flex: 1; word-break: break-all;">' + escapeHtml(excerpt) + '</div>' +
+            '<div style="font-size: 12px; color: var(--text-muted); display:flex; gap:12px; margin-top: auto; align-items: center; justify-content: space-between;">' +
+              '<span>' + date + '</span>' +
+              '<span style="display:flex; align-items:center; gap:4px;"><i data-lucide="eye" style="width:12px;height:12px;"></i> ' + (log.viewCount||0) + '</span>' +
+            '</div>' +
+          '</div>' +
+        '</div>';
+      });
+      topCarouselHtml += '</div><div style="position: absolute; top: 0; right: 0; bottom: 12px; width: 40px; background: linear-gradient(to left, rgba(0,0,0,0.05), transparent); pointer-events: none; border-radius: 0 8px 8px 0;"></div></div></div>';
+    });
+
+    if (topCarouselsContainer) {
+      topCarouselsContainer.innerHTML = topCarouselHtml;
+      topCarouselsContainer.style.borderBottom = topCarouselHtml ? '1px solid var(--border)' : 'none';
+      topCarouselsContainer.style.paddingBottom = topCarouselHtml ? '16px' : '0';
+      topCarouselsContainer.style.marginBottom = topCarouselHtml ? '24px' : '0';
+    }
+
+    let allHtml = '';
     if(filteredItems.length === 0) {
       allHtml += '<div style="text-align:center; color:var(--text-muted); padding:40px 0; border:1px solid var(--border); border-radius:4px;">沒有找到符合的文章！</div>';
       container.innerHTML = allHtml;
@@ -2236,101 +2569,69 @@
       return;
     }
 
-    
-    const publicLogs = filteredItems.filter(l => l.tier === '公開' || !l.tier || l.tier.trim() === '');
-    const memberLogs = filteredItems.filter(l => l.tier === '會員限定');
-    const vipLogs = filteredItems.filter(l => l.tier === 'VIP私塾特定' || l.tier === 'VIP私塾'); 
-
-    
-    allHtml += renderDashFeedSection(publicLogs, '公開文章', 'globe', 'var(--text)', 'dash-sec-public');
-    allHtml += renderDashFeedSection(memberLogs, '會員限定', 'lock', 'var(--warning)', 'dash-sec-member');
-    allHtml += renderDashFeedSection(vipLogs, 'VIP私塾', 'crown', 'var(--danger)', 'dash-sec-vip');
-
-    container.innerHTML = allHtml;
-
-    lucide.createIcons();
-    isDashboardRendered = true;
-  }
-
-  function renderDashFeedSection(sectionLogs, title, iconStr, color, sectionId) {
-    if (sectionLogs.length === 0) return '';
     const p = window.currentAuthorProfile || {};
     const avatarUrl = p.avatarUrl || 'https://ui-avatars.com/api/?name=T&background=3175B5&color=fff';
     const displayName = p.authorName || '特洛伊AI賦能師';
 
-    const topN = sectionLogs.slice(0, 5); 
-    const rest = sectionLogs.slice(5);
-
-    let html = `<div style="margin-top: 16px; margin-bottom: 48px;">
-                  <h2 class="section-title" style="color: ${color}; border-color: ${color};"><i data-lucide="${iconStr}" style="width:20px;height:20px;"></i> ${title}</h2>
-                  <div class="feed-list">`;
+    allHtml += '<div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px;"><h2 style="font-size: 18px; font-weight: 800; color: var(--text);"><i data-lucide="list" style="width: 18px; height: 18px;"></i> 文章列表</h2></div><div class="feed-list">';
+    const renderLimit = currentDashboardRenderCount;
+    const itemsToRender = filteredItems.slice(0, renderLimit);
     
-    topN.forEach(log => { html += generateFeedItemHtml(log, avatarUrl, displayName); });
-    html += '</div>';
-
-    if (rest.length > 0) {
-      const restId = 'rest-' + Math.random().toString(36).substr(2, 9);
-      html += `<div id="${restId}" style="display:none;" class="feed-list" style="margin-top: 32px;">`;
-      rest.forEach(log => { html += generateFeedItemHtml(log, avatarUrl, displayName); });
-      html += `</div>
-               <div style="text-align: center; margin-top: 24px;">
-                 <button onclick="document.getElementById('${restId}').style.display='flex'; this.style.display='none';" class="action-btn-sm" style="border-radius: 20px; padding: 10px 24px;">
-                   <i data-lucide="chevron-down" style="width:14px; height:14px;"></i> 看更多 (${rest.length})
-                 </button>
-               </div>`;
+    itemsToRender.forEach(log => {
+      allHtml += generateFeedItemHtml(log, avatarUrl, displayName);
+    });
+    
+    allHtml += '</div>';
+    
+    if (filteredItems.length > renderLimit) {
+      allHtml += '<div style="text-align: center; margin-top: 24px;"><button onclick="currentDashboardRenderCount += 10; isDashboardRendered = false; renderDashboardLogsView();" class="action-btn-sm" style="border-radius: 20px; padding: 10px 24px;"><i data-lucide="chevron-down" style="width:14px; height:14px;"></i> 載入更多 (' + (filteredItems.length - renderLimit) + ')</button></div>';
     }
-    html += '</div>';
-    return html;
+
+    container.innerHTML = allHtml;
+    lucide.createIcons();
+    isDashboardRendered = true;
   }
 
   function generateFeedItemHtml(log, avatarUrl, displayName) {
       const cleanTime = sanitizeTimestamp(log.timestamp);
       const isPublished = log.status && log.status.includes('已發布'); 
-      const excerpt = log.articleHook || (log.articleBody ? log.articleBody.substring(0, 100) + '...' : '暫無內容預覽');
-      const coverImg = log.coverUrl 
-        ? '<img src="' + log.coverUrl + '" class="feed-cover" alt="Cover">' 
-        : '<div class="feed-cover" style="background:#f1f5f9; display:flex; align-items:center; justify-content:center; color:var(--text-muted); font-size:12px;">無圖</div>';
+      let rawExcerpt = log.articleHook || log.articleBody || '暫無內容預覽';
+      const excerpt = rawExcerpt.length > 100 ? rawExcerpt.substring(0, 100) + '...' : rawExcerpt;
+      const coverImg = log.coverUrl ? '<img src="' + log.coverUrl + '" class="feed-cover" alt="Cover">' : '<div class="feed-cover" style="background:#f1f5f9; display:flex; align-items:center; justify-content:center; color:var(--text-muted); font-size:12px;">無圖</div>';
+      const badgeCls = isPublished ? 'published' : 'draft';
+      const badgeTxt = isPublished ? '已發布' : '草稿';
       
-      const emails = log.vipEmail ? log.vipEmail.split(/[\n,]+/).filter(e => e.trim().length > 0) : [];
-      const subCount = emails.length;
-
-      return `
-      <div class="feed-item">
-        <div class="feed-content">
-          <div class="feed-author-bar">
-            <div class="feed-author-info">
-              <img src="${avatarUrl}" class="feed-author-avatar" alt="Avatar">
-              <span>${safeHtml(displayName)}</span>
-            </div>
-            <div class="feed-date">${cleanTime}</div>
-          </div>
-          <h3 class="feed-title">${safeHtml(log.articleTitle || '草稿 (' + log.logId + ')')}</h3>
-          <p class="feed-excerpt">${escapeHtml(excerpt)}</p>
-          
-          <!-- 後台專屬：數據指標區塊 -->
-          <div style="display: flex; gap: 16px; margin-bottom: 16px; font-size: 13px; color: var(--text-muted); flex-wrap: wrap;">
-             <span style="display:flex; align-items:center; gap:4px;" title="觀看數"><i data-lucide="eye" style="width:14px;height:14px;"></i> ${log.viewCount || 0}</span>
-             <span style="display:flex; align-items:center; gap:4px;" title="完讀數"><i data-lucide="book-open" style="width:14px;height:14px;"></i> ${log.readCount || 0}</span>
-             <span style="display:flex; align-items:center; gap:4px;" title="點播數"><i data-lucide="play-circle" style="width:14px;height:14px;"></i> ${log.playCount || 0}</span>
-             <span style="display:flex; align-items:center; gap:4px; color: var(--accent); font-weight:600;" title="經由此文章收集的訂閱數"><i data-lucide="users" style="width:14px;height:14px;"></i> ${log.subCount || 0}</span>
-          </div>
-
-          <div style="display:flex; align-items:center; gap: 16px; margin-top: auto; padding-top: 12px; border-top: 1px solid var(--border-subtle);">
-             <span class="badge ${isPublished ? 'published' : 'draft'}">${isPublished ? '已發布' : '草稿'}</span>
-             <span style="font-size:12px; font-weight:600; padding:2px 8px; border-radius:4px; background: #f1f5f9; color: var(--text-muted);">${log.tier || '公開'}</span>
-             <div style="margin-left: auto; display:flex; gap:6px;">
-                <!-- 🌟 新增：單篇文章專屬的「部署」按鈕 -->
-                <button class="action-btn-sm" style="color: var(--accent); border-color: var(--accent);" onclick="deploySingleArticle('${log.logId}', this)"><i data-lucide="upload-cloud" style="width: 14px; height: 14px;"></i> 部署</button>
-                <button class="action-btn-sm" onclick="openArticleWorkshop('${log.logId}')"><i data-lucide="edit-3" style="width: 14px; height: 14px;"></i> 編輯</button>
-                <button class="action-btn-sm action-btn-icon danger" onclick="deleteHistoryLog('${log.logId}')" title="刪除"><i data-lucide="trash-2" style="width: 14px; height: 14px;"></i></button>
-             </div>
-          </div>
-        </div>
-        ${coverImg}
-      </div>`;
+      let catOptionsHtml = '<option value="未分類" ' + (log.category === '未分類' ? 'selected' : '') + '>未分類</option>';
+      if (window.currentCategories) {
+        window.currentCategories.forEach(c => {
+           catOptionsHtml += '<option value="' + escapeHtml(c.name) + '" ' + (log.category === c.name ? 'selected' : '') + '>' + escapeHtml(c.name) + '</option>';
+        });
+      }
+      
+      return '<div class="feed-item"><div class="feed-content"><div class="feed-author-bar"><div class="feed-author-info"><img src="' + avatarUrl + '" class="feed-author-avatar" alt="Avatar"><span>' + safeHtml(displayName) + '</span></div><div class="feed-date">' + cleanTime + '</div></div><h3 class="feed-title">' + safeHtml(log.articleTitle || '草稿 (' + log.logId + ')') + '</h3><p class="feed-excerpt">' + escapeHtml(excerpt) + '</p><div style="display: flex; gap: 16px; margin-bottom: 16px; font-size: 13px; color: var(--text-muted); flex-wrap: wrap;"><span style="display:flex; align-items:center; gap:4px;" title="觀看數"><i data-lucide="eye" style="width:14px;height:14px;"></i> ' + (log.viewCount || 0) + '</span><span style="display:flex; align-items:center; gap:4px;" title="完讀數"><i data-lucide="book-open" style="width:14px;height:14px;"></i> ' + (log.readCount || 0) + '</span><span style="display:flex; align-items:center; gap:4px;" title="點播數"><i data-lucide="play-circle" style="width:14px;height:14px;"></i> ' + (log.playCount || 0) + '</span><span style="display:flex; align-items:center; gap:4px; color: var(--accent); font-weight:600;" title="經由此文章收集的訂閱數"><i data-lucide="users" style="width:14px;height:14px;"></i> ' + (log.subCount || 0) + '</span></div><div style="display:flex; align-items:center; gap: 16px; margin-top: auto; padding-top: 12px; border-top: 1px solid var(--border-subtle); flex-wrap: wrap;"><span class="badge ' + badgeCls + '">' + badgeTxt + '</span><div style="display:flex; gap:6px; flex-wrap: wrap;"><select onchange="quickUpdateArticleMeta(\'' + log.logId + '\', \'tier\', this.value)" style="border: 1px solid var(--border); border-radius: 4px; outline: none; cursor:pointer; height: 26px; font-size: 12px; background: #f1f5f9; color: var(--text-muted); font-weight: 600;"><option value="公開" ' + (log.tier === '公開' ? 'selected' : '') + '>公開</option><option value="會員限定" ' + (log.tier === '會員限定' ? 'selected' : '') + '>會員限定</option></select><select onchange="quickUpdateArticleMeta(\'' + log.logId + '\', \'category\', this.value)" style="border: 1px solid var(--border); border-radius: 4px; outline: none; cursor:pointer; height: 26px; font-size: 12px; background: var(--accent-soft); color: var(--accent); font-weight: 600;">' + catOptionsHtml + '</select><select onchange="quickUpdateArticleMeta(\'' + log.logId + '\', \'pinned\', this.value)" style="border: 1px solid ' + (log.isPinned ? '#fde047' : 'var(--border)') + '; border-radius: 4px; outline: none; cursor:pointer; height: 26px; font-size: 12px; background: ' + (log.isPinned ? '#fef08a' : '#fff') + '; color: ' + (log.isPinned ? '#ca8a04' : 'var(--text)') + '; font-weight: 600;"><option value="一般" ' + (!log.isPinned ? 'selected' : '') + '>一般</option><option value="置頂" ' + (log.isPinned ? 'selected' : '') + '>置頂</option></select></div><div style="margin-left: auto; display:flex; gap:6px;"><button class="action-btn-sm" style="color: var(--accent); border-color: var(--accent);" onclick="deploySingleArticle(\'' + log.logId + '\', this)"><i data-lucide="upload-cloud" style="width: 14px; height: 14px;"></i> 部署</button><button class="action-btn-sm" onclick="openArticleWorkshop(\'' + log.logId + '\')"><i data-lucide="edit-3" style="width: 14px; height: 14px;"></i> 編輯</button><button class="action-btn-sm action-btn-icon danger" onclick="deleteHistoryLog(\'' + log.logId + '\')" title="刪除"><i data-lucide="trash-2" style="width: 14px; height: 14px;"></i></button></div></div></div>' + coverImg + '</div>';
   }
 
-  // 🌟 手動強制同步首頁功能
+  window.quickUpdateArticleMeta = async function(logId, field, value) {
+    const email = localStorage.getItem('bvlog_user_email');
+    if (!email) return;
+    
+    const log = globalLogsCache.find(l => l.logId === logId);
+    if (log) {
+      if (field === 'tier') log.tier = value;
+      if (field === 'category') log.category = value;
+      if (field === 'pinned') log.isPinned = (value === '置頂');
+    }
+
+    showToast("更新中...");
+    try {
+      await api({ action: "quickUpdateMeta", logId: logId, field: field, value: value });
+      showToast("更新成功，請記得「更新部署」至首頁！");
+    } catch (e) {
+      showToast("更新失敗：" + e.message);
+    }
+  };
+
+  
   async function syncHomepageToGithub() {
     const email = localStorage.getItem('bvlog_user_email');
     if(!email) return;
@@ -2834,8 +3135,15 @@
     document.getElementById('finalArticleBody').value = logItem.articleBody || '';
     document.getElementById('finalArticleEnding').value = logItem.articleEnding || '';
     
-    document.getElementById('articleTier').value = logItem.tier || '公開';
-    document.getElementById('articleVipEmail').value = logItem.vipEmail || '';
+    document.getElementById('articleTier').value = (logItem.tier === 'VIP私塾' || logItem.tier === 'VIP私塾特定') ? '公開' : (logItem.tier || '公開');
+    if(document.getElementById('articleVipEmail')) document.getElementById('articleVipEmail').value = logItem.vipEmail || '';
+    if(document.getElementById('articleCategorySelect')) {
+      const cat = logItem.category || '未分類';
+      if (!Array.from(document.getElementById('articleCategorySelect').options).some(o => o.value === cat)) {
+        document.getElementById('articleCategorySelect').insertAdjacentHTML('beforeend', `<option value="${escapeHtml(cat)}">${escapeHtml(cat)}</option>`);
+      }
+      document.getElementById('articleCategorySelect').value = cat;
+    }
     toggleVipEmail();
 
     const showVideo = (logItem.showVideo !== false && String(logItem.showVideo) !== 'false');
@@ -2860,7 +3168,7 @@
 
     if (urls && urls.length > 0) {
       if (urls[0].includes('youtube.com') || urls[0].includes('youtu.be')) {
-        btnCapture.disabled = true; 
+        btnCapture.disabled = true; // YouTube 模式不支援截圖
       } else {
         if (!window.blobBuffers[logItem.logId]) window.blobBuffers[logItem.logId] = [];
         if (!window.blobBuffers[logItem.logId][0]) {
@@ -3010,6 +3318,7 @@
     const tier = document.getElementById('articleTier').value;
     const vipEmail = document.getElementById('articleVipEmail').value;
     const showVideo = document.getElementById('articleShowVideo') ? (document.getElementById('articleShowVideo').value === 'true') : true;
+    const category = document.getElementById('articleCategorySelect') ? document.getElementById('articleCategorySelect').value : "未分類";
 
     if(field === 'title') window.currentSelectedLog.articleTitle = content;
     if(field === 'hook') window.currentSelectedLog.articleHook = content;
@@ -3023,6 +3332,7 @@
     window.currentSelectedLog.tier = tier;
     window.currentSelectedLog.vipEmail = vipEmail;
     window.currentSelectedLog.showVideo = showVideo;
+    window.currentSelectedLog.category = category;
     
     
     isDashboardRendered = false; 
@@ -3036,7 +3346,8 @@
       content: content,
       tier: tier,
       vipEmail: vipEmail,
-      showVideo: showVideo
+      showVideo: showVideo,
+      category: category
     }).catch (e => { showToast("背景儲存失敗"); });
   }
 
@@ -3165,7 +3476,8 @@
     container.innerHTML = '<div style="color: var(--accent); padding: 10px 0; display: flex; align-items: center; gap: 8px;"><i data-lucide="loader" class="spin"></i> 分析...</div>';
     lucide.createIcons();
     try {
-      const res = await api({ action: "generateArticleStep", step: 1, content: window.currentSelectedLog.content, email: email });
+      const cat = document.getElementById('articleCategorySelect').value;
+      const res = await api({ action: "generateArticleStep", step: 1, content: window.currentSelectedLog.content, email: email, category: cat });
       const titles = res.titles || [];
 
       let htmlOutput = '';
@@ -3203,7 +3515,8 @@
     const hookInput = document.getElementById('finalArticleHook');
     hookInput.value = "提煉中...";
     try {
-      const res = await api({ action: "generateArticleStep", step: 2, title: title, content: window.currentSelectedLog.content, email: email });
+      const cat = document.getElementById('articleCategorySelect').value;
+      const res = await api({ action: "generateArticleStep", step: 2, title: title, content: window.currentSelectedLog.content, email: email, category: cat });
       
       if (res.hook === "（無輸出）") {
          hookInput.value = "[系統提示] 生成被安全機制阻擋，或產出為空。已取消自動儲存。\n請調整提示詞或檢查逐字稿後重試。";
@@ -3224,7 +3537,8 @@
     const bodyInput = document.getElementById('finalArticleBody');
     bodyInput.value = "重構中...";
     try {
-      const res = await api({ action: "generateArticleStep", step: 3, title: title, hook: hook, content: window.currentSelectedLog.content, email: email });
+      const cat = document.getElementById('articleCategorySelect').value;
+      const res = await api({ action: "generateArticleStep", step: 3, title: title, hook: hook, content: window.currentSelectedLog.content, email: email, category: cat });
       
       if (res.body === "（無輸出）") {
          bodyInput.value = "[系統提示] 生成被安全機制阻擋，或產出為空。已取消自動儲存。\n請調整提示詞或檢查逐字稿後重試。";
@@ -3242,7 +3556,8 @@
     const endingInput = document.getElementById('finalArticleEnding');
     endingInput.value = "撰寫中...";
     try {
-      const res = await api({ action: "generateArticleStep", step: 4, title: title, email: email });
+      const cat = document.getElementById('articleCategorySelect').value;
+      const res = await api({ action: "generateArticleStep", step: 4, title: title, email: email, category: cat });
       
       if (res.ending === "（無輸出）") {
          endingInput.value = "[系統提示] 生成被安全機制阻擋，或產出為空。已取消自動儲存。\n請調整提示詞後重試。";
@@ -3251,10 +3566,12 @@
          endingInput.value = res.ending || "";
          saveCurrentStepData('ending');
       }
-    } catch (e) { endingInput.value = ""; alert(e.message); }
+    } catch (e) { 
+      endingInput.value = ""; 
+      alert(e.message); 
+    }
   }
 
 </script>
-
 </body>
 </html>
