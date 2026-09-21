@@ -2530,7 +2530,9 @@
       const catLogs = categoriesMap[cat].sort(top5Sort).slice(0, 5);
       if(catLogs.length === 0) return;
       
-      topCarouselHtml += '<div style="margin-bottom: 32px; position: relative;"><h2 style="font-size: 18px; font-weight: 800; color: var(--text); margin-bottom: 16px;">' + escapeHtml(cat) + ' Top5</h2><div style="position: relative;"><div class="dashboard-carousel" style="align-items: stretch;">';
+      topCarouselHtml += '<div style="margin-bottom: 32px; position: relative;">' +
+        '<h2 onclick="const content = this.nextElementSibling; const icon = this.querySelector(\'svg\'); if(content.style.display === \'none\'){ content.style.display = \'block\'; icon.style.transform = \'rotate(180deg)\'; } else { content.style.display = \'none\'; icon.style.transform = \'rotate(0deg)\'; }" style="font-size: 18px; font-weight: 800; color: var(--text); margin-bottom: 16px; cursor: pointer; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border-subtle); padding-bottom: 8px; user-select: none;"><span>' + escapeHtml(cat) + ' Top5</span><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="transition: transform 0.2s; transform: rotate(0deg); color: var(--text-muted);"><path d="m6 9 6 6 6-6"/></svg></h2>' +
+        '<div style="position: relative; display: none; padding-top: 8px;"><div class="dashboard-carousel" style="align-items: stretch;">';
       catLogs.forEach(log => {
         const cover = log.coverUrl || 'https://ui-avatars.com/api/?name=T&background=f1f5f9&color=cbd5e1';
         const title = log.articleTitle || "未命名";
