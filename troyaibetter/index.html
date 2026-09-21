@@ -452,6 +452,11 @@ AI Agent 時代的終極差距不是技術，而是說故事的能力。
         <input type="text" id="frontendSearch" class="search-input" placeholder="輸入關鍵字搜尋標題或內容..." onkeyup="filterAndSortArticles()" style="flex: 1; border: none; outline: none; padding: 0; font-size: 15px; margin: 0; background: transparent;">
       </div>
       <div style="display: flex; flex-wrap: wrap; gap: 12px; align-items: center; border-top: 1px solid #e2e8f0; padding-top: 16px;">
+        <select id="tierFilter" onchange="filterAndSortArticles()" style="padding: 8px 16px; border-radius: 20px; border: 1px solid #e2e8f0; font-size: 14px; outline: none; background: #fff; cursor: pointer;">
+          <option value="all">所有權限</option>
+          <option value="公開">公開</option>
+          <option value="會員限定">會員限定</option>
+        </select>
         <select id="catFilter" onchange="filterAndSortArticles()" style="padding: 8px 16px; border-radius: 20px; border: 1px solid #e2e8f0; font-size: 14px; outline: none; background: #fff; cursor: pointer;">
           <option value="all">全部分類</option>
           <option value="創業日記">創業日記</option><option value="AI實戰">AI實戰</option><option value="學習心得">學習心得</option>
@@ -473,7 +478,7 @@ AI Agent 時代的終極差距不是技術，而是說故事的能力。
 
 你有多久沒有好好坐下來吃一頓飯？有多久沒有陪伴另一半與家人？
 
-長期處於決策疲... 2026/09/15 創業日記" data-cat="創業日記" data-date="1789473424000" data-views="1" style="display: flex; align-items: flex-start; gap: 32px; padding: 24px; border: 1px solid #e2e8f0; border-radius: 8px; background: #fff; text-decoration: none; color: inherit; transition: transform 0.2s, box-shadow 0.2s; margin-bottom: 24px;">
+長期處於決策疲... 2026/09/15 創業日記" data-cat="創業日記" data-tier="公開" data-date="1789473424000" data-views="1" style="display: flex; align-items: flex-start; gap: 32px; padding: 24px; border: 1px solid #e2e8f0; border-radius: 8px; background: #fff; text-decoration: none; color: inherit; transition: transform 0.2s, box-shadow 0.2s; margin-bottom: 24px;">
       <div class="feed-content" style="flex: 1; min-width: 0; display: flex; flex-direction: column;">
         <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px;">
           <div style="display: flex; align-items: center; gap: 8px; font-weight: 600; font-size: 14px;">
@@ -512,7 +517,7 @@ AI Agent 時代的終極差距不是技術，而是說故事的能力。
 
 觀點拆解：ai 不是不聰明，而是你沒給它「教戰手冊」
 
-你是否也曾滿懷期待，搭建了屬於自己的 ai 客服？結果…… 它卻開始在半夜胡... 2026/09/15 ai實戰" data-cat="AI實戰" data-date="1789473424000" data-views="0" style="display: flex; align-items: flex-start; gap: 32px; padding: 24px; border: 1px solid #e2e8f0; border-radius: 8px; background: #fff; text-decoration: none; color: inherit; transition: transform 0.2s, box-shadow 0.2s; margin-bottom: 24px;">
+你是否也曾滿懷期待，搭建了屬於自己的 ai 客服？結果…… 它卻開始在半夜胡... 2026/09/15 ai實戰" data-cat="AI實戰" data-tier="公開" data-date="1789473424000" data-views="0" style="display: flex; align-items: flex-start; gap: 32px; padding: 24px; border: 1px solid #e2e8f0; border-radius: 8px; background: #fff; text-decoration: none; color: inherit; transition: transform 0.2s, box-shadow 0.2s; margin-bottom: 24px;">
       <div class="feed-content" style="flex: 1; min-width: 0; display: flex; flex-direction: column;">
         <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px;">
           <div style="display: flex; align-items: center; gap: 8px; font-weight: 600; font-size: 14px;">
@@ -549,7 +554,7 @@ AI Agent 時代的終極差距不是技術，而是說故事的能力。
 
 對於許多一人創業、微型創業或一人公司的老闆來說，現實往往與當初創業的初衷背道而馳。你本想追求自由與事業成就，最後卻成了全公司最累的員工。
 
-從業務開發、客戶溝通、報... 2026/09/15 ai實戰" data-cat="AI實戰" data-date="1789473424000" data-views="0" style="display: flex; align-items: flex-start; gap: 32px; padding: 24px; border: 1px solid #e2e8f0; border-radius: 8px; background: #fff; text-decoration: none; color: inherit; transition: transform 0.2s, box-shadow 0.2s; margin-bottom: 24px;">
+從業務開發、客戶溝通、報... 2026/09/15 ai實戰" data-cat="AI實戰" data-tier="公開" data-date="1789473424000" data-views="0" style="display: flex; align-items: flex-start; gap: 32px; padding: 24px; border: 1px solid #e2e8f0; border-radius: 8px; background: #fff; text-decoration: none; color: inherit; transition: transform 0.2s, box-shadow 0.2s; margin-bottom: 24px;">
       <div class="feed-content" style="flex: 1; min-width: 0; display: flex; flex-direction: column;">
         <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px;">
           <div style="display: flex; align-items: center; gap: 8px; font-weight: 600; font-size: 14px;">
@@ -584,7 +589,7 @@ AI Agent 時代的終極差距不是技術，而是說故事的能力。
 
 擺脫一人創業校長兼撞鐘與決策疲勞。
 
-本文深度拆解 venture coding 創業式編程方法論，教你如何用 google 試算表寫 sop，串接 gemini api 打造無 ai 罐頭感的智慧客... 2026/09/15 ai實戰" data-cat="AI實戰" data-date="1789473424000" data-views="0" style="display: flex; align-items: flex-start; gap: 32px; padding: 24px; border: 1px solid #e2e8f0; border-radius: 8px; background: #fff; text-decoration: none; color: inherit; transition: transform 0.2s, box-shadow 0.2s; margin-bottom: 24px;">
+本文深度拆解 venture coding 創業式編程方法論，教你如何用 google 試算表寫 sop，串接 gemini api 打造無 ai 罐頭感的智慧客... 2026/09/15 ai實戰" data-cat="AI實戰" data-tier="公開" data-date="1789473424000" data-views="0" style="display: flex; align-items: flex-start; gap: 32px; padding: 24px; border: 1px solid #e2e8f0; border-radius: 8px; background: #fff; text-decoration: none; color: inherit; transition: transform 0.2s, box-shadow 0.2s; margin-bottom: 24px;">
       <div class="feed-content" style="flex: 1; min-width: 0; display: flex; flex-direction: column;">
         <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px;">
           <div style="display: flex; align-items: center; gap: 8px; font-weight: 600; font-size: 14px;">
@@ -621,7 +626,7 @@ ai agent 時代的終極差距不是技術，而是說故事的能力。
 
 近期 computex 掀起的 ai 浪潮，加上科技巨頭對臺灣的巨額投資，讓無數微型企業主陷入深層焦慮。
 
-大家都在狂背... 2026/09/15 學習心得" data-cat="學習心得" data-date="1789473424000" data-views="0" style="display: flex; align-items: flex-start; gap: 32px; padding: 24px; border: 1px solid #e2e8f0; border-radius: 8px; background: #fff; text-decoration: none; color: inherit; transition: transform 0.2s, box-shadow 0.2s; margin-bottom: 24px;">
+大家都在狂背... 2026/09/15 學習心得" data-cat="學習心得" data-tier="公開" data-date="1789473424000" data-views="0" style="display: flex; align-items: flex-start; gap: 32px; padding: 24px; border: 1px solid #e2e8f0; border-radius: 8px; background: #fff; text-decoration: none; color: inherit; transition: transform 0.2s, box-shadow 0.2s; margin-bottom: 24px;">
       <div class="feed-content" style="flex: 1; min-width: 0; display: flex; flex-direction: column;">
         <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px;">
           <div style="display: flex; align-items: center; gap: 8px; font-weight: 600; font-size: 14px;">
@@ -657,7 +662,7 @@ AI Agent 時代的終極差距不是技術，而是說故事的能力。
     <a href="2bf6f1e7.html" class="feed-item" data-search="別再傻傻寫稿！我用「講」的就能變現，微型創業者的自動化內容金礦｜特洛伊ai賦能師［ai實戰］ 我實測一套自動化工作流，對著鏡頭說話，ai 隨即將影音、逐字稿與畫面描述轉化為高權威文章。這是我每日節省 80% 創作時間，將口說內容無縫變現為數位資產的實戰驗證，也是微型創業者翻身的關鍵。
 
 身為微型創業者，你一定經歷過這種焦慮。
-大腦裡裝滿了專業知識與實戰心得，但只要坐在電腦前對著空白文件，那一... 2026/09/13 ai實戰" data-cat="AI實戰" data-date="1789301597000" data-views="10" style="display: flex; align-items: flex-start; gap: 32px; padding: 24px; border: 1px solid #e2e8f0; border-radius: 8px; background: #fff; text-decoration: none; color: inherit; transition: transform 0.2s, box-shadow 0.2s; margin-bottom: 24px;">
+大腦裡裝滿了專業知識與實戰心得，但只要坐在電腦前對著空白文件，那一... 2026/09/13 ai實戰" data-cat="AI實戰" data-tier="公開" data-date="1789301597000" data-views="10" style="display: flex; align-items: flex-start; gap: 32px; padding: 24px; border: 1px solid #e2e8f0; border-radius: 8px; background: #fff; text-decoration: none; color: inherit; transition: transform 0.2s, box-shadow 0.2s; margin-bottom: 24px;">
       <div class="feed-content" style="flex: 1; min-width: 0; display: flex; flex-direction: column;">
         <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px;">
           <div style="display: flex; align-items: center; gap: 8px; font-weight: 600; font-size: 14px;">
@@ -691,7 +696,7 @@ AI Agent 時代的終極差距不是技術，而是說故事的能力。
 
 選擇創業模式，就影響你的生活方式，也進階影響生命品質！ 我會有這個體悟，是剛好近期，又是我最親的母親，那年回天家的日子。
 
-愚人節的地牛翻身，我的至親安息了主懷。... 2026/09/15 創業日記" data-cat="創業日記" data-date="1789473424000" data-views="3" style="display: flex; align-items: flex-start; gap: 32px; padding: 24px; border: 1px solid #e2e8f0; border-radius: 8px; background: #fff; text-decoration: none; color: inherit; transition: transform 0.2s, box-shadow 0.2s; margin-bottom: 24px;">
+愚人節的地牛翻身，我的至親安息了主懷。... 2026/09/15 創業日記" data-cat="創業日記" data-tier="公開" data-date="1789473424000" data-views="3" style="display: flex; align-items: flex-start; gap: 32px; padding: 24px; border: 1px solid #e2e8f0; border-radius: 8px; background: #fff; text-decoration: none; color: inherit; transition: transform 0.2s, box-shadow 0.2s; margin-bottom: 24px;">
       <div class="feed-content" style="flex: 1; min-width: 0; display: flex; flex-direction: column;">
         <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px;">
           <div style="display: flex; align-items: center; gap: 8px; font-weight: 600; font-size: 14px;">
@@ -724,7 +729,7 @@ AI Agent 時代的終極差距不是技術，而是說故事的能力。
     </a>
     <a href="c194d2e0.html" class="feed-item" data-search="我們帶著夢想創業，為什麼最後又窮又忙？｜特洛伊ai賦能師［創業日記］ 嗨！各位初創業者們好！我是特洛伊，你是否也跟我一樣，在那個熱血的年紀，或是上班時不甘平凡的，挪出時間，聽完一場演講、看完一本書、與一位朋友交談、甚至一次旅行，一次、兩次、三次....幾次後，
 
-你那種想逃離辦公室、想逃離教室，想要為自己認認真真活一次的那種感覺，湧上心頭。那種不再為人作嫁、不再人為刀... 2026/09/15 創業日記" data-cat="創業日記" data-date="1789473424000" data-views="3" style="display: flex; align-items: flex-start; gap: 32px; padding: 24px; border: 1px solid #e2e8f0; border-radius: 8px; background: #fff; text-decoration: none; color: inherit; transition: transform 0.2s, box-shadow 0.2s; margin-bottom: 24px;">
+你那種想逃離辦公室、想逃離教室，想要為自己認認真真活一次的那種感覺，湧上心頭。那種不再為人作嫁、不再人為刀... 2026/09/15 創業日記" data-cat="創業日記" data-tier="公開" data-date="1789473424000" data-views="3" style="display: flex; align-items: flex-start; gap: 32px; padding: 24px; border: 1px solid #e2e8f0; border-radius: 8px; background: #fff; text-decoration: none; color: inherit; transition: transform 0.2s, box-shadow 0.2s; margin-bottom: 24px;">
       <div class="feed-content" style="flex: 1; min-width: 0; display: flex; flex-direction: column;">
         <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px;">
           <div style="display: flex; align-items: center; gap: 8px; font-weight: 600; font-size: 14px;">
@@ -751,7 +756,7 @@ AI Agent 時代的終極差距不是技術，而是說故事的能力。
       </div>
       <div style="width: 240px; aspect-ratio: 16 / 9; height: auto; border-radius: 8px; overflow: hidden; flex-shrink: 0; border: 1px solid #e2e8f0;"><img src="https://drive.google.com/thumbnail?id=11giOTlCrQir31V_3FV1ebumhJb2xe8dO&sz=w1280" style="width: 100%; height: 100%; object-fit: cover; border-radius: 8px; display: block;" alt="Cover"></div>
     </a>
-    <a href="aca9bd5y.html" class="feed-item" data-search="讓系統為你效勞，讓創業不再過勞：一個交大電機男孩的八年飲料夢、貨車後斗的眼淚，與ai時代的生命救贖｜特洛伊ai賦能師［創業日記］ 這不是一篇坐在冷氣房裡敲出來的科技成功學，更不是大企業動輒上百萬的空洞管理論。這是一個在台中二中打著籃球校隊、考上交大電機系的普通好學生，在滿手茶香的吧台裡泡了八年、在台北深夜冒雨跑外送痛哭、跌落至貨車後斗當搬家師傅、深入工廠拆解廢棄床墊，最後在二○二四年四月母親安息主懷的悲痛中，徹底痛醒的真實生命... 2026/09/18 創業日記" data-cat="創業日記" data-date="1789735179000" data-views="3" style="display: flex; align-items: flex-start; gap: 32px; padding: 24px; border: 1px solid #e2e8f0; border-radius: 8px; background: #fff; text-decoration: none; color: inherit; transition: transform 0.2s, box-shadow 0.2s; margin-bottom: 24px;">
+    <a href="aca9bd5y.html" class="feed-item" data-search="讓系統為你效勞，讓創業不再過勞：一個交大電機男孩的八年飲料夢、貨車後斗的眼淚，與ai時代的生命救贖｜特洛伊ai賦能師［創業日記］ 這不是一篇坐在冷氣房裡敲出來的科技成功學，更不是大企業動輒上百萬的空洞管理論。這是一個在台中二中打著籃球校隊、考上交大電機系的普通好學生，在滿手茶香的吧台裡泡了八年、在台北深夜冒雨跑外送痛哭、跌落至貨車後斗當搬家師傅、深入工廠拆解廢棄床墊，最後在二○二四年四月母親安息主懷的悲痛中，徹底痛醒的真實生命... 2026/09/18 創業日記" data-cat="創業日記" data-tier="公開" data-date="1789735179000" data-views="3" style="display: flex; align-items: flex-start; gap: 32px; padding: 24px; border: 1px solid #e2e8f0; border-radius: 8px; background: #fff; text-decoration: none; color: inherit; transition: transform 0.2s, box-shadow 0.2s; margin-bottom: 24px;">
       <div class="feed-content" style="flex: 1; min-width: 0; display: flex; flex-direction: column;">
         <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px;">
           <div style="display: flex; align-items: center; gap: 8px; font-weight: 600; font-size: 14px;">
@@ -782,7 +787,7 @@ AI Agent 時代的終極差距不是技術，而是說故事的能力。
 
 但身為一個擁有超過 600 天 vibe coding 實戰經驗、親自輔導超過 30 位企業主打造 ai 自動化系統的「ai 賦能師」，我常被問到這個問題：
 
-... 2026/09/15 ai實戰" data-cat="AI實戰" data-date="1789473424000" data-views="0" style="display: flex; align-items: flex-start; gap: 32px; padding: 24px; border: 1px solid #e2e8f0; border-radius: 8px; background: #fff; text-decoration: none; color: inherit; transition: transform 0.2s, box-shadow 0.2s; margin-bottom: 24px;">
+... 2026/09/15 ai實戰" data-cat="AI實戰" data-tier="公開" data-date="1789473424000" data-views="0" style="display: flex; align-items: flex-start; gap: 32px; padding: 24px; border: 1px solid #e2e8f0; border-radius: 8px; background: #fff; text-decoration: none; color: inherit; transition: transform 0.2s, box-shadow 0.2s; margin-bottom: 24px;">
       <div class="feed-content" style="flex: 1; min-width: 0; display: flex; flex-direction: column;">
         <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px;">
           <div style="display: flex; align-items: center; gap: 8px; font-weight: 600; font-size: 14px;">
@@ -815,7 +820,7 @@ AI Agent 時代的終極差距不是技術，而是說故事的能力。
     </a>
     <a href="aca9bd5z.html" class="feed-item" data-search="從 2 人 4 億美元的 ai 奇蹟看商業本質：為什麼我不羨慕「一人獨角獸」，而是追求心安與長期複利？｜特洛伊ai賦能師［學習心得］ 14 個月、2 個人、4 億美元年營收——當所有人都在為 medvi 的「一人獨角獸」神話瘋狂時，我看到的卻不是未來的奇蹟，而是一座隨時會塌陷的海砂屋。
 
-身為一名每天用 ai 寫程式、做自動化、輔導學員的 ai 賦能教練，同時也是扛著家族搬家貨運事業走過重資產泥淖的創業者，如果現在有人拿著 2 萬... 2026/09/17 學習心得" data-cat="學習心得" data-date="1789648779000" data-views="4" style="display: flex; align-items: flex-start; gap: 32px; padding: 24px; border: 1px solid #e2e8f0; border-radius: 8px; background: #fff; text-decoration: none; color: inherit; transition: transform 0.2s, box-shadow 0.2s; margin-bottom: 24px;">
+身為一名每天用 ai 寫程式、做自動化、輔導學員的 ai 賦能教練，同時也是扛著家族搬家貨運事業走過重資產泥淖的創業者，如果現在有人拿著 2 萬... 2026/09/17 學習心得" data-cat="學習心得" data-tier="公開" data-date="1789648779000" data-views="4" style="display: flex; align-items: flex-start; gap: 32px; padding: 24px; border: 1px solid #e2e8f0; border-radius: 8px; background: #fff; text-decoration: none; color: inherit; transition: transform 0.2s, box-shadow 0.2s; margin-bottom: 24px;">
       <div class="feed-content" style="flex: 1; min-width: 0; display: flex; flex-direction: column;">
         <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px;">
           <div style="display: flex; align-items: center; gap: 8px; font-weight: 600; font-size: 14px;">
@@ -846,7 +851,7 @@ AI Agent 時代的終極差距不是技術，而是說故事的能力。
 
 真正的經濟型解法是「venture coding（創業式編程）」：
 
-人類先透過 sop 將業務流程抽絲剝繭，寫死成有底層邏輯的程式碼（如 goog... 2026/09/15 學習心得" data-cat="學習心得" data-date="1789473424000" data-views="1" style="display: flex; align-items: flex-start; gap: 32px; padding: 24px; border: 1px solid #e2e8f0; border-radius: 8px; background: #fff; text-decoration: none; color: inherit; transition: transform 0.2s, box-shadow 0.2s; margin-bottom: 24px;">
+人類先透過 sop 將業務流程抽絲剝繭，寫死成有底層邏輯的程式碼（如 goog... 2026/09/15 學習心得" data-cat="學習心得" data-tier="公開" data-date="1789473424000" data-views="1" style="display: flex; align-items: flex-start; gap: 32px; padding: 24px; border: 1px solid #e2e8f0; border-radius: 8px; background: #fff; text-decoration: none; color: inherit; transition: transform 0.2s, box-shadow 0.2s; margin-bottom: 24px;">
       <div class="feed-content" style="flex: 1; min-width: 0; display: flex; flex-direction: column;">
         <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px;">
           <div style="display: flex; align-items: center; gap: 8px; font-weight: 600; font-size: 14px;">
@@ -879,7 +884,7 @@ AI Agent 時代的終極差距不是技術，而是說故事的能力。
 
 自今年二月份我開始投入 ai 落地實戰教學以來，市場從最初的「ai 落地串接 n8n」自動化客服機制，在短短幾個月內，已經集體跨入資料庫建置、ai agent（智慧代理）、自我迭代與自主決策的全新賽道。
 
-甚至連近期備受矚目的 hermes ai agent... 2026/09/15 ai實戰" data-cat="AI實戰" data-date="1789473424000" data-views="0" style="display: flex; align-items: flex-start; gap: 32px; padding: 24px; border: 1px solid #e2e8f0; border-radius: 8px; background: #fff; text-decoration: none; color: inherit; transition: transform 0.2s, box-shadow 0.2s; margin-bottom: 24px;">
+甚至連近期備受矚目的 hermes ai agent... 2026/09/15 ai實戰" data-cat="AI實戰" data-tier="公開" data-date="1789473424000" data-views="0" style="display: flex; align-items: flex-start; gap: 32px; padding: 24px; border: 1px solid #e2e8f0; border-radius: 8px; background: #fff; text-decoration: none; color: inherit; transition: transform 0.2s, box-shadow 0.2s; margin-bottom: 24px;">
       <div class="feed-content" style="flex: 1; min-width: 0; display: flex; flex-direction: column;">
         <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px;">
           <div style="display: flex; align-items: center; gap: 8px; font-weight: 600; font-size: 14px;">
@@ -914,7 +919,7 @@ AI Agent 時代的終極差距不是技術，而是說故事的能力。
 
 受眾定位：本文專為資源有限的「微型企業」老闆、「一人公司」創辦人，以及正在尋求「青年創業」資源或準備申請「青年創業貸款」（青創）的「微型創業」者所寫。
 
-價值主張... 2026/09/15 ai實戰" data-cat="AI實戰" data-date="1789473424000" data-views="0" style="display: flex; align-items: flex-start; gap: 32px; padding: 24px; border: 1px solid #e2e8f0; border-radius: 8px; background: #fff; text-decoration: none; color: inherit; transition: transform 0.2s, box-shadow 0.2s; margin-bottom: 24px;">
+價值主張... 2026/09/15 ai實戰" data-cat="AI實戰" data-tier="公開" data-date="1789473424000" data-views="0" style="display: flex; align-items: flex-start; gap: 32px; padding: 24px; border: 1px solid #e2e8f0; border-radius: 8px; background: #fff; text-decoration: none; color: inherit; transition: transform 0.2s, box-shadow 0.2s; margin-bottom: 24px;">
       <div class="feed-content" style="flex: 1; min-width: 0; display: flex; flex-direction: column;">
         <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px;">
           <div style="display: flex; align-items: center; gap: 8px; font-weight: 600; font-size: 14px;">
@@ -988,6 +993,7 @@ AI Agent 時代的終極差距不是技術，而是說故事的能力。
     function filterAndSortArticles() {
       const searchKeyword = document.getElementById('frontendSearch').value.toLowerCase().trim();
       const catFilter = document.getElementById('catFilter').value;
+      const tierFilter = document.getElementById('tierFilter') ? document.getElementById('tierFilter').value : 'all';
       const container = document.getElementById('feedListContainer');
       const items = Array.from(container.querySelectorAll('.feed-item'));
       
@@ -996,11 +1002,13 @@ AI Agent 時代的終極差距不是技術，而是說故事的能力。
       items.forEach(item => {
         const searchData = item.getAttribute('data-search');
         const itemCat = item.getAttribute('data-cat');
+        const itemTier = item.getAttribute('data-tier') || '公開';
         
         const matchSearch = searchKeyword === '' || searchData.includes(searchKeyword);
         const matchCat = catFilter === 'all' || itemCat === catFilter;
+        const matchTier = tierFilter === 'all' || itemTier.includes(tierFilter);
         
-        if (matchSearch && matchCat) {
+        if (matchSearch && matchCat && matchTier) {
           item.style.display = 'flex';
           visibleCount++;
         } else {
