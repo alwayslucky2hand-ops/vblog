@@ -443,13 +443,14 @@ MEDVi 淨利率比正規醫療平台高出 11%，代價是全盤砍掉了法務�
     
     .ai-chat-badge { position: absolute; top: -2px; right: -2px; background: #ef4444; color: white; font-size: 13px; font-weight: 800; width: 22px; height: 22px; border-radius: 50%; display: flex; align-items: center; justify-content: center; border: 2px solid #fff; box-sizing: content-box; animation: badgePulse 2s infinite; transition: opacity 0.3s ease; pointer-events: none; }
     
-    /* 🎯 核心修復：桌面版嚴格 9:16 比例、拉滿 90% 高度 */
+    /* 🎯 核心修復：電腦版寬度延展至 80vw、拉滿 90% 高度 */
     .ai-chat-window { 
       position: fixed; 
       bottom: 100px; 
       right: 24px; 
       height: 90vh; /* 畫面拉到整個上下畫面的 90% */
-      aspect-ratio: 9 / 16; /* 嚴格鎖定直式 9:16 比例 */
+      width: 80vw; /* 電腦版改為延展至網頁 80% 寬度 */
+      min-width: 380px; 
       max-height: calc(100vh - 120px);
       max-width: calc(100vw - 48px); /* 螢幕過窄時防護 */
       background: #fff; 
@@ -476,17 +477,17 @@ MEDVi 淨利率比正規醫療平台高出 11%，代價是全盤砍掉了法務�
     @keyframes chatPop { 0% { opacity: 0; transform: scale(0.8); } 100% { opacity: 1; transform: scale(1); } }
     @keyframes badgePulse { 0% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7); } 70% { box-shadow: 0 0 0 10px rgba(239, 68, 68, 0); } 100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); } }
     
-    /* 📱 手機版：絕對保證 9:16 且不裁切、不破版 */
+    /* 📱 手機版：調整按鈕位置不擁擠，視窗絕對保證 9:16 且不裁切 */
     @media (max-width: 768px) {
-      .ai-chat-widget { bottom: 16px; right: 16px; }
+      .ai-chat-widget { bottom: 32px; right: 24px; } /* 按鈕推高、往左移 */
       .ai-chat-window { 
-        bottom: 84px; 
-        right: 16px; 
-        height: calc(100dvh - 100px); /* 優先撐滿螢幕剩餘高度 */
-        width: auto; /* 寬度自動推算 */
-        aspect-ratio: 9 / 16; /* 強制保證 9:16 比例 */
-        max-width: calc(100vw - 32px); /* 若推算出的寬度超過螢幕，則縮小整體等比例 */
-        min-width: 0; /* 徹底移除先前導致破版的固定寬度 */
+        bottom: 100px; /* 視窗底部配合按鈕拉高 */
+        right: 24px; /* 視窗右側配合按鈕往左移 */
+        height: calc(100dvh - 120px); 
+        width: auto; 
+        aspect-ratio: 9 / 16; /* 手機版維持完美 9:16 直式比例 */
+        max-width: calc(100vw - 48px); 
+        min-width: 0; 
       }
       .ai-chat-btn { width: 56px; height: 56px; }
     }
