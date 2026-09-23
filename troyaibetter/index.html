@@ -137,6 +137,10 @@
   </script>
 
   <style>
+    /* 🌟 核心修復：鎖死 X 軸防搖晃、全域盒模型校正防止 Padding 撐破版面 */
+    html, body { max-width: 100%; overflow-x: hidden; }
+    * { box-sizing: border-box; }
+    
     body { font-family: -apple-system, BlinkMacSystemFont, sans-serif; background: #f8fafc; color: #0f172a; margin:0; padding:0; }
     .container { max-width: 960px; margin: 0 auto; padding: 40px 20px; }
     
