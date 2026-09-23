@@ -439,24 +439,25 @@ MEDVi 淨利率比正規醫療平台高出 11%，代價是全盤砍掉了法務�
     
     .ai-chat-badge { position: absolute; top: -2px; right: -2px; background: #ef4444; color: white; font-size: 13px; font-weight: 800; width: 22px; height: 22px; border-radius: 50%; display: flex; align-items: center; justify-content: center; border: 2px solid #fff; box-sizing: content-box; animation: badgePulse 2s infinite; transition: opacity 0.3s ease; pointer-events: none; }
     
-    /* 聊天視窗主體：嚴格 9:16 比例、極簡無邊框、拉滿 90% 畫面高度 */
+    /* 🎯 核心修復：桌面版嚴格 9:16 比例、拉滿 90% 高度 */
     .ai-chat-window { 
-      position: absolute; 
-      bottom: 84px; 
-      right: 0; 
-      height: 90vh; /* 畫面高度的 90% */
-      max-height: calc(100vh - 120px); /* 確保不會超出螢幕頂部 */
-      aspect-ratio: 9 / 16; /* 嚴格鎖定手機直式 9:16 比例 */
-      max-width: calc(100vw - 48px); /* 防止小螢幕寬度溢出 */
+      position: fixed; 
+      bottom: 100px; 
+      right: 24px; 
+      height: 90vh; /* 畫面拉到整個上下畫面的 90% */
+      aspect-ratio: 9 / 16; /* 嚴格鎖定直式 9:16 比例 */
+      max-height: calc(100vh - 120px);
+      max-width: calc(100vw - 48px); /* 螢幕過窄時防護 */
       background: #fff; 
       border-radius: 16px; 
-      box-shadow: 0 12px 48px rgba(0,0,0,0.15); 
+      box-shadow: 0 12px 48px rgba(0,0,0,0.2); 
       overflow: hidden; 
       display: none; 
       flex-direction: column; 
       border: 1px solid #e2e8f0; 
       transform-origin: bottom right; 
       animation: chatPop 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); 
+      z-index: 9999;
     }
     
     .ai-chat-iframe { width: 100%; height: 100%; border: none; display: block; background: #fff; }
@@ -471,13 +472,17 @@ MEDVi 淨利率比正規醫療平台高出 11%，代價是全盤砍掉了法務�
     @keyframes chatPop { 0% { opacity: 0; transform: scale(0.8); } 100% { opacity: 1; transform: scale(1); } }
     @keyframes badgePulse { 0% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7); } 70% { box-shadow: 0 0 0 10px rgba(239, 68, 68, 0); } 100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); } }
     
+    /* 📱 手機版：絕對保證 9:16 且不裁切、不破版 */
     @media (max-width: 768px) {
       .ai-chat-widget { bottom: 16px; right: 16px; }
       .ai-chat-window { 
-        bottom: 76px; 
-        height: 90vh; /* 手機版同樣維持 90% 螢幕佔比 */
-        max-height: calc(100vh - 100px); 
-        max-width: calc(100vw - 32px); 
+        bottom: 84px; 
+        right: 16px; 
+        height: calc(100dvh - 100px); /* 優先撐滿螢幕剩餘高度 */
+        width: auto; /* 寬度自動推算 */
+        aspect-ratio: 9 / 16; /* 強制保證 9:16 比例 */
+        max-width: calc(100vw - 32px); /* 若推算出的寬度超過螢幕，則縮小整體等比例 */
+        min-width: 0; /* 徹底移除先前導致破版的固定寬度 */
       }
       .ai-chat-btn { width: 56px; height: 56px; }
     }
@@ -499,14 +504,12 @@ MEDVi 淨利率比正規醫療平台高出 11%，代價是全盤砍掉了法務�
       const badge = document.getElementById('aiChatBadge');
       
       if (widget.classList.contains('is-open')) {
-        // 關閉聊天室
         widget.classList.remove('is-open');
         chatWin.style.display = 'none';
       } else {
-        // 開啟聊天室
         widget.classList.add('is-open');
         chatWin.style.display = 'flex';
-        if(badge) badge.style.opacity = '0'; // 首次點擊後平滑隱藏通知紅點
+        if(badge) badge.style.opacity = '0';
       }
     }
   </script>
