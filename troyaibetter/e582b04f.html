@@ -51,6 +51,10 @@
 
   <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
   <style>
+    /* 🌟 核心修復：鎖死 X 軸防搖晃、全域盒模型校正防止 Padding 撐破版面 */
+    html, body { max-width: 100%; overflow-x: hidden; }
+    * { box-sizing: border-box; }
+    
     body { 
       font-family: -apple-system, BlinkMacSystemFont, sans-serif; 
       background: #ffffff; color: #0f172a; line-height: 1.8; margin: 0; padding: 0; 
