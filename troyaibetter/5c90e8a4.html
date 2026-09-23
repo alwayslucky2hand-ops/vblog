@@ -441,47 +441,75 @@ Venture：代表著極具實戰感、解決真實商業問題的創業精神。
   
   <style>
     .ai-chat-widget { position: fixed; bottom: 24px; right: 24px; z-index: 9999; font-family: -apple-system, BlinkMacSystemFont, sans-serif; }
-    .ai-chat-btn { width: 64px; height: 64px; border-radius: 50%; background: #0f172a; color: #fff; display: flex; align-items: center; justify-content: center; box-shadow: 0 8px 24px rgba(0,0,0,0.15); cursor: pointer; transition: transform 0.2s, box-shadow 0.2s; border: none; position: relative; }
+    
+    .ai-chat-btn { width: 64px; height: 64px; border-radius: 50%; background: #0f172a; color: #fff; display: flex; align-items: center; justify-content: center; box-shadow: 0 8px 24px rgba(0,0,0,0.15); cursor: pointer; transition: transform 0.2s, box-shadow 0.2s, background 0.2s; border: none; position: relative; outline: none; }
     .ai-chat-btn:hover { transform: scale(1.05); box-shadow: 0 12px 28px rgba(0,0,0,0.2); }
-    .ai-chat-badge { position: absolute; top: -2px; right: -2px; background: #ef4444; color: white; font-size: 13px; font-weight: 800; width: 22px; height: 22px; border-radius: 50%; display: flex; align-items: center; justify-content: center; border: 2px solid #fff; box-sizing: content-box; animation: badgePulse 2s infinite; }
-    .ai-chat-window { position: absolute; bottom: 84px; right: 0; width: 380px; height: 70vh; max-height: 700px; background: #fff; border-radius: 12px; box-shadow: 0 12px 48px rgba(0,0,0,0.15); overflow: hidden; display: none; flex-direction: column; border: 1px solid #e2e8f0; transform-origin: bottom right; animation: chatPop 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
-    .ai-chat-header { background: #0f172a; color: #fff; padding: 14px 16px; display: flex; justify-content: space-between; align-items: center; font-weight: 800; font-size: 15px; }
-    .ai-chat-close { background: transparent; border: none; color: #fff; cursor: pointer; display: flex; padding: 6px; border-radius: 6px; transition: background 0.2s; }
-    .ai-chat-close:hover { background: rgba(255,255,255,0.2); }
-    .ai-chat-iframe { width: 100%; height: 100%; border: none; flex: 1; background: #f8fafc; }
+    
+    .ai-chat-badge { position: absolute; top: -2px; right: -2px; background: #ef4444; color: white; font-size: 13px; font-weight: 800; width: 22px; height: 22px; border-radius: 50%; display: flex; align-items: center; justify-content: center; border: 2px solid #fff; box-sizing: content-box; animation: badgePulse 2s infinite; transition: opacity 0.3s ease; pointer-events: none; }
+    
+    /* 聊天視窗主體：嚴格 9:16 比例、極簡無邊框 */
+    .ai-chat-window { 
+      position: absolute; 
+      bottom: 84px; 
+      right: 0; 
+      height: min(75vh, 720px);
+      max-height: calc(100vh - 120px);
+      aspect-ratio: 9 / 16;
+      max-width: calc(100vw - 48px);
+      background: #fff; 
+      border-radius: 16px; 
+      box-shadow: 0 12px 48px rgba(0,0,0,0.15); 
+      overflow: hidden; 
+      display: none; 
+      flex-direction: column; 
+      border: 1px solid #e2e8f0; 
+      transform-origin: bottom right; 
+      animation: chatPop 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); 
+    }
+    
+    .ai-chat-iframe { width: 100%; height: 100%; border: none; display: block; background: #fff; }
+    
+    /* 圖示旋轉變形動畫 (Morphing) */
+    .icon-msg { transition: opacity 0.2s ease, transform 0.3s ease; position: absolute; }
+    .icon-close { transition: opacity 0.2s ease, transform 0.3s ease; position: absolute; opacity: 0; transform: scale(0.5) rotate(-90deg); }
+    
+    .ai-chat-widget.is-open .icon-msg { opacity: 0; transform: scale(0.5) rotate(90deg); }
+    .ai-chat-widget.is-open .icon-close { opacity: 1; transform: scale(1) rotate(0deg); }
+    
     @keyframes chatPop { 0% { opacity: 0; transform: scale(0.8); } 100% { opacity: 1; transform: scale(1); } }
     @keyframes badgePulse { 0% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7); } 70% { box-shadow: 0 0 0 10px rgba(239, 68, 68, 0); } 100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); } }
+    
     @media (max-width: 768px) {
       .ai-chat-widget { bottom: 16px; right: 16px; }
-      .ai-chat-window { position: fixed; width: calc(100% - 32px); right: 16px; bottom: 86px; height: 75vh; }
+      .ai-chat-window { bottom: 76px; height: min(80vh, 720px); max-width: calc(100vw - 32px); }
       .ai-chat-btn { width: 56px; height: 56px; }
     }
   </style>
-  <div class="ai-chat-widget">
+  <div class="ai-chat-widget" id="aiChatWidget">
     <div id="aiChatWindow" class="ai-chat-window">
-      <div class="ai-chat-header">
-        <div style="display:flex; align-items:center; gap:8px;">
-          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 8V4H8"/><rect width="16" height="12" x="4" y="8" rx="2"/><path d="M2 14h2"/><path d="M20 14h2"/><path d="M15 13v2"/><path d="M9 13v2"/></svg>
-          智能客服
-        </div>
-        <button class="ai-chat-close" onclick="toggleAiChat()"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" x2="6" y1="6" y2="18"/><line x1="6" x2="18" y1="6" y2="18"/></svg></button>
-      </div>
-      <iframe src="https://alwayslucky2hand-ops.github.io/troyqa/" class="ai-chat-iframe"></iframe>
+      <iframe src="https://alwayslucky2hand-ops.github.io/troyqa/" class="ai-chat-iframe" scrolling="yes"></iframe>
     </div>
     <button class="ai-chat-btn" onclick="toggleAiChat()">
-      <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M7.9 20A9 9 0 1 0 4 16.1L2 22Z"/></svg>
+      <svg class="icon-msg" xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M7.9 20A9 9 0 1 0 4 16.1L2 22Z"/></svg>
+      <svg class="icon-close" xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" x2="6" y1="6" y2="18"/><line x1="6" x2="18" y1="6" y2="18"/></svg>
       <div id="aiChatBadge" class="ai-chat-badge">1</div>
     </button>
   </div>
   <script>
     function toggleAiChat() {
+      const widget = document.getElementById('aiChatWidget');
       const chatWin = document.getElementById('aiChatWindow');
       const badge = document.getElementById('aiChatBadge');
-      if (chatWin.style.display === 'flex') {
+      
+      if (widget.classList.contains('is-open')) {
+        // 關閉聊天室
+        widget.classList.remove('is-open');
         chatWin.style.display = 'none';
       } else {
+        // 開啟聊天室
+        widget.classList.add('is-open');
         chatWin.style.display = 'flex';
-        if(badge) badge.style.display = 'none'; // 點擊後消除紅點
+        if(badge) badge.style.opacity = '0'; // 首次點擊後平滑隱藏通知紅點
       }
     }
   </script>
