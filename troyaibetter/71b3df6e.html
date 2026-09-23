@@ -365,15 +365,15 @@
     
     .ai-chat-badge { position: absolute; top: -2px; right: -2px; background: #ef4444; color: white; font-size: 13px; font-weight: 800; width: 22px; height: 22px; border-radius: 50%; display: flex; align-items: center; justify-content: center; border: 2px solid #fff; box-sizing: content-box; animation: badgePulse 2s infinite; transition: opacity 0.3s ease; pointer-events: none; }
     
-    /* 聊天視窗主體：嚴格 9:16 比例、極簡無邊框 */
+    /* 聊天視窗主體：嚴格 9:16 比例、極簡無邊框、拉滿 90% 畫面高度 */
     .ai-chat-window { 
       position: absolute; 
       bottom: 84px; 
       right: 0; 
-      height: min(75vh, 720px);
-      max-height: calc(100vh - 120px);
-      aspect-ratio: 9 / 16;
-      max-width: calc(100vw - 48px);
+      height: 90vh; /* 畫面高度的 90% */
+      max-height: calc(100vh - 120px); /* 確保不會超出螢幕頂部 */
+      aspect-ratio: 9 / 16; /* 嚴格鎖定手機直式 9:16 比例 */
+      max-width: calc(100vw - 48px); /* 防止小螢幕寬度溢出 */
       background: #fff; 
       border-radius: 16px; 
       box-shadow: 0 12px 48px rgba(0,0,0,0.15); 
@@ -399,7 +399,12 @@
     
     @media (max-width: 768px) {
       .ai-chat-widget { bottom: 16px; right: 16px; }
-      .ai-chat-window { bottom: 76px; height: min(80vh, 720px); max-width: calc(100vw - 32px); }
+      .ai-chat-window { 
+        bottom: 76px; 
+        height: 90vh; /* 手機版同樣維持 90% 螢幕佔比 */
+        max-height: calc(100vh - 100px); 
+        max-width: calc(100vw - 32px); 
+      }
       .ai-chat-btn { width: 56px; height: 56px; }
     }
   </style>
