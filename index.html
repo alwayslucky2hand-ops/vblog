@@ -2293,7 +2293,10 @@
            const ytId = ytMatch ? ytMatch[1] : '';
            playerHtml = '<details class="history-accordion"><summary><span style="display: flex; align-items: center; gap: 8px;"><i data-lucide="youtube" style="width: 16px; height: 16px; color: var(--danger);"></i>YouTube 影片</span><span class="accordion-toggle-icon"><i data-lucide="chevron-down" style="width: 16px; height: 16px;"></i></span></summary><div class="accordion-body" style="padding: 0; background: #000; border-top: 1px solid var(--border);"><iframe src="https://www.youtube.com/embed/' + ytId + '" frameborder="0" allowfullscreen style="width: 100%; aspect-ratio: 16/9; display: block;"></iframe></div></details>';
         } else {
-           playerHtml = '<details class="history-accordion"><summary><span style="display: flex; align-items: center; gap: 8px;"><i data-lucide="play-circle" style="width: 16px; height: 16px; color: var(--accent);"></i>全片預覽</span><button class="action-btn-sm action-btn-primary" onclick="event.stopPropagation(); window.startSeamlessPlay(\'' + item.logId + '\')"><i data-lucide="play" style="width: 14px; height: 14px;"></i> 啟接</button></summary><div class="accordion-body" style="padding: 0; background: #000; border-top: 1px solid var(--border);"><video id="player-' + item.logId + '" controls playsinline style="width: 100%; aspect-ratio: 16/9; background: #000; display: block; object-fit: contain;"></video><div id="player-status-' + item.logId + '" style="padding: 12px 16px; background: #0f172a; color: #f8fafc; font-size: 14px; text-align: center;">待啟動</div></div></details>';
+          
+          let optHtml = '';
+          for(let k=0; k<urls.length; k++) optHtml += `<option value="${k}">片段 ${k+1}</option>`;
+          playerHtml = '<details class="history-accordion"><summary><span style="display: flex; align-items: center; gap: 8px;"><i data-lucide="play-circle" style="width: 16px; height: 16px; color: var(--accent);"></i>全片預覽</span><button class="action-btn-sm action-btn-primary" onclick="event.stopPropagation(); window.startSeamlessPlay(\'' + item.logId + '\')"><i data-lucide="play" style="width: 14px; height: 14px;"></i> 啟動播放</button></summary><div class="accordion-body" style="padding: 0; background: #000; border-top: 1px solid var(--border);"><div style="display:flex; justify-content:space-between; align-items:center; gap:8px; padding:12px 16px; background:#0f172a;"><div style="display:flex; gap:8px; align-items:center;"><button class="action-btn-sm" onclick="window.prevHistoryChunk(\'' + item.logId + '\')" style="background:#1e293b; color:#fff; border-color:#334155;">上一段</button><select id="player-sel-' + item.logId + '" onchange="window.playHistoryChunk(\'' + item.logId + '\', parseInt(this.value))" style="background:#1e293b; color:#fff; border:1px solid #334155; padding:6px; border-radius:4px; outline:none; font-size:13px; cursor:pointer;">' + optHtml + '</select><button class="action-btn-sm" onclick="window.nextHistoryChunk(\'' + item.logId + '\')" style="background:#1e293b; color:#fff; border-color:#334155;">下一段</button></div><span id="player-status-' + item.logId + '" style="color:#94a3b8; font-size:13px; font-weight:600;">準備就緒</span></div><div style="position: relative; width: 100%; aspect-ratio: 16/9; background: #000; overflow: hidden;"><video id="playerA-' + item.logId + '" controls playsinline style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 2; opacity: 1; transition: opacity 0.2s; background: #000; object-fit: contain;"></video><video id="playerB-' + item.logId + '" controls playsinline style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 1; opacity: 0; transition: opacity 0.2s; background: #000; object-fit: contain;"></video></div></div></details>';
         }
       }
 
@@ -2301,7 +2304,7 @@
 
       let contentBlock = '<details class="history-accordion"><summary><span style="display: flex; align-items: center; gap: 8px;"><i data-lucide="file-text" style="width: 15px; height: 15px; color: var(--text-muted);"></i>內容</span><div class="flex-wrap-gap"><button type="button" id="btn-edit-content-' + item.logId + '" class="action-btn-sm action-btn-icon" onclick="event.stopPropagation(); toggleEditMode(\'' + item.logId + '\', \'content\')" title="編輯"><i data-lucide="edit-3" style="width: 16px; height: 16px;"></i></button><button type="button" class="action-btn-sm action-btn-icon" onclick="event.stopPropagation(); copyTextToClipboard(this.getAttribute(\'data-text\'))" data-text="' + escapeHtml(safeContentRaw) + '" title="複製"><i data-lucide="copy" style="width: 16px; height: 16px;"></i></button><span class="accordion-toggle-icon"><i data-lucide="chevron-down" style="width: 16px; height: 16px;"></i></span></div></summary><div class="accordion-body"><div id="view-content-' + item.logId + '">' + formatTranscriptContent(safeContentRaw, urls) + '</div><div id="edit-content-' + item.logId + '" style="display: none; flex-direction: column; gap: 12px;"><textarea id="input-content-' + item.logId + '" class="workshop-textarea" style="min-height: 250px;">' + escapeHtml(safeContentRaw) + '</textarea><div style="display: flex; justify-content: flex-end; gap: 8px;"><button class="action-btn-sm action-btn-icon" onclick="toggleEditMode(\'' + item.logId + '\', \'content\')" title="取消"><i data-lucide="x" style="width: 16px; height: 16px;"></i></button><button class="action-btn-sm action-btn-primary" onclick="saveHistoryLog(\'' + item.logId + '\', \'content\', this)"><i data-lucide="save" style="width: 14px; height: 14px;"></i> 儲存</button></div></div></div></details>';
 
-      
+      // 2. 修改：重組卡片 HTML，將 chunksBlock 放入，並將 contentBlock 移至 summaryBlock 的上方
       listHtml += '<div class="history-card" data-row-id="' + item.logId + '">' +
                   '<div class="history-header"><div><div style="font-weight: 700; font-size: 16px; color: var(--text);">ID: ' + item.logId + '</div><div style="font-size: 13px; color: var(--text-muted); margin-top: 6px; display: flex; align-items: center; gap: 6px;"><i data-lucide="clock" style="width: 14px; height: 14px;"></i> ' + cleanTime + '</div></div><div class="flex-wrap-gap"><span class="badge ' + (isRec ? 'recording' : '') + '">' + item.status + '</span><button type="button" class="action-btn-sm action-btn-primary" onclick="openArticleWorkshop(\'' + item.logId + '\')"><i data-lucide="file-text" style="width: 14px; height: 14px;"></i> 工坊</button><button type="button" class="action-btn-sm action-btn-icon danger" onclick="deleteHistoryLog(\'' + item.logId + '\')" title="刪除"><i data-lucide="trash-2" style="width: 16px; height: 16px;"></i></button></div></div>' +
                   chunksBlock +
@@ -2731,17 +2734,18 @@
     const isShowVideo = showVideoEl ? (showVideoEl.value === 'true') : (window.currentSelectedLog && window.currentSelectedLog.showVideo !== false && String(window.currentSelectedLog.showVideo) !== 'false');
 
     let videoHtml = '';
-    if (isShowVideo && urls && urls.length > 0) {
-      if (urls[0].includes('youtube.com') || urls[0].includes('youtu.be')) {
-        const ytMatch = urls[0].match(/(?:youtu\.be\/|youtube\.com\/(?:embed\/|v\/|watch\?v=|watch\?.+&v=|shorts\/))((\w|-){11})/);
-        const ytId = ytMatch ? ytMatch[1] : '';
-        videoHtml = '<div style="background: #000; border-radius: 8px; overflow: hidden; margin-top: 32px; border: 1px solid var(--border); box-shadow: 0 4px 12px rgba(0,0,0,0.05);"><iframe src="https://www.youtube.com/embed/' + ytId + '" frameborder="0" allowfullscreen style="width: 100%; aspect-ratio: 16/9; display: block;"></iframe></div>';
-      } else {
-        const match = urls[0].match(/[-\w]{25,}/);
-        const directUrl = match ? 'https://drive.google.com/uc?export=download&id=' + match[0] : urls[0];
-        videoHtml = '<div style="background: #000; border-radius: 8px; overflow: hidden; margin-top: 32px; border: 1px solid var(--border); box-shadow: 0 4px 12px rgba(0,0,0,0.05);"><video id="preview-player" src="' + directUrl + '" preload="auto" controls playsinline style="width: 100%; aspect-ratio: 16/9; background: #000; display: block; object-fit: contain;"></video><div style="display:flex; flex-wrap:wrap; justify-content: space-between; align-items: center; padding: 12px 16px; background: #0f172a; gap:12px;"><span id="preview-player-status" style="color: #f8fafc; font-size: 13px;">[就緒]</span><button class="action-btn-sm" onclick="window.initPreviewPlayer(\'' + logId + '\')" style="background: var(--accent); color: #fff; border: none; padding: 6px 16px;"><i data-lucide="play" style="width: 14px; height: 14px;"></i> 啟動</button></div></div>';
+      if (isShowVideo && urls && urls.length > 0) {
+        if (urls[0].includes('youtube.com') || urls[0].includes('youtu.be')) {
+          const ytMatch = urls[0].match(/(?:youtu\.be\/|youtube\.com\/(?:embed\/|v\/|watch\?v=|watch\?.+&v=|shorts\/))((\w|-){11})/);
+          const ytId = ytMatch ? ytMatch[1] : '';
+          videoHtml = '<div style="background: #000; border-radius: 8px; overflow: hidden; margin-top: 32px; border: 1px solid var(--border); box-shadow: 0 4px 12px rgba(0,0,0,0.05);"><iframe src="https://www.youtube.com/embed/' + ytId + '" frameborder="0" allowfullscreen style="width: 100%; aspect-ratio: 16/9; display: block;"></iframe></div>';
+        } else {
+          
+          let optHtml = '';
+          for(let k=0; k<urls.length; k++) optHtml += `<option value="${k}">片段 ${k+1}</option>`;
+          videoHtml = '<div style="background: #000; border-radius: 8px; overflow: hidden; margin-top: 32px; border: 1px solid var(--border); box-shadow: 0 4px 12px rgba(0,0,0,0.05);"><div style="position: relative; width: 100%; aspect-ratio: 16/9; background: #000; overflow: hidden;"><video id="preview-playerA" controls playsinline style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 2; opacity: 1; transition: opacity 0.2s; background: #000; object-fit: contain;"></video><video id="preview-playerB" controls playsinline style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 1; opacity: 0; transition: opacity 0.2s; background: #000; object-fit: contain;"></video></div><div style="display:flex; flex-wrap:wrap; justify-content: space-between; align-items: center; padding: 12px 16px; background: #0f172a; gap:12px;"><div style="display:flex; gap:8px;"><button class="action-btn-sm" onclick="window.prevPreviewChunk(\'' + logId + '\')" style="background:#1e293b; color:#fff; border-color:#334155;">上一段</button><select id="preview-select" onchange="window.playPreviewChunk(\'' + logId + '\', parseInt(this.value))" style="background:#1e293b; color:#fff; border:1px solid #334155; padding:6px; border-radius:4px; outline:none; font-size:13px; cursor:pointer;">' + optHtml + '</select><button class="action-btn-sm" onclick="window.nextPreviewChunk(\'' + logId + '\')" style="background:#1e293b; color:#fff; border-color:#334155;">下一段</button></div><div style="display:flex; align-items:center; gap:12px;"><span id="preview-player-status" style="color: #94a3b8; font-size: 13px; font-weight:600;">準備就緒</span><button class="action-btn-sm" onclick="window.initPreviewPlayer(\'' + logId + '\')" style="background: var(--accent); color: #fff; border: none; padding: 6px 16px;"><i data-lucide="play" style="width: 14px; height: 14px;"></i> 啟動聯播</button></div></div></div>';
+        }
       }
-    }
 
     
     const previewHtml = '<div class="blog-preview-wrapper"><h1 class="preview-main-title">' + escapeHtml(displayTitle) + '</h1><div class="blog-meta-header"><div class="blog-author-info">' + avatarHtml + '<div><div style="font-weight: 700; color: var(--text); font-size: 15px;">' + escapeHtml(authorNameText) + '</div><div style="font-size: 12px; color: var(--text-muted); margin-top: 2px;">' + dateStr + '</div></div></div><div class="blog-stats"><span><i data-lucide="eye" style="width: 15px; height: 15px;"></i> 預覽</span></div></div><div id="markdown-render-zone" class="markdown-body">' + marked.parse(bodyMd) + '</div>' + videoHtml + '</div>';
@@ -2768,6 +2772,7 @@
 
     
     lucide.createIcons();
+    
 
     
     
@@ -2944,7 +2949,12 @@
 
   window.captureFrameFromVideo = function() {
     if (!window.currentSelectedLog) return;
-    const videoEl = document.getElementById('preview-player');
+    
+    
+    const logId = window.currentSelectedLog.logId;
+    const state = window.previewPlayerStates ? window.previewPlayerStates[logId] : null;
+    let videoEl = (state && state.activeVid) ? state.activeVid : document.getElementById('preview-playerA');
+
     if (!videoEl || !videoEl.src || videoEl.src.includes('undefined')) {
       alert("請先點擊預覽播放器啟動影片！");
       return;
@@ -3196,17 +3206,10 @@
         btnCapture.disabled = true; // YouTube 模式不支援截圖
       } else {
         
-        const match = urls[0].match(/[-\w]{25,}/);
-        const directUrl = match ? 'https://drive.google.com/uc?export=download&id=' + match[0] : urls[0];
         
-        const previewPlayer = document.getElementById('preview-player');
-        if (previewPlayer) {
-          previewPlayer.src = directUrl;
-          previewPlayer.preload = 'auto';
-        }
-        const previewStatus = document.getElementById('preview-player-status');
-        if (previewStatus) previewStatus.innerText = "[就緒]";
-        btnCapture.disabled = false;
+        btnCapture.disabled = true; 
+        btnCapture.title = "原生播放器不支援截圖，請改用圖片上傳";
+        btnCapture.style.opacity = '0.5';
       }
     }
 
@@ -3221,114 +3224,329 @@
     showToast(logItem.logId);
   }
 
-  window.initPreviewPlayer = async function(logId) {
-    const urls = window.logPlaylists[logId];
-    if (!urls || urls.length === 0) return;
-    const videoEl = document.getElementById('preview-player');
-    const statusEl = document.getElementById('preview-player-status');
-    if (videoEl.dataset.playing === 'true') return;
-    videoEl.dataset.playing = 'true';
-    if (!window.blobBuffers[logId]) window.blobBuffers[logId] = [];
-    const buffer = window.blobBuffers[logId];
-    let currentIndex = 0;
+  
+  
+  
+  window.historyPlayerStates = window.historyPlayerStates || {};
+  window.videoBlobCache = window.videoBlobCache || {};
 
-    const loadChunk = async (index) => {
-      if (index >= urls.length) return null;
-      if (buffer[index]) return buffer[index];
-      statusEl.innerText = "[讀取] " + (index + 1) + " / " + urls.length;
-      try {
-        const res = await api({ action: 'getVideoChunk', url: urls[index] });
-        const fetchRes = await fetch("data:" + res.mimeType + ";base64," + res.base64);
-        const blob = await fetchRes.blob();
-        const blobUrl = URL.createObjectURL(blob);
-        buffer[index] = blobUrl;
-        return blobUrl;
-      } catch (err) { statusEl.innerText = "[失敗] " + (index + 1); return null; }
-    };
+  window.fetchVideoChunkBase64 = async function(url) {
+    if (window.videoBlobCache[url]) return window.videoBlobCache[url];
+    try {
+      const res = await api({ action: "getVideoChunk", url: url });
+      const dataUrl = 'data:' + res.mimeType + ';base64,' + res.base64;
+      window.videoBlobCache[url] = dataUrl;
+      return dataUrl;
+    } catch (e) {
+      console.error("影片轉換失敗", e);
+      return null;
+    }
+  };
 
-    const playNext = async () => {
-      if (currentIndex >= urls.length) { statusEl.innerText = '[結束]'; videoEl.dataset.playing = 'false'; return; }
-      statusEl.innerText = "[播放] " + (currentIndex + 1) + " / " + urls.length;
-      let blobUrl = buffer[currentIndex];
-      if (!blobUrl) blobUrl = await loadChunk(currentIndex);
-      if (blobUrl) {
-        videoEl.src = blobUrl;
-        videoEl.play().catch(e => { statusEl.innerText = "[暫停]"; });
-        if (currentIndex + 1 < urls.length) loadChunk(currentIndex + 1).catch(e => console.log('預載失敗', e));
+  
+  
+  
+  window.historyPlayerStates = window.historyPlayerStates || {};
+  window.videoBlobCache = window.videoBlobCache || {};
 
-        document.getElementById('btnCaptureCover').disabled = false;
-
-      } else { currentIndex++; playNext(); }
-    };
-
-    videoEl.onended = () => { currentIndex++; playNext(); };
-    playNext();
+  window.fetchVideoChunkBase64 = async function(url) {
+    if (window.videoBlobCache[url]) return window.videoBlobCache[url];
+    try {
+      const res = await api({ action: "getVideoChunk", url: url });
+      const dataUrl = 'data:' + res.mimeType + ';base64,' + res.base64;
+      window.videoBlobCache[url] = dataUrl;
+      return dataUrl;
+    } catch (e) {
+      console.error("影片轉換失敗", e);
+      return null;
+    }
   };
 
   window.startSeamlessPlay = async function(logId) {
     const urls = window.logPlaylists[logId];
     if (!urls || urls.length === 0) return;
-    const videoEl = document.getElementById('player-' + logId);
     const statusEl = document.getElementById('player-status-' + logId);
+    const vidA = document.getElementById('playerA-' + logId);
+    const vidB = document.getElementById('playerB-' + logId);
 
-    if (videoEl.dataset.playing === 'true') return;
-    videoEl.dataset.playing = 'true';
-
-    if (!window.blobBuffers[logId]) window.blobBuffers[logId] = [];
-    const buffer = window.blobBuffers[logId];
-    let currentIndex = 0;
-
-    const loadChunk = async (index) => {
-      if (index >= urls.length) return null;
-      if (buffer[index]) return buffer[index];
-      statusEl.innerText = "[讀取] " + (index + 1) + " / " + urls.length;
-      try {
-        const res = await api({ action: 'getVideoChunk', url: urls[index] });
-        const fetchRes = await fetch("data:" + res.mimeType + ";base64," + res.base64);
-        const blob = await fetchRes.blob();
-        const blobUrl = URL.createObjectURL(blob);
-        buffer[index] = blobUrl;
-        return blobUrl;
-      } catch (err) { statusEl.innerText = "[失敗] " + (index + 1); return null; }
-    };
-
-    const playNext = async () => {
-      if (currentIndex >= urls.length) { 
-        statusEl.innerText = '[結束]'; 
-        videoEl.dataset.playing = 'false'; 
-        return; 
+    let state = window.historyPlayerStates[logId];
+    if (!state) {
+      state = {
+        currentIndex: 0,
+        activeVid: vidA,
+        nextVid: vidB,
+        isTransitioning: false,
+        streamUrls: urls
+      };
+      window.historyPlayerStates[logId] = state;
+      
+      function monitorPlayback(e) {
+        const v = e.target;
+        
+        if (v !== state.activeVid) return; 
+        
+        if (!v.duration) return;
+        state.nextVid.volume = state.activeVid.volume;
+        
+        if (v.duration - v.currentTime <= 0.3 && !state.isTransitioning) {
+          state.isTransitioning = true;
+          if (state.currentIndex < state.streamUrls.length - 1) {
+            window.playHistoryChunk(logId, state.currentIndex + 1);
+          } else {
+            statusEl.innerText = '播放完畢';
+          }
+        }
       }
-      statusEl.innerText = "[播放] " + (currentIndex + 1) + " / " + urls.length;
-      let blobUrl = buffer[currentIndex];
-      if (!blobUrl) blobUrl = await loadChunk(currentIndex);
-
-      if (blobUrl) {
-        videoEl.src = blobUrl;
-        videoEl.play().catch(e => { statusEl.innerText = "[暫停]"; });
-        if (currentIndex + 1 < urls.length) loadChunk(currentIndex + 1).catch(e => {});
-      } else { 
-        currentIndex++; 
-        playNext(); 
-      }
-    };
-
-    videoEl.onended = () => { currentIndex++; playNext(); };
-    playNext();
+      vidA.addEventListener('timeupdate', monitorPlayback);
+      vidB.addEventListener('timeupdate', monitorPlayback);
+      
+      const onEnded = (e) => { 
+        if(e.target === state.activeVid && !state.isTransitioning && state.currentIndex < state.streamUrls.length - 1) {
+            window.playHistoryChunk(logId, state.currentIndex + 1); 
+        }
+      };
+      vidA.addEventListener('ended', onEnded);
+      vidB.addEventListener('ended', onEnded);
+    }
+    
+    window.playHistoryChunk(logId, 0);
   };
 
-  function assembleFullArticle() {
+  window.playHistoryChunk = async function(logId, targetIndex) {
+    const state = window.historyPlayerStates[logId];
+    const statusEl = document.getElementById('player-status-' + logId);
+    const selector = document.getElementById('player-sel-' + logId);
+    
+    state.currentIndex = targetIndex;
+    if (selector) selector.value = targetIndex; 
+    
+    statusEl.innerText = "高速緩衝中...";
+    const targetUrl = state.streamUrls[targetIndex];
+    const dataUrl = await window.fetchVideoChunkBase64(targetUrl);
+    
+    if (!dataUrl) {
+      statusEl.innerText = "載入失敗，請重試";
+      state.isTransitioning = false;
+      return;
+    }
+    
+    const isFullscreen = !!(document.fullscreenElement || document.webkitFullscreenElement);
+    const fsElement = document.fullscreenElement || document.webkitFullscreenElement;
+    
+    if (isFullscreen && fsElement === state.activeVid) {
+      
+      state.activeVid.src = dataUrl;
+      state.activeVid.load();
+      state.activeVid.currentTime = 0;
+      try { await state.activeVid.play(); } catch(e){}
+    } else {
+      if (state.nextVid.dataset.chunkIndex == targetIndex && state.nextVid.src) {
+        const temp = state.activeVid;
+        state.activeVid = state.nextVid;
+        state.nextVid = temp;
+      } else {
+        
+        state.activeVid.src = dataUrl;
+        state.activeVid.load();
+        state.activeVid.currentTime = 0;
+      }
+      
+      state.activeVid.style.opacity = '1';
+      state.activeVid.style.zIndex = '2';
+      state.activeVid.controls = true;
+      
+      state.nextVid.style.opacity = '0';
+      state.nextVid.style.zIndex = '1';
+      state.nextVid.controls = false;
+      state.nextVid.pause();
+      
+      try { await state.activeVid.play(); } catch(e) {}
+    }
+    
+    statusEl.innerText = "切片 " + (targetIndex + 1) + " / " + state.streamUrls.length;
+    state.isTransitioning = false;
+    
+    if (targetIndex + 1 < state.streamUrls.length) {
+      window.fetchVideoChunkBase64(state.streamUrls[targetIndex + 1]).then(nextDataUrl => {
+          if (nextDataUrl) {
+             state.nextVid.src = nextDataUrl;
+             state.nextVid.dataset.chunkIndex = targetIndex + 1; 
+             state.nextVid.preload = "auto";
+             state.nextVid.load();
+          }
+      });
+    }
+  };
+
+  window.prevHistoryChunk = function(logId) {
+    const state = window.historyPlayerStates[logId];
+    if (state && state.currentIndex > 0) window.playHistoryChunk(logId, state.currentIndex - 1);
+  };
+
+  window.nextHistoryChunk = function(logId) {
+    const state = window.historyPlayerStates[logId];
+    if (state && state.currentIndex < state.streamUrls.length - 1) window.playHistoryChunk(logId, state.currentIndex + 1);
+  };
+
+  
+  
+  
+  window.previewPlayerStates = window.previewPlayerStates || {};
+
+  
+  
+  
+  window.previewPlayerStates = window.previewPlayerStates || {};
+
+  window.initPreviewPlayer = async function(logId) {
+    const urls = window.logPlaylists[logId];
+    if (!urls || urls.length === 0) return;
+    const statusEl = document.getElementById('preview-player-status');
+    const vidA = document.getElementById('preview-playerA');
+    const vidB = document.getElementById('preview-playerB');
+    
+    let state = window.previewPlayerStates[logId];
+    if (!state) {
+      state = {
+        currentIndex: 0,
+        activeVid: vidA,
+        nextVid: vidB,
+        isTransitioning: false,
+        streamUrls: urls
+      };
+      window.previewPlayerStates[logId] = state;
+      
+      function monitorPlayback(e) {
+        const v = e.target;
+        if (v !== state.activeVid) return; 
+        
+        if (!v.duration) return;
+        state.nextVid.volume = state.activeVid.volume;
+        
+        if (v.duration - v.currentTime <= 0.3 && !state.isTransitioning) {
+          state.isTransitioning = true;
+          if (state.currentIndex < state.streamUrls.length - 1) {
+            window.playPreviewChunk(logId, state.currentIndex + 1);
+          } else {
+            statusEl.innerText = '全片播放完畢';
+          }
+        }
+      }
+      vidA.addEventListener('timeupdate', monitorPlayback);
+      vidB.addEventListener('timeupdate', monitorPlayback);
+      
+      const onEnded = (e) => { 
+        if(e.target === state.activeVid && !state.isTransitioning && state.currentIndex < state.streamUrls.length - 1) {
+            window.playPreviewChunk(logId, state.currentIndex + 1); 
+        }
+      };
+      vidA.addEventListener('ended', onEnded);
+      vidB.addEventListener('ended', onEnded);
+    }
+    
+    window.playPreviewChunk(logId, 0);
+  };
+
+  window.playPreviewChunk = async function(logId, targetIndex) {
+    const state = window.previewPlayerStates[logId];
+    const statusEl = document.getElementById('preview-player-status');
+    const selector = document.getElementById('preview-select');
+    if (!state) return;
+    
+    state.currentIndex = targetIndex;
+    if (selector) selector.value = targetIndex; 
+    
+    statusEl.innerText = "高速緩衝中...";
+    const targetUrl = state.streamUrls[targetIndex];
+    const dataUrl = await window.fetchVideoChunkBase64(targetUrl);
+    
+    if (!dataUrl) {
+      statusEl.innerText = "載入失敗";
+      state.isTransitioning = false;
+      return;
+    }
+    
+    const isFullscreen = !!(document.fullscreenElement || document.webkitFullscreenElement);
+    const fsElement = document.fullscreenElement || document.webkitFullscreenElement;
+    
+    if (isFullscreen && fsElement === state.activeVid) {
+      
+      state.activeVid.src = dataUrl;
+      state.activeVid.load();
+      state.activeVid.currentTime = 0;
+      try { await state.activeVid.play(); } catch(e){}
+    } else {
+      if (state.nextVid.dataset.chunkIndex == targetIndex && state.nextVid.src) {
+        const temp = state.activeVid;
+        state.activeVid = state.nextVid;
+        state.nextVid = temp;
+      } else {
+        
+        state.activeVid.src = dataUrl;
+        state.activeVid.load();
+        state.activeVid.currentTime = 0;
+      }
+      
+      state.activeVid.style.opacity = '1';
+      state.activeVid.style.zIndex = '2';
+      state.activeVid.controls = true;
+      
+      state.nextVid.style.opacity = '0';
+      state.nextVid.style.zIndex = '1';
+      state.nextVid.controls = false;
+      state.nextVid.pause();
+      
+      try { 
+        await state.activeVid.play(); 
+        const capBtn = document.getElementById('btnCaptureCover');
+        if (capBtn) capBtn.disabled = false;
+      } catch(e) {}
+    }
+    
+    statusEl.innerText = "播放中: 切片 " + (targetIndex + 1) + " / " + state.streamUrls.length;
+    state.isTransitioning = false;
+    
+    if (targetIndex + 1 < state.streamUrls.length) {
+      window.fetchVideoChunkBase64(state.streamUrls[targetIndex + 1]).then(nextDataUrl => {
+          if (nextDataUrl) {
+             state.nextVid.src = nextDataUrl;
+             state.nextVid.dataset.chunkIndex = targetIndex + 1;
+             state.nextVid.preload = "auto";
+             state.nextVid.load();
+          }
+      });
+    }
+  };
+
+  window.prevPreviewChunk = function(logId) {
+    const state = window.previewPlayerStates[logId];
+    if (state && state.currentIndex > 0) window.playPreviewChunk(logId, state.currentIndex - 1);
+  };
+
+  window.nextPreviewChunk = function(logId) {
+    const state = window.previewPlayerStates[logId];
+    if (state && state.currentIndex < state.streamUrls.length - 1) window.playPreviewChunk(logId, state.currentIndex + 1);
+  };
+
+  window.assembleFullArticle = function() {
     const title = document.getElementById('finalArticleTitle').value.trim();
     const hook = document.getElementById('finalArticleHook').value.trim();
     const body = document.getElementById('finalArticleBody').value.trim();
     const ending = document.getElementById('finalArticleEnding').value.trim();
-    if (!title || !body) { alert("標題或內文缺漏"); return; }
+    
+    if (!title || !body) { 
+      alert("標題或內文缺漏"); 
+      return; 
+    }
 
+    
     const fullMd = "# " + title + "\n\n" + hook + "\n\n---\n\n" + body + "\n\n---\n\n" + ending;
+    
     window.currentSelectedFullMd = fullMd;
-    renderBlogPreview(fullMd);
-    saveCurrentStepData('full');
-    showToast("整合");
-  }
+    renderBlogPreview(fullMd); 
+    saveCurrentStepData('full'); 
+    showToast("整合完成");
+  };
 
   function saveCurrentStepData(field) {
     if (!window.currentSelectedLog) { alert("未選日誌"); return; }
