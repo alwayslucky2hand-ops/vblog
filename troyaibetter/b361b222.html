@@ -543,18 +543,15 @@
       const vidA = document.getElementById('videoPlayerA');
       const vidB = document.getElementById('videoPlayerB');
       
+      const GAS_API_URL = 'https://script.google.com/macros/s/AKfycbyeqKhWv3TY8bpSdB9ZfWXNkR9yap66PyGxzEJqxpawWn9hZ9chfIuBPJfZHHoP91newQ/exec';
+      
       let currentIndex = 0;
       let activeVid = vidA;
       let nextVid = vidB;
-      
-      // 🌟 將 Google Drive 網址轉換為直連下載播放網址，大幅提昇速度並避開 CORS
-      const directUrls = urls.map(url => {
-        const match = url.match(/[-w]{25,}/);
-        return match ? 'https://drive.google.com/uc?export=download&id=' + match[0] : url;
-      });
+      let blobCache = {};
       
       selector.innerHTML = '';
-      directUrls.forEach((url, i) => {
+      urls.forEach((url, i) => {
         const opt = document.createElement('option');
         opt.value = i;
         opt.innerText = '片段 ' + (i + 1);
@@ -568,20 +565,50 @@
         btnNext.disabled = (currentIndex === urls.length - 1);
         btnPrev.style.opacity = btnPrev.disabled ? '0.4' : '1';
         btnNext.style.opacity = btnNext.disabled ? '0.4' : '1';
-        btnPrev.style.cursor = btnPrev.disabled ? 'not-allowed' : 'pointer';
-        btnNext.style.cursor = btnNext.disabled ? 'not-allowed' : 'pointer';
       }
 
-      function setupNextVideo() {
-        if (currentIndex + 1 < directUrls.length) {
-          nextVid.src = directUrls[currentIndex + 1];
-          nextVid.preload = "auto";
-          nextVid.load(); 
+      async function loadChunkData(index) {
+        if (index >= urls.length || index < 0) return null;
+        if (blobCache[index]) return blobCache[index];
+        statusEl.innerText = '[下載] ' + (index + 1) + '/' + urls.length + '...';
+        try {
+          const response = await fetch(GAS_API_URL, {
+            method: 'POST',
+            headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+            body: JSON.stringify({ action: "getVideoChunk", url: urls[index] })
+          });
+          const res = await response.json();
+          if(res.status === 'success') {
+            const byteCharacters = atob(res.data.base64);
+            const byteNumbers = new Array(byteCharacters.length);
+            for (let i = 0; i < byteCharacters.length; i++) {
+                byteNumbers[i] = byteCharacters.charCodeAt(i);
+            }
+            const byteArray = new Uint8Array(byteNumbers);
+            const blob = new Blob([byteArray], { type: res.data.mimeType });
+            const blobUrl = URL.createObjectURL(blob);
+            blobCache[index] = blobUrl;
+            return blobUrl;
+          } else { throw new Error(res.message); }
+        } catch(e) {
+          statusEl.innerText = '[失敗] 片段 ' + (index + 1);
+          return null;
+        }
+      }
+
+      async function setupNextVideo() {
+        if (currentIndex + 1 < urls.length) {
+          const nextUrl = await loadChunkData(currentIndex + 1);
+          if (nextUrl) {
+            nextVid.src = nextUrl;
+            nextVid.preload = "auto";
+            nextVid.load();
+          }
         }
       }
 
       function onVideoEnded() {
-        if (currentIndex < directUrls.length - 1) {
+        if (currentIndex < urls.length - 1) {
           playVideoChunk(currentIndex + 1);
         } else {
           statusEl.innerText = '播放完畢';
@@ -590,7 +617,6 @@
 
       vidA.onended = onVideoEnded;
       vidB.onended = onVideoEnded;
-      
       vidA.onplay = () => { statusEl.innerText = '播放中: ' + (currentIndex + 1) + ' / ' + urls.length; };
       vidB.onplay = () => { statusEl.innerText = '播放中: ' + (currentIndex + 1) + ' / ' + urls.length; };
 
@@ -598,16 +624,20 @@
         if (targetIndex !== undefined) currentIndex = targetIndex;
         updateControls();
         
-        // 無縫接軌切換：如果目標影片已經在備用的 <video> 中預載，直接對調
-        if (nextVid.src && nextVid.src === directUrls[currentIndex]) {
+        let targetBlobUrl = blobCache[currentIndex];
+        if (!targetBlobUrl) {
+          statusEl.innerText = '緩衝中...';
+          targetBlobUrl = await loadChunkData(currentIndex);
+        }
+        
+        if (nextVid.src && nextVid.src === targetBlobUrl) {
            const temp = activeVid;
            activeVid = nextVid;
            nextVid = temp;
         } else {
-           activeVid.src = directUrls[currentIndex];
+           activeVid.src = targetBlobUrl;
         }
         
-        // 設定顯示與控制權
         activeVid.style.opacity = '1';
         activeVid.style.zIndex = '2';
         activeVid.controls = true;
@@ -644,13 +674,16 @@
         playVideoChunk(parseInt(this.value, 10));
       });
 
-      // 🚀 背景秒速預載機制：載入網頁時立刻取得第一與第二片段
-      activeVid.src = directUrls[0];
-      activeVid.preload = "auto";
-      activeVid.load();
-      setupNextVideo();
+      loadChunkData(0).then(url => {
+        if(url) {
+          activeVid.src = url;
+          activeVid.preload = "auto";
+          activeVid.load();
+          statusEl.innerText = '已就緒 (可點擊播放)';
+          setupNextVideo();
+        }
+      });
       updateControls();
-      statusEl.innerText = '已就緒 (背景預載中)';
     }
   
     
