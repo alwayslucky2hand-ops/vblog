@@ -1883,28 +1883,81 @@
   }
 
   async function switchMediaSource() {
-    const wasRecording = isRecording;
+    // 如果系統還沒取得過畫面，就走原本的初始化邏輯
+    if (!currentStream) {
+      const prevSourceType = currentSourceType;
+      const prevFacingMode = mobileFacingMode;
+      if (isMobile) mobileFacingMode = (mobileFacingMode === "user") ? "environment" : "user";
+      else currentSourceType = (currentSourceType === "camera") ? "screen" : "camera";
+      
+      const success = await acquireStream();
+      if (!success) { currentSourceType = prevSourceType; mobileFacingMode = prevFacingMode; await acquireStream(); }
+      wakeControls();
+      return;
+    }
+
+    // === 進入無縫切換邏輯 (不打斷錄影) ===
     const prevSourceType = currentSourceType;
     const prevFacingMode = mobileFacingMode;
 
-    if (isMobile) mobileFacingMode = (mobileFacingMode === "user") ? "environment" : "user";
-    else currentSourceType = (currentSourceType === "camera") ? "screen" : "camera";
-
-    if (wasRecording && mediaRecorder && mediaRecorder.state === "recording") {
-      clearTimeout(chunkTimer); await stopMediaRecorderAsync();
+    // 更新鏡頭狀態變數
+    if (isMobile) {
+      mobileFacingMode = (mobileFacingMode === "user") ? "environment" : "user";
+    } else {
+      currentSourceType = (currentSourceType === "camera") ? "screen" : "camera";
     }
 
-    if (currentStream) {
-      currentStream.getTracks().forEach(t => t.stop());
-      currentStream = null;
-    }
-    document.getElementById('mediaPlayer').srcObject = null;
-    await new Promise(r => setTimeout(r, 300));
+    try {
+      let newStream;
+      
+      // 1. 取得新鏡頭或螢幕的畫面
+      if (!isMobile && currentSourceType === "screen") {
+        // 電腦版切換到螢幕分享
+        newStream = await navigator.mediaDevices.getDisplayMedia({ video: { frameRate: { ideal: cameraFps } } });
+        newStream.getVideoTracks()[0].onended = async () => { 
+          if (currentSourceType === "screen") await switchMediaSource(); 
+        };
+      } else {
+        // 手機版切換前後鏡頭，或電腦版切回視訊鏡頭
+        let videoConstraints = {
+          facingMode: mobileFacingMode,
+          width: { ideal: 640 },
+          height: { ideal: 360 },
+          frameRate: { ideal: cameraFps }
+        };
+        newStream = await navigator.mediaDevices.getUserMedia({ video: videoConstraints });
+      }
 
-    const success = await acquireStream();
-    if (!success) { currentSourceType = prevSourceType; mobileFacingMode = prevFacingMode; await acquireStream(); }
-    if (wasRecording && !isPaused && currentStream) { startChunkRecording(); }
-    wakeControls();
+      if (newStream) {
+        // 🌟 核心魔法：只抽出新的影像軌道 (Video Track)，保留舊的麥克風聲音！
+        const newVideoTrack = newStream.getVideoTracks()[0];
+        const oldVideoTrack = currentStream.getVideoTracks()[0];
+
+        if (oldVideoTrack && newVideoTrack) {
+          // 從現有正在「錄影中」的 Stream 裡移除舊鏡頭，並無縫插入新鏡頭
+          currentStream.removeTrack(oldVideoTrack);
+          currentStream.addTrack(newVideoTrack);
+          
+          // 關閉舊鏡頭硬體，釋放手機/電腦資源
+          oldVideoTrack.stop(); 
+          
+          // 重新綁定前端播放器，讓使用者的預覽畫面即時更新
+          document.getElementById('mediaPlayer').srcObject = currentStream;
+          newVideoTrack.enabled = isVideoEnabled;
+          
+          log("[系統] 畫面已無縫切換");
+        }
+      }
+
+      updateSourceIcon();
+      wakeControls();
+
+    } catch (err) {
+      log("[錯誤] 切換失敗: " + err.message);
+      // 若使用者按取消或發生權限錯誤，還原變數狀態
+      currentSourceType = prevSourceType; 
+      mobileFacingMode = prevFacingMode;
+    }
   }
 
   // ==========================================
@@ -2773,6 +2826,11 @@
     
     lucide.createIcons();
     
+    setTimeout(() => {
+      if (window.initPreviewPlayer && urls && urls.length > 0 && (!urls[0].includes('youtube.com') && !urls[0].includes('youtu.be'))) {
+        window.initPreviewPlayer(logId, true); 
+      }
+    }, 500);
 
     
     
@@ -3228,27 +3286,9 @@
   
   
   window.historyPlayerStates = window.historyPlayerStates || {};
+  window.previewPlayerStates = window.previewPlayerStates || {};
   window.videoBlobCache = window.videoBlobCache || {};
-
-  window.fetchVideoChunkBase64 = async function(url) {
-    if (window.videoBlobCache[url]) return window.videoBlobCache[url];
-    try {
-      const res = await api({ action: "getVideoChunk", url: url });
-      const dataUrl = 'data:' + res.mimeType + ';base64,' + res.base64;
-      window.videoBlobCache[url] = dataUrl;
-      return dataUrl;
-    } catch (e) {
-      console.error("影片轉換失敗", e);
-      return null;
-    }
-  };
-
   
-  
-  
-  window.historyPlayerStates = window.historyPlayerStates || {};
-  window.videoBlobCache = window.videoBlobCache || {};
-
   
   window.base64ToBlob = function(base64, mime) {
     const byteCharacters = atob(base64);
@@ -3259,24 +3299,37 @@
         for (let i = 0; i < slice.length; i++) {
             byteNumbers[i] = slice.charCodeAt(i);
         }
-        const byteArray = new Uint8Array(byteNumbers);
-        byteArrays.push(byteArray);
+        byteArrays.push(new Uint8Array(byteNumbers));
     }
     return new Blob(byteArrays, {type: mime});
   };
 
-  window.fetchVideoChunkBase64 = async function(url) {
-    if (window.videoBlobCache[url]) return window.videoBlobCache[url];
-    try {
-      const res = await api({ action: "getVideoChunk", url: url });
-      const blob = window.base64ToBlob(res.base64, res.mimeType);
-      const objectUrl = URL.createObjectURL(blob); 
-      window.videoBlobCache[url] = objectUrl;
-      return objectUrl;
-    } catch (e) {
-      console.error("影片轉換失敗", e);
-      return null;
-    }
+  
+  window.videoFetchQueue = Promise.resolve();
+
+  window.fetchVideoChunkBase64 = function(url) {
+    if (window.videoBlobCache[url]) return Promise.resolve(window.videoBlobCache[url]);
+    
+    
+    return new Promise((resolve) => {
+      window.videoFetchQueue = window.videoFetchQueue.then(async () => {
+        if (window.videoBlobCache[url]) { resolve(window.videoBlobCache[url]); return; }
+        try {
+          const res = await api({ action: "getVideoChunk", url: url });
+          if (res && res.base64) {
+             const blob = window.base64ToBlob(res.base64, res.mimeType);
+             const objectUrl = URL.createObjectURL(blob);
+             window.videoBlobCache[url] = objectUrl;
+             resolve(objectUrl);
+          } else {
+             resolve(null);
+          }
+        } catch (e) {
+          console.error("影片載入失敗", e);
+          resolve(null);
+        }
+      });
+    });
   };
 
   window.startSeamlessPlay = async function(logId) {
@@ -3297,6 +3350,27 @@
       };
       window.historyPlayerStates[logId] = state;
       
+      
+      state.startAggressivePreload = async function() {
+        for (let i = 1; i < state.streamUrls.length; i++) {
+          await window.fetchVideoChunkBase64(state.streamUrls[i]);
+        }
+        console.log("日誌區：後續影音已全數排隊預載完畢！");
+      };
+
+      state.prepareNextPlayer = function(targetIndex) {
+        if (targetIndex + 1 < state.streamUrls.length) {
+          window.fetchVideoChunkBase64(state.streamUrls[targetIndex + 1]).then(nextDataUrl => {
+            if (nextDataUrl && state.nextVid.dataset.chunkIndex != (targetIndex + 1)) {
+              state.nextVid.src = nextDataUrl;
+              state.nextVid.dataset.chunkIndex = targetIndex + 1;
+              state.nextVid.preload = "auto";
+              state.nextVid.load();
+            }
+          });
+        }
+      };
+
       function monitorPlayback(e) {
         const v = e.target;
         if (v !== state.activeVid) return; 
@@ -3322,6 +3396,8 @@
       vidA.addEventListener('ended', onEnded);
       vidB.addEventListener('ended', onEnded);
     }
+    
+    
     window.playHistoryChunk(logId, 0);
   };
 
@@ -3336,7 +3412,6 @@
     
     const targetUrl = state.streamUrls[targetIndex];
     const dataUrl = await window.fetchVideoChunkBase64(targetUrl);
-    
     
     if (state.currentIndex !== targetIndex) return;
     
@@ -3380,16 +3455,8 @@
     statusEl.innerText = "切片 " + (targetIndex + 1) + " / " + state.streamUrls.length;
     state.isTransitioning = false;
     
-    if (targetIndex + 1 < state.streamUrls.length) {
-      window.fetchVideoChunkBase64(state.streamUrls[targetIndex + 1]).then(nextDataUrl => {
-          if (nextDataUrl) {
-             state.nextVid.src = nextDataUrl;
-             state.nextVid.dataset.chunkIndex = targetIndex + 1;
-             state.nextVid.preload = "auto";
-             state.nextVid.load();
-          }
-      });
-    }
+    state.prepareNextPlayer(targetIndex);
+    if (targetIndex === 0) state.startAggressivePreload(); 
   };
 
   window.prevHistoryChunk = function(logId) {
@@ -3406,7 +3473,7 @@
   
   window.previewPlayerStates = window.previewPlayerStates || {};
 
-  window.initPreviewPlayer = async function(logId) {
+  window.initPreviewPlayer = async function(logId, autoPreloadOnly = false) {
     const urls = window.logPlaylists[logId];
     if (!urls || urls.length === 0) return;
     const statusEl = document.getElementById('preview-player-status');
@@ -3423,6 +3490,27 @@
         streamUrls: urls
       };
       window.previewPlayerStates[logId] = state;
+      
+      
+      state.startAggressivePreload = async function() {
+        for (let i = 1; i < state.streamUrls.length; i++) {
+          await window.fetchVideoChunkBase64(state.streamUrls[i]);
+        }
+        console.log("工坊預覽區：後續影音已全數排隊預載完畢！");
+      };
+
+      state.prepareNextPlayer = function(targetIndex) {
+        if (targetIndex + 1 < state.streamUrls.length) {
+          window.fetchVideoChunkBase64(state.streamUrls[targetIndex + 1]).then(nextDataUrl => {
+            if (nextDataUrl && state.nextVid.dataset.chunkIndex != (targetIndex + 1)) {
+              state.nextVid.src = nextDataUrl;
+              state.nextVid.dataset.chunkIndex = targetIndex + 1;
+              state.nextVid.preload = "auto";
+              state.nextVid.load();
+            }
+          });
+        }
+      };
       
       function monitorPlayback(e) {
         const v = e.target;
@@ -3449,10 +3537,30 @@
       vidA.addEventListener('ended', onEnded);
       vidB.addEventListener('ended', onEnded);
     }
-    window.playPreviewChunk(logId, 0);
+    
+    
+    if (autoPreloadOnly) {
+       statusEl.innerText = '正在預備首支影片...';
+       window.fetchVideoChunkBase64(state.streamUrls[0]).then(dataUrl => {
+           if(dataUrl) {
+              state.activeVid.src = dataUrl;
+              state.activeVid.preload = "auto";
+              state.activeVid.load();
+              statusEl.innerText = '已就緒 (可點擊啟動聯播)';
+              state.prepareNextPlayer(0); 
+              state.startAggressivePreload(); 
+           } else {
+              statusEl.innerText = '影片載入錯誤';
+           }
+       });
+       return; 
+    }
+
+    
+    window.playPreviewChunk(logId, 0, true);
   };
 
-  window.playPreviewChunk = async function(logId, targetIndex) {
+  window.playPreviewChunk = async function(logId, targetIndex, forcePlay = false) {
     const state = window.previewPlayerStates[logId];
     const statusEl = document.getElementById('preview-player-status');
     const selector = document.getElementById('preview-select');
@@ -3464,7 +3572,6 @@
     
     const targetUrl = state.streamUrls[targetIndex];
     const dataUrl = await window.fetchVideoChunkBase64(targetUrl);
-    
     
     if (state.currentIndex !== targetIndex) return;
 
@@ -3506,22 +3613,16 @@
         await state.activeVid.play(); 
         const capBtn = document.getElementById('btnCaptureCover');
         if (capBtn) capBtn.disabled = false;
-      } catch(e) {}
+      } catch(e) {
+        if (!forcePlay) statusEl.innerText = "已就緒，請點擊播放"; 
+      }
     }
     
     statusEl.innerText = "播放中: 切片 " + (targetIndex + 1) + " / " + state.streamUrls.length;
     state.isTransitioning = false;
     
-    if (targetIndex + 1 < state.streamUrls.length) {
-      window.fetchVideoChunkBase64(state.streamUrls[targetIndex + 1]).then(nextDataUrl => {
-          if (nextDataUrl) {
-             state.nextVid.src = nextDataUrl;
-             state.nextVid.dataset.chunkIndex = targetIndex + 1;
-             state.nextVid.preload = "auto";
-             state.nextVid.load();
-          }
-      });
-    }
+    state.prepareNextPlayer(targetIndex);
+    if (targetIndex === 0) state.startAggressivePreload(); 
   };
 
   window.prevPreviewChunk = function(logId) {
