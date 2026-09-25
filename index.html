@@ -2735,9 +2735,9 @@
         const ytId = ytMatch ? ytMatch[1] : '';
         videoHtml = '<div style="background: #000; border-radius: 8px; overflow: hidden; margin-top: 32px; border: 1px solid var(--border); box-shadow: 0 4px 12px rgba(0,0,0,0.05);"><iframe src="https://www.youtube.com/embed/' + ytId + '" frameborder="0" allowfullscreen style="width: 100%; aspect-ratio: 16/9; display: block;"></iframe></div>';
       } else {
-        const isPreloaded = window.blobBuffers[logId] && window.blobBuffers[logId][0];
-        const statusText = isPreloaded ? "[就緒]" : "[載入]";
-        videoHtml = '<div style="background: #000; border-radius: 8px; overflow: hidden; margin-top: 32px; border: 1px solid var(--border); box-shadow: 0 4px 12px rgba(0,0,0,0.05);"><video id="preview-player" controls playsinline style="width: 100%; aspect-ratio: 16/9; background: #000; display: block; object-fit: contain;"></video><div style="display:flex; flex-wrap:wrap; justify-content: space-between; align-items: center; padding: 12px 16px; background: #0f172a; gap:12px;"><span id="preview-player-status" style="color: #f8fafc; font-size: 13px;">' + statusText + '</span><button class="action-btn-sm" onclick="window.initPreviewPlayer(\'' + logId + '\')" style="background: var(--accent); color: #fff; border: none; padding: 6px 16px;"><i data-lucide="play" style="width: 14px; height: 14px;"></i> 啟動</button></div></div>';
+        const match = urls[0].match(/[-\w]{25,}/);
+        const directUrl = match ? 'https://drive.google.com/uc?export=download&id=' + match[0] : urls[0];
+        videoHtml = '<div style="background: #000; border-radius: 8px; overflow: hidden; margin-top: 32px; border: 1px solid var(--border); box-shadow: 0 4px 12px rgba(0,0,0,0.05);"><video id="preview-player" src="' + directUrl + '" preload="auto" controls playsinline style="width: 100%; aspect-ratio: 16/9; background: #000; display: block; object-fit: contain;"></video><div style="display:flex; flex-wrap:wrap; justify-content: space-between; align-items: center; padding: 12px 16px; background: #0f172a; gap:12px;"><span id="preview-player-status" style="color: #f8fafc; font-size: 13px;">[就緒]</span><button class="action-btn-sm" onclick="window.initPreviewPlayer(\'' + logId + '\')" style="background: var(--accent); color: #fff; border: none; padding: 6px 16px;"><i data-lucide="play" style="width: 14px; height: 14px;"></i> 啟動</button></div></div>';
       }
     }
 
@@ -2766,10 +2766,6 @@
 
     
     lucide.createIcons();
-    
-    if (urls && urls.length > 0 && !(urls[0].includes('youtube.com') || urls[0].includes('youtu.be')) && window.blobBuffers[logId] && window.blobBuffers[logId][0]) {
-      document.getElementById('preview-player').src = window.blobBuffers[logId][0];
-    }
 
     
     
@@ -3197,19 +3193,18 @@
       if (urls[0].includes('youtube.com') || urls[0].includes('youtu.be')) {
         btnCapture.disabled = true; // YouTube 模式不支援截圖
       } else {
-        if (!window.blobBuffers[logItem.logId]) window.blobBuffers[logItem.logId] = [];
-        if (!window.blobBuffers[logItem.logId][0]) {
-          api({ action: 'getVideoChunk', url: urls[0] }).then(res => {
-            fetch("data:" + res.mimeType + ";base64," + res.base64).then(r => r.blob()).then(blob => {
-              window.blobBuffers[logItem.logId][0] = URL.createObjectURL(blob);
-              const previewStatus = document.getElementById('preview-player-status');
-              if (previewStatus) previewStatus.innerText = "[就緒]";
-              btnCapture.disabled = false;
-            }).catch(e => console.log(e));
-          }).catch(e => console.log(e));
-        } else {
-          btnCapture.disabled = false;
+        
+        const match = urls[0].match(/[-\w]{25,}/);
+        const directUrl = match ? 'https://drive.google.com/uc?export=download&id=' + match[0] : urls[0];
+        
+        const previewPlayer = document.getElementById('preview-player');
+        if (previewPlayer) {
+          previewPlayer.src = directUrl;
+          previewPlayer.preload = 'auto';
         }
+        const previewStatus = document.getElementById('preview-player-status');
+        if (previewStatus) previewStatus.innerText = "[就緒]";
+        btnCapture.disabled = false;
       }
     }
 
