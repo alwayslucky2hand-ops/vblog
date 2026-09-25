@@ -1855,8 +1855,9 @@
       } else {
         let videoConstraints = {
           facingMode: mobileFacingMode,
-          width: { ideal: 1280 },
-          height: { ideal: 720 },
+          // 🌟 核心修復：降解析度至 640x360，大幅減輕 Base64 體積，根除 CORS 與 HTML 錯誤
+          width: { ideal: 640 },
+          height: { ideal: 360 },
           frameRate: { ideal: cameraFps }
         };
 
@@ -1994,7 +1995,8 @@
 
     const recorderOptions = {
       mimeType: mime,
-      videoBitsPerSecond: 1200000
+      
+      videoBitsPerSecond: 350000
     };
 
     try {
