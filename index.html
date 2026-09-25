@@ -596,7 +596,7 @@
         <button class="ctrl-btn" id="btnSource" onclick="switchMediaSource()" title="鏡頭"><i data-lucide="switch-camera" id="iconSource"></i></button>
         <button class="ctrl-btn" id="btnVideoTrack" onclick="toggleVideoTrack()" title="畫面"><i data-lucide="video" id="iconVideo"></i></button>
         <button class="ctrl-btn" id="btnFullscreen" onclick="toggleFullscreen()" title="全螢"><i data-lucide="maximize" id="iconFullscreen"></i></button>
-        <button class="ctrl-btn" id="btnFps" onclick="toggleFps()" title="幀率">30</button>
+        
         <div class="controls-divider"></div>
         <button class="ctrl-btn record-btn" id="btnStart" onclick="startRecording()" title="錄影"><i data-lucide="circle-dot"></i></button>
         <button class="ctrl-btn pause-btn" id="btnPause" onclick="togglePause()" style="display: none;" title="暫停"><i data-lucide="pause" id="iconPause"></i></button>
@@ -1003,7 +1003,7 @@
   let currentSourceType = "camera";
   let mobileFacingMode = "user";
 
-  let cameraFps = 30;
+  let cameraFps = 60;
 
   let chunkIndex = 1;
   let chunkTimer = null;
@@ -1786,13 +1786,7 @@
     if (tabId === 'tab-dashboard') loadDashboardLogs(false);
   }
 
-  function toggleFps() {
-    cameraFps = (cameraFps === 30) ? 60 : 30;
-    document.getElementById('btnFps').innerText = cameraFps;
-    document.getElementById('btnFps').classList.toggle('active', cameraFps === 60);
-    log("[系統] 幀率: " + cameraFps);
-    if (currentStream) acquireStream();
-  }
+  
 
   async function enableHardware() {
     log("[系統] 授權...");
@@ -1852,7 +1846,8 @@
           facingMode: mobileFacingMode,
           width: { ideal: 640 },
           height: { ideal: 360 },
-          frameRate: { ideal: cameraFps }
+          frameRate: { ideal: cameraFps },
+          backgroundBlur: false // 新增這行：明確向瀏覽器要求關閉背景模糊
         };
 
         currentStream = await navigator.mediaDevices.getUserMedia({ video: videoConstraints, audio: audioConstraints });
@@ -1911,7 +1906,8 @@
           facingMode: mobileFacingMode,
           width: { ideal: 640 },
           height: { ideal: 360 },
-          frameRate: { ideal: cameraFps }
+          frameRate: { ideal: cameraFps },
+          backgroundBlur: false // 新增這行：確保切換鏡頭時也不會模糊
         };
         newStream = await navigator.mediaDevices.getUserMedia({ video: videoConstraints });
       }
