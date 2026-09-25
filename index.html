@@ -3249,13 +3249,30 @@
   window.historyPlayerStates = window.historyPlayerStates || {};
   window.videoBlobCache = window.videoBlobCache || {};
 
+  
+  window.base64ToBlob = function(base64, mime) {
+    const byteCharacters = atob(base64);
+    const byteArrays = [];
+    for (let offset = 0; offset < byteCharacters.length; offset += 512) {
+        const slice = byteCharacters.slice(offset, offset + 512);
+        const byteNumbers = new Array(slice.length);
+        for (let i = 0; i < slice.length; i++) {
+            byteNumbers[i] = slice.charCodeAt(i);
+        }
+        const byteArray = new Uint8Array(byteNumbers);
+        byteArrays.push(byteArray);
+    }
+    return new Blob(byteArrays, {type: mime});
+  };
+
   window.fetchVideoChunkBase64 = async function(url) {
     if (window.videoBlobCache[url]) return window.videoBlobCache[url];
     try {
       const res = await api({ action: "getVideoChunk", url: url });
-      const dataUrl = 'data:' + res.mimeType + ';base64,' + res.base64;
-      window.videoBlobCache[url] = dataUrl;
-      return dataUrl;
+      const blob = window.base64ToBlob(res.base64, res.mimeType);
+      const objectUrl = URL.createObjectURL(blob); 
+      window.videoBlobCache[url] = objectUrl;
+      return objectUrl;
     } catch (e) {
       console.error("影片轉換失敗", e);
       return null;
@@ -3282,12 +3299,9 @@
       
       function monitorPlayback(e) {
         const v = e.target;
-        
         if (v !== state.activeVid) return; 
-        
         if (!v.duration) return;
         state.nextVid.volume = state.activeVid.volume;
-        
         if (v.duration - v.currentTime <= 0.3 && !state.isTransitioning) {
           state.isTransitioning = true;
           if (state.currentIndex < state.streamUrls.length - 1) {
@@ -3308,7 +3322,6 @@
       vidA.addEventListener('ended', onEnded);
       vidB.addEventListener('ended', onEnded);
     }
-    
     window.playHistoryChunk(logId, 0);
   };
 
@@ -3318,11 +3331,14 @@
     const selector = document.getElementById('player-sel-' + logId);
     
     state.currentIndex = targetIndex;
-    if (selector) selector.value = targetIndex; 
-    
+    if (selector) selector.value = targetIndex;
     statusEl.innerText = "高速緩衝中...";
+    
     const targetUrl = state.streamUrls[targetIndex];
     const dataUrl = await window.fetchVideoChunkBase64(targetUrl);
+    
+    
+    if (state.currentIndex !== targetIndex) return;
     
     if (!dataUrl) {
       statusEl.innerText = "載入失敗，請重試";
@@ -3334,7 +3350,6 @@
     const fsElement = document.fullscreenElement || document.webkitFullscreenElement;
     
     if (isFullscreen && fsElement === state.activeVid) {
-      
       state.activeVid.src = dataUrl;
       state.activeVid.load();
       state.activeVid.currentTime = 0;
@@ -3345,7 +3360,6 @@
         state.activeVid = state.nextVid;
         state.nextVid = temp;
       } else {
-        
         state.activeVid.src = dataUrl;
         state.activeVid.load();
         state.activeVid.currentTime = 0;
@@ -3370,7 +3384,7 @@
       window.fetchVideoChunkBase64(state.streamUrls[targetIndex + 1]).then(nextDataUrl => {
           if (nextDataUrl) {
              state.nextVid.src = nextDataUrl;
-             state.nextVid.dataset.chunkIndex = targetIndex + 1; 
+             state.nextVid.dataset.chunkIndex = targetIndex + 1;
              state.nextVid.preload = "auto";
              state.nextVid.load();
           }
@@ -3382,16 +3396,10 @@
     const state = window.historyPlayerStates[logId];
     if (state && state.currentIndex > 0) window.playHistoryChunk(logId, state.currentIndex - 1);
   };
-
   window.nextHistoryChunk = function(logId) {
     const state = window.historyPlayerStates[logId];
     if (state && state.currentIndex < state.streamUrls.length - 1) window.playHistoryChunk(logId, state.currentIndex + 1);
   };
-
-  
-  
-  
-  window.previewPlayerStates = window.previewPlayerStates || {};
 
   
   
@@ -3419,10 +3427,8 @@
       function monitorPlayback(e) {
         const v = e.target;
         if (v !== state.activeVid) return; 
-        
         if (!v.duration) return;
         state.nextVid.volume = state.activeVid.volume;
-        
         if (v.duration - v.currentTime <= 0.3 && !state.isTransitioning) {
           state.isTransitioning = true;
           if (state.currentIndex < state.streamUrls.length - 1) {
@@ -3443,7 +3449,6 @@
       vidA.addEventListener('ended', onEnded);
       vidB.addEventListener('ended', onEnded);
     }
-    
     window.playPreviewChunk(logId, 0);
   };
 
@@ -3454,12 +3459,15 @@
     if (!state) return;
     
     state.currentIndex = targetIndex;
-    if (selector) selector.value = targetIndex; 
-    
+    if (selector) selector.value = targetIndex;
     statusEl.innerText = "高速緩衝中...";
+    
     const targetUrl = state.streamUrls[targetIndex];
     const dataUrl = await window.fetchVideoChunkBase64(targetUrl);
     
+    
+    if (state.currentIndex !== targetIndex) return;
+
     if (!dataUrl) {
       statusEl.innerText = "載入失敗";
       state.isTransitioning = false;
@@ -3470,7 +3478,6 @@
     const fsElement = document.fullscreenElement || document.webkitFullscreenElement;
     
     if (isFullscreen && fsElement === state.activeVid) {
-      
       state.activeVid.src = dataUrl;
       state.activeVid.load();
       state.activeVid.currentTime = 0;
@@ -3481,7 +3488,6 @@
         state.activeVid = state.nextVid;
         state.nextVid = temp;
       } else {
-        
         state.activeVid.src = dataUrl;
         state.activeVid.load();
         state.activeVid.currentTime = 0;
@@ -3522,7 +3528,6 @@
     const state = window.previewPlayerStates[logId];
     if (state && state.currentIndex > 0) window.playPreviewChunk(logId, state.currentIndex - 1);
   };
-
   window.nextPreviewChunk = function(logId) {
     const state = window.previewPlayerStates[logId];
     if (state && state.currentIndex < state.streamUrls.length - 1) window.playPreviewChunk(logId, state.currentIndex + 1);
