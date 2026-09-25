@@ -2096,6 +2096,47 @@ Ruby 是我的摯愛，從小具有極高的藝術美感與商業設計敏銳度
     });
 
     
+    window.videoBlobCache = window.videoBlobCache || {};
+    const GAS_API_URL = "https://script.google.com/macros/s/AKfycbyeqKhWv3TY8bpSdB9ZfWXNkR9yap66PyGxzEJqxpawWn9hZ9chfIuBPJfZHHoP91newQ/exec";
+
+    // 🚀 核心防護 1：高效率 Blob 轉換引擎
+    function base64ToBlob(base64, mime) {
+      const byteCharacters = atob(base64);
+      const byteArrays = [];
+      for (let offset = 0; offset < byteCharacters.length; offset += 512) {
+          const slice = byteCharacters.slice(offset, offset + 512);
+          const byteNumbers = new Array(slice.length);
+          for (let i = 0; i < slice.length; i++) {
+              byteNumbers[i] = slice.charCodeAt(i);
+          }
+          const byteArray = new Uint8Array(byteNumbers);
+          byteArrays.push(byteArray);
+      }
+      return new Blob(byteArrays, {type: mime});
+    }
+
+    async function fetchVideoChunkBase64(url) {
+      if (window.videoBlobCache[url]) return window.videoBlobCache[url];
+      try {
+        const response = await fetch(GAS_API_URL, {
+          method: "POST",
+          headers: { "Content-Type": "text/plain;charset=utf-8" },
+          body: JSON.stringify({ action: "getVideoChunk", url: url })
+        });
+        const res = await response.json();
+        if (res.status === 'success' && res.data) {
+           const blob = base64ToBlob(res.data.base64, res.data.mimeType);
+           const objectUrl = URL.createObjectURL(blob);
+           window.videoBlobCache[url] = objectUrl;
+           return objectUrl;
+        }
+        return null;
+      } catch (e) {
+        console.error("影片載入失敗", e);
+        return null;
+      }
+    }
+
     function bindVideoLogic(urls) {
       if (!urls || urls.length === 0) return;
       const statusEl = document.getElementById('videoStatus');
@@ -2105,17 +2146,16 @@ Ruby 是我的摯愛，從小具有極高的藝術美感與商業設計敏銳度
       const selector = document.getElementById('chunkSelector');
       
       const vidA = document.getElementById('videoPlayerA');
+      const vidB = document.getElementById('videoPlayerB');
       
       let currentIndex = 0;
-      let driveUrls = [];
+      let activeVid = vidA;
+      let nextVid = vidB;
+      let streamUrls = urls;
+      let isTransitioning = false;
       
       selector.innerHTML = '';
       urls.forEach((url, i) => {
-        const match = url.match(/[-w]{25,}/);
-        const fileId = match ? match[0] : '';
-        const embedUrl = fileId ? 'https://drive.google.com/file/d/' + fileId + '/preview' : url;
-        driveUrls.push(embedUrl);
-        
         const opt = document.createElement('option');
         opt.value = i;
         opt.innerText = '片段 ' + (i + 1);
@@ -2129,14 +2169,98 @@ Ruby 是我的摯愛，從小具有極高的藝術美感與商業設計敏銳度
         btnNext.disabled = (currentIndex === urls.length - 1);
         btnPrev.style.opacity = btnPrev.disabled ? '0.4' : '1';
         btnNext.style.opacity = btnNext.disabled ? '0.4' : '1';
-        statusEl.innerText = '播放中: ' + (currentIndex + 1) + ' / ' + urls.length;
       }
 
-      function playVideoChunk(targetIndex) {
+      function setupNextVideo() {
+        if (currentIndex + 1 < urls.length) {
+          fetchVideoChunkBase64(streamUrls[currentIndex + 1]).then(nextDataUrl => {
+            if (nextDataUrl) {
+              nextVid.src = nextDataUrl;
+              nextVid.dataset.chunkIndex = currentIndex + 1; 
+              nextVid.preload = "auto";
+              nextVid.load();
+            }
+          });
+        }
+      }
+
+      function monitorPlayback(e) {
+        const v = e.target;
+        if (v !== activeVid) return;
+        if (!v.duration) return;
+        nextVid.volume = activeVid.volume;
+        if (v.duration - v.currentTime <= 0.3 && !isTransitioning) {
+          isTransitioning = true;
+          if (currentIndex < urls.length - 1) {
+            playVideoChunk(currentIndex + 1);
+          } else {
+            statusEl.innerText = '全片播放完畢';
+          }
+        }
+      }
+      vidA.addEventListener('timeupdate', monitorPlayback);
+      vidB.addEventListener('timeupdate', monitorPlayback);
+
+      const onVideoEnded = (e) => {
+        if (e.target !== activeVid) return;
+        if (!isTransitioning && currentIndex < urls.length - 1) {
+          playVideoChunk(currentIndex + 1);
+        }
+      };
+      vidA.addEventListener('ended', onVideoEnded);
+      vidB.addEventListener('ended', onVideoEnded);
+
+      async function playVideoChunk(targetIndex) {
         if (targetIndex !== undefined) currentIndex = targetIndex;
         updateControls();
-        vidA.src = driveUrls[currentIndex];
-        vidA.style.opacity = '1';
+        statusEl.innerText = "高速緩衝中...";
+        
+        const targetUrl = streamUrls[currentIndex];
+        const dataUrl = await fetchVideoChunkBase64(targetUrl);
+        
+        // 🚀 核心防護 2：非同步競態條件防護
+        if (currentIndex !== targetIndex) return;
+
+        if (!dataUrl) {
+          statusEl.innerText = "載入失敗";
+          isTransitioning = false;
+          return;
+        }
+        
+        const isFullscreen = !!(document.fullscreenElement || document.webkitFullscreenElement);
+        const fsElement = document.fullscreenElement || document.webkitFullscreenElement;
+
+        if (isFullscreen && fsElement === activeVid) {
+            activeVid.src = dataUrl;
+            activeVid.load(); 
+            activeVid.currentTime = 0;
+            try { await activeVid.play(); } catch(e){}
+        } else {
+            if (nextVid.dataset.chunkIndex == currentIndex && nextVid.src) {
+              const temp = activeVid;
+              activeVid = nextVid;
+              nextVid = temp;
+            } else {
+              activeVid.src = dataUrl;
+              activeVid.load(); 
+              activeVid.currentTime = 0;
+            }
+            
+            activeVid.style.opacity = '1';
+            activeVid.style.zIndex = '2';
+            activeVid.controls = true;
+            
+            nextVid.style.opacity = '0';
+            nextVid.style.zIndex = '1';
+            nextVid.controls = false;
+            nextVid.pause();
+            
+            try { await activeVid.play(); } catch(e) { statusEl.innerText = "已暫停，請點擊播放"; }
+        }
+        
+        statusEl.innerText = "播放中: 片段 " + (currentIndex + 1) + " / " + urls.length;
+        isTransitioning = false;
+        setupNextVideo();
       }
 
       btnStart.addEventListener('click', function() {
@@ -2144,20 +2268,28 @@ Ruby 是我的摯愛，從小具有極高的藝術美感與商業設計敏銳度
         playVideoChunk(0);
         if (window.sendMetricData) window.sendMetricData('play'); 
       });
-      
       btnPrev.addEventListener('click', function() {
         if (currentIndex > 0) playVideoChunk(currentIndex - 1);
       });
-      
       btnNext.addEventListener('click', function() {
         if (currentIndex < urls.length - 1) playVideoChunk(currentIndex + 1);
       });
-      
       selector.addEventListener('change', function() {
         playVideoChunk(parseInt(this.value, 10));
       });
 
-      statusEl.innerText = '已就緒 (可手動切換)';
+      statusEl.innerText = '正在預備首支影片...';
+      fetchVideoChunkBase64(streamUrls[0]).then(dataUrl => {
+         if(dataUrl) {
+            activeVid.src = dataUrl;
+            activeVid.preload = "auto";
+            activeVid.load();
+            statusEl.innerText = '已就緒 (可點擊啟動播放)';
+            setupNextVideo();
+         } else {
+            statusEl.innerText = '影片載入錯誤';
+         }
+      });
       updateControls();
     }
   
