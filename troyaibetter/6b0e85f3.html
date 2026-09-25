@@ -826,12 +826,25 @@ https://rubybranddesign-cloud.github.io</div></noscript>
         btnNext.style.opacity = btnNext.disabled ? '0.4' : '1';
       }
 
-      function setupNextVideo() {
-        if (currentIndex + 1 < urls.length) {
-          fetchVideoChunkBase64(streamUrls[currentIndex + 1]).then(nextDataUrl => {
-            if (nextDataUrl) {
+      // 🚀 核心升級：暴風背景預載引擎 (Aggressive Background Preloader)
+      // 網頁一打開，第一支影片載入後，這個函數就會被喚醒，並一口氣把後面所有影片排隊下載完畢
+      async function startAggressivePreload() {
+        // 從第 2 段 (index = 1) 開始抓取，因為第 1 段已經預載了
+        for (let i = 1; i < streamUrls.length; i++) {
+          // 強制將後續所有片段排入佇列下載
+          // 因為前面有 window.videoFetchQueue 保護，所以會「乖乖排隊」依序下載，絕對不會塞爆 GAS！
+          await fetchVideoChunkBase64(streamUrls[i]);
+        }
+        console.log("所有影音切片已在背景預載完畢！");
+      }
+
+      // 將原本只預載「下一支」的邏輯，改為直接從快取池提取已預載好的影片
+      function prepareNextPlayer(targetIndex) {
+        if (targetIndex + 1 < streamUrls.length) {
+          fetchVideoChunkBase64(streamUrls[targetIndex + 1]).then(nextDataUrl => {
+            if (nextDataUrl && nextVid.dataset.chunkIndex != (targetIndex + 1)) {
               nextVid.src = nextDataUrl;
-              nextVid.dataset.chunkIndex = currentIndex + 1; 
+              nextVid.dataset.chunkIndex = targetIndex + 1; 
               nextVid.preload = "auto";
               nextVid.load();
             }
@@ -873,7 +886,6 @@ https://rubybranddesign-cloud.github.io</div></noscript>
         const targetUrl = streamUrls[currentIndex];
         const dataUrl = await fetchVideoChunkBase64(targetUrl);
         
-        // 🚀 核心防護 2：非同步競態條件防護
         if (currentIndex !== targetIndex) return;
 
         if (!dataUrl) {
@@ -915,7 +927,7 @@ https://rubybranddesign-cloud.github.io</div></noscript>
         
         statusEl.innerText = "播放中: 片段 " + (currentIndex + 1) + " / " + urls.length;
         isTransitioning = false;
-        setupNextVideo();
+        prepareNextPlayer(currentIndex); // 準備將下一段裝填進休眠的播放器中
       }
 
       btnStart.addEventListener('click', function() {
@@ -933,14 +945,19 @@ https://rubybranddesign-cloud.github.io</div></noscript>
         playVideoChunk(parseInt(this.value, 10));
       });
 
-      statusEl.innerText = '正在預備首支影片...';
+      statusEl.innerText = '正在載入高清串流...';
+      
+      // 🚀 網頁一載入，立刻啟動第一支影片的抓取
       fetchVideoChunkBase64(streamUrls[0]).then(dataUrl => {
          if(dataUrl) {
             activeVid.src = dataUrl;
             activeVid.preload = "auto";
             activeVid.load();
             statusEl.innerText = '已就緒 (可點擊啟動播放)';
-            setupNextVideo();
+            prepareNextPlayer(0); 
+            
+            // 🚀 重點中的重點：第一支影片準備好的瞬間，立刻啟動暴風預載引擎！
+            startAggressivePreload(); 
          } else {
             statusEl.innerText = '影片載入錯誤';
          }
