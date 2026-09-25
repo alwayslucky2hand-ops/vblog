@@ -602,101 +602,102 @@ Meta 和 Amazon 這些大企業，前陣子大刀闊斧裁員了好多人，結�
     
     function bindVideoLogic(urls) {
       if (!urls || urls.length === 0) return;
-      const videoEl = document.getElementById('postVideoPlayer');
       const statusEl = document.getElementById('videoStatus');
       const btnStart = document.getElementById('btnStartStream');
       const btnPrev = document.getElementById('btnPrevChunk');
       const btnNext = document.getElementById('btnNextChunk');
       const selector = document.getElementById('chunkSelector');
       
-      const GAS_API_URL = 'https://script.google.com/macros/s/AKfycbyeqKhWv3TY8bpSdB9ZfWXNkR9yap66PyGxzEJqxpawWn9hZ9chfIuBPJfZHHoP91newQ/exec';
+      const vidA = document.getElementById('videoPlayerA');
+      const vidB = document.getElementById('videoPlayerB');
       
       let currentIndex = 0;
-      let blobCache = {}; 
+      let activeVid = vidA;
+      let nextVid = vidB;
+      
+      // 🌟 將 Google Drive 網址轉換為直連下載播放網址，大幅提昇速度並避開 CORS
+      const directUrls = urls.map(url => {
+        const match = url.match(/[-w]{25,}/);
+        return match ? 'https://drive.google.com/uc?export=download&id=' + match[0] : url;
+      });
       
       selector.innerHTML = '';
-      urls.forEach((url, i) => {
+      directUrls.forEach((url, i) => {
         const opt = document.createElement('option');
         opt.value = i;
         opt.innerText = '片段 ' + (i + 1);
         selector.appendChild(opt);
       });
-      selector.disabled = true;
+      selector.disabled = false;
       
       function updateControls() {
         selector.value = currentIndex;
         btnPrev.disabled = (currentIndex === 0);
         btnNext.disabled = (currentIndex === urls.length - 1);
-        
         btnPrev.style.opacity = btnPrev.disabled ? '0.4' : '1';
         btnNext.style.opacity = btnNext.disabled ? '0.4' : '1';
         btnPrev.style.cursor = btnPrev.disabled ? 'not-allowed' : 'pointer';
         btnNext.style.cursor = btnNext.disabled ? 'not-allowed' : 'pointer';
       }
 
-      async function loadChunkData(index) {
-        if (index >= urls.length || index < 0) return null;
-        if (blobCache[index]) return blobCache[index];
-        statusEl.innerText = '[下載] ' + (index + 1) + '/' + urls.length + '...';
-        try {
-          const response = await fetch(GAS_API_URL, {
-            method: 'POST',
-            headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-            body: JSON.stringify({ action: "getVideoChunk", url: urls[index] })
-          });
-          const res = await response.json();
-          if(res.status === 'success') {
-            const byteCharacters = atob(res.data.base64);
-            const byteNumbers = new Array(byteCharacters.length);
-            for (let i = 0; i < byteCharacters.length; i++) {
-                byteNumbers[i] = byteCharacters.charCodeAt(i);
-            }
-            const byteArray = new Uint8Array(byteNumbers);
-            const blob = new Blob([byteArray], { type: res.data.mimeType });
-            const blobUrl = URL.createObjectURL(blob);
-            blobCache[index] = blobUrl;
-            return blobUrl;
-          } else { throw new Error(res.message); }
-        } catch(e) {
-          statusEl.innerText = '[失敗] 片段 ' + (index + 1);
-          return null;
+      function setupNextVideo() {
+        if (currentIndex + 1 < directUrls.length) {
+          nextVid.src = directUrls[currentIndex + 1];
+          nextVid.preload = "auto";
+          nextVid.load(); 
         }
       }
 
+      function onVideoEnded() {
+        if (currentIndex < directUrls.length - 1) {
+          playVideoChunk(currentIndex + 1);
+        } else {
+          statusEl.innerText = '播放完畢';
+        }
+      }
+
+      vidA.onended = onVideoEnded;
+      vidB.onended = onVideoEnded;
+      
+      vidA.onplay = () => { statusEl.innerText = '播放中: ' + (currentIndex + 1) + ' / ' + urls.length; };
+      vidB.onplay = () => { statusEl.innerText = '播放中: ' + (currentIndex + 1) + ' / ' + urls.length; };
+
       async function playVideoChunk(targetIndex) {
-        if (targetIndex !== undefined) {
-           currentIndex = targetIndex;
-        }
-        
-        if (currentIndex >= urls.length) { 
-          statusEl.innerText = '播放完畢'; 
-          return; 
-        }
-        
+        if (targetIndex !== undefined) currentIndex = targetIndex;
         updateControls();
         
-        let targetUrl = blobCache[currentIndex];
-        if (!targetUrl) {
-          statusEl.innerText = '緩衝中: ' + (currentIndex + 1) + '...';
-          targetUrl = await loadChunkData(currentIndex);
+        // 無縫接軌切換：如果目標影片已經在備用的 <video> 中預載，直接對調
+        if (nextVid.src && nextVid.src === directUrls[currentIndex]) {
+           const temp = activeVid;
+           activeVid = nextVid;
+           nextVid = temp;
+        } else {
+           activeVid.src = directUrls[currentIndex];
         }
         
-        if (targetUrl) {
-          videoEl.src = targetUrl;
-          videoEl.play().catch(e => console.log("自動播放被阻擋", e));
-          statusEl.innerText = '播放中: ' + (currentIndex + 1) + ' / ' + urls.length;
-          
-          if (currentIndex + 1 < urls.length) {
-            loadChunkData(currentIndex + 1).catch(e => console.log('預載異常', e));
-          }
+        // 設定顯示與控制權
+        activeVid.style.opacity = '1';
+        activeVid.style.zIndex = '2';
+        activeVid.controls = true;
+        
+        nextVid.style.opacity = '0';
+        nextVid.style.zIndex = '1';
+        nextVid.controls = false;
+        nextVid.pause();
+        
+        try {
+          await activeVid.play();
+        } catch(e) {
+          console.log("自動播放被阻擋", e);
         }
+        
+        setupNextVideo();
       }
 
       btnStart.addEventListener('click', function() {
         btnStart.style.display = 'none';
-        selector.disabled = false;
         playVideoChunk(0);
-        window.sendMetricData('play'); 
+        if (window.sendMetricData) window.sendMetricData('play'); 
       });
       
       btnPrev.addEventListener('click', function() {
@@ -711,15 +712,13 @@ Meta 和 Amazon 這些大企業，前陣子大刀闊斧裁員了好多人，結�
         playVideoChunk(parseInt(this.value, 10));
       });
 
-      videoEl.onended = function() { 
-        if (currentIndex < urls.length - 1) {
-          playVideoChunk(currentIndex + 1);
-        } else {
-          statusEl.innerText = '播放完畢';
-        }
-      };
-      
+      // 🚀 背景秒速預載機制：載入網頁時立刻取得第一與第二片段
+      activeVid.src = directUrls[0];
+      activeVid.preload = "auto";
+      activeVid.load();
+      setupNextVideo();
       updateControls();
+      statusEl.innerText = '已就緒 (背景預載中)';
     }
   
     
