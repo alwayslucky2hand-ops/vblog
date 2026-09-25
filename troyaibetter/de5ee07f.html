@@ -273,8 +273,7 @@
       <div style="background: #000; border-radius: 8px; overflow: hidden; margin-bottom: 16px; border: 1px solid #e2e8f0; box-shadow: 0 4px 12px rgba(0,0,0,0.05);">
         
         <div id="seamlessVideoContainer" style="position: relative; width: 100%; aspect-ratio: 16/9; background: #000; overflow: hidden;">
-          <video id="videoPlayerA" playsinline controlslist="nodownload" oncontextmenu="return false;" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 2; opacity: 1; transition: opacity 0.1s; background: #000;"></video>
-          <video id="videoPlayerB" playsinline controlslist="nodownload" oncontextmenu="return false;" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 1; opacity: 0; transition: opacity 0.1s; background: #000;"></video>
+          <iframe id="videoPlayerA" allowfullscreen style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 2; opacity: 1; transition: opacity 0.3s; border: none; background: #000;"></iframe>
         </div>
         
         <div style="display:flex; flex-wrap:wrap; justify-content: space-between; align-items: center; padding: 12px 16px; background: #0f172a; gap: 12px;">
@@ -287,7 +286,7 @@
           </div>
           <div style="display:flex; align-items:center; gap:12px;">
             <span id="videoStatus" style="color: #94a3b8; font-size: 13px;">準備就緒</span>
-            <button id="btnStartStream" style="background: #3175B5; color: #fff; border: none; padding: 6px 16px; border-radius: 4px; font-weight: 700; cursor: pointer; font-size: 13px; transition: background 0.2s;">載入並播放</button>
+            <button id="btnStartStream" style="background: #3175B5; color: #fff; border: none; padding: 6px 16px; border-radius: 4px; font-weight: 700; cursor: pointer; font-size: 13px; transition: background 0.2s;">啟動原生播放</button>
           </div>
         </div>
       </div>
@@ -555,17 +554,17 @@
       const selector = document.getElementById('chunkSelector');
       
       const vidA = document.getElementById('videoPlayerA');
-      const vidB = document.getElementById('videoPlayerB');
-      
-      const GAS_API_URL = 'https://script.google.com/macros/s/AKfycbyeqKhWv3TY8bpSdB9ZfWXNkR9yap66PyGxzEJqxpawWn9hZ9chfIuBPJfZHHoP91newQ/exec';
       
       let currentIndex = 0;
-      let activeVid = vidA;
-      let nextVid = vidB;
-      let blobCache = {};
+      let driveUrls = [];
       
       selector.innerHTML = '';
       urls.forEach((url, i) => {
+        const match = url.match(/[-w]{25,}/);
+        const fileId = match ? match[0] : '';
+        const embedUrl = fileId ? 'https://drive.google.com/file/d/' + fileId + '/preview' : url;
+        driveUrls.push(embedUrl);
+        
         const opt = document.createElement('option');
         opt.value = i;
         opt.innerText = '片段 ' + (i + 1);
@@ -579,95 +578,14 @@
         btnNext.disabled = (currentIndex === urls.length - 1);
         btnPrev.style.opacity = btnPrev.disabled ? '0.4' : '1';
         btnNext.style.opacity = btnNext.disabled ? '0.4' : '1';
+        statusEl.innerText = '播放中: ' + (currentIndex + 1) + ' / ' + urls.length;
       }
 
-      async function loadChunkData(index) {
-        if (index >= urls.length || index < 0) return null;
-        if (blobCache[index]) return blobCache[index];
-        statusEl.innerText = '[下載] ' + (index + 1) + '/' + urls.length + '...';
-        try {
-          const response = await fetch(GAS_API_URL, {
-            method: 'POST',
-            headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-            body: JSON.stringify({ action: "getVideoChunk", url: urls[index] })
-          });
-          const res = await response.json();
-          if(res.status === 'success') {
-            const byteCharacters = atob(res.data.base64);
-            const byteNumbers = new Array(byteCharacters.length);
-            for (let i = 0; i < byteCharacters.length; i++) {
-                byteNumbers[i] = byteCharacters.charCodeAt(i);
-            }
-            const byteArray = new Uint8Array(byteNumbers);
-            const blob = new Blob([byteArray], { type: res.data.mimeType });
-            const blobUrl = URL.createObjectURL(blob);
-            blobCache[index] = blobUrl;
-            return blobUrl;
-          } else { throw new Error(res.message); }
-        } catch(e) {
-          statusEl.innerText = '[失敗] 片段 ' + (index + 1);
-          return null;
-        }
-      }
-
-      async function setupNextVideo() {
-        if (currentIndex + 1 < urls.length) {
-          const nextUrl = await loadChunkData(currentIndex + 1);
-          if (nextUrl) {
-            nextVid.src = nextUrl;
-            nextVid.preload = "auto";
-            nextVid.load();
-          }
-        }
-      }
-
-      function onVideoEnded() {
-        if (currentIndex < urls.length - 1) {
-          playVideoChunk(currentIndex + 1);
-        } else {
-          statusEl.innerText = '播放完畢';
-        }
-      }
-
-      vidA.onended = onVideoEnded;
-      vidB.onended = onVideoEnded;
-      vidA.onplay = () => { statusEl.innerText = '播放中: ' + (currentIndex + 1) + ' / ' + urls.length; };
-      vidB.onplay = () => { statusEl.innerText = '播放中: ' + (currentIndex + 1) + ' / ' + urls.length; };
-
-      async function playVideoChunk(targetIndex) {
+      function playVideoChunk(targetIndex) {
         if (targetIndex !== undefined) currentIndex = targetIndex;
         updateControls();
-        
-        let targetBlobUrl = blobCache[currentIndex];
-        if (!targetBlobUrl) {
-          statusEl.innerText = '緩衝中...';
-          targetBlobUrl = await loadChunkData(currentIndex);
-        }
-        
-        if (nextVid.src && nextVid.src === targetBlobUrl) {
-           const temp = activeVid;
-           activeVid = nextVid;
-           nextVid = temp;
-        } else {
-           activeVid.src = targetBlobUrl;
-        }
-        
-        activeVid.style.opacity = '1';
-        activeVid.style.zIndex = '2';
-        activeVid.controls = true;
-        
-        nextVid.style.opacity = '0';
-        nextVid.style.zIndex = '1';
-        nextVid.controls = false;
-        nextVid.pause();
-        
-        try {
-          await activeVid.play();
-        } catch(e) {
-          console.log("自動播放被阻擋", e);
-        }
-        
-        setupNextVideo();
+        vidA.src = driveUrls[currentIndex];
+        vidA.style.opacity = '1';
       }
 
       btnStart.addEventListener('click', function() {
@@ -688,15 +606,7 @@
         playVideoChunk(parseInt(this.value, 10));
       });
 
-      loadChunkData(0).then(url => {
-        if(url) {
-          activeVid.src = url;
-          activeVid.preload = "auto";
-          activeVid.load();
-          statusEl.innerText = '已就緒 (可點擊播放)';
-          setupNextVideo();
-        }
-      });
+      statusEl.innerText = '已就緒 (可手動切換)';
       updateControls();
     }
   
@@ -778,8 +688,7 @@
       <div style="background: #000; border-radius: 8px; overflow: hidden; margin-bottom: 16px; border: 1px solid #e2e8f0; box-shadow: 0 4px 12px rgba(0,0,0,0.05);">
         
         <div id="seamlessVideoContainer" style="position: relative; width: 100%; aspect-ratio: 16/9; background: #000; overflow: hidden;">
-          <video id="videoPlayerA" playsinline controlslist="nodownload" oncontextmenu="return false;" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 2; opacity: 1; transition: opacity 0.1s; background: #000;"></video>
-          <video id="videoPlayerB" playsinline controlslist="nodownload" oncontextmenu="return false;" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 1; opacity: 0; transition: opacity 0.1s; background: #000;"></video>
+          <iframe id="videoPlayerA" allowfullscreen style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 2; opacity: 1; transition: opacity 0.3s; border: none; background: #000;"></iframe>
         </div>
         
         <div style="display:flex; flex-wrap:wrap; justify-content: space-between; align-items: center; padding: 12px 16px; background: #0f172a; gap: 12px;">
@@ -792,7 +701,7 @@
           </div>
           <div style="display:flex; align-items:center; gap:12px;">
             <span id="videoStatus" style="color: #94a3b8; font-size: 13px;">準備就緒</span>
-            <button id="btnStartStream" style="background: #3175B5; color: #fff; border: none; padding: 6px 16px; border-radius: 4px; font-weight: 700; cursor: pointer; font-size: 13px; transition: background 0.2s;">載入並播放</button>
+            <button id="btnStartStream" style="background: #3175B5; color: #fff; border: none; padding: 6px 16px; border-radius: 4px; font-weight: 700; cursor: pointer; font-size: 13px; transition: background 0.2s;">啟動原生播放</button>
           </div>
         </div>
       </div>
