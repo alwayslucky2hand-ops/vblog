@@ -547,6 +547,8 @@ A: 完全沒問題。AI 工具帶來的紅利在於「認知與技能」的結�
     window.sendMetricData = function(metricType) {
       fetch("https://script.google.com/macros/s/AKfycbyeqKhWv3TY8bpSdB9ZfWXNkR9yap66PyGxzEJqxpawWn9hZ9chfIuBPJfZHHoP91newQ/exec", {
         method: "POST",
+        mode: "no-cors", // 🚀 加上 no-cors，完全無視瀏覽器跨網域阻擋，達成絕對靜默
+        headers: { "Content-Type": "text/plain;charset=utf-8" },
         body: JSON.stringify({ action: "incrementMetric", logId: "d082f5b4", metricType: metricType })
       }).catch(e => {}); 
     };
@@ -577,32 +579,41 @@ A: 完全沒問題。AI 工具帶來的紅利在於「認知與技能」的結�
           for (let i = 0; i < slice.length; i++) {
               byteNumbers[i] = slice.charCodeAt(i);
           }
-          const byteArray = new Uint8Array(byteNumbers);
-          byteArrays.push(byteArray);
+          byteArrays.push(new Uint8Array(byteNumbers));
       }
       return new Blob(byteArrays, {type: mime});
     }
 
-    async function fetchVideoChunkBase64(url) {
-      if (window.videoBlobCache[url]) return window.videoBlobCache[url];
-      try {
-        const response = await fetch(GAS_API_URL, {
-          method: "POST",
-          headers: { "Content-Type": "text/plain;charset=utf-8" },
-          body: JSON.stringify({ action: "getVideoChunk", url: url })
+    // 🚀 核心防護 2：建立「單線程佇列 (Queue)」，保證絕對不會塞爆 GAS 導致 CORS 報錯
+    window.videoFetchQueue = Promise.resolve();
+
+    function fetchVideoChunkBase64(url) {
+      if (window.videoBlobCache[url]) return Promise.resolve(window.videoBlobCache[url]);
+      
+      // 將每個影片請求強制排隊，實現完美的背景默默預載
+      return new Promise((resolve) => {
+        window.videoFetchQueue = window.videoFetchQueue.then(async () => {
+          if (window.videoBlobCache[url]) { resolve(window.videoBlobCache[url]); return; }
+          try {
+            const response = await fetch(GAS_API_URL, {
+              method: "POST",
+              headers: { "Content-Type": "text/plain;charset=utf-8" },
+              body: JSON.stringify({ action: "getVideoChunk", url: url })
+            });
+            const res = await response.json();
+            if (res.status === 'success' && res.data) {
+               const blob = base64ToBlob(res.data.base64, res.data.mimeType);
+               const objectUrl = URL.createObjectURL(blob);
+               window.videoBlobCache[url] = objectUrl;
+               resolve(objectUrl);
+            } else {
+               resolve(null);
+            }
+          } catch (e) {
+            resolve(null);
+          }
         });
-        const res = await response.json();
-        if (res.status === 'success' && res.data) {
-           const blob = base64ToBlob(res.data.base64, res.data.mimeType);
-           const objectUrl = URL.createObjectURL(blob);
-           window.videoBlobCache[url] = objectUrl;
-           return objectUrl;
-        }
-        return null;
-      } catch (e) {
-        console.error("影片載入失敗", e);
-        return null;
-      }
+      });
     }
 
     function bindVideoLogic(urls) {
