@@ -436,18 +436,23 @@ MEDVi 淨利率比正規醫療平台高出 11%，代價是全盤砍掉了法務�
     <div class="membership-form-box" style="display:block !important; visibility:visible !important; margin-top: 24px; padding: 24px; border: 1px solid #e2e8f0; border-radius: 8px; background: #f8fafc; text-align: left;">
       <h3 style="font-size: 18px; font-weight: 800; margin-bottom: 12px; display: flex; align-items: center; gap: 8px; color: #0f172a;">
         <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="20" height="16" x="2" y="4" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg>
-        申請加入會員 / 訂閱最新消息
+        申請加入會員 / 訂閱方案
       </h3>
       <p style="font-size: 14px; color: #475569; margin-bottom: 20px; line-height: 1.6;">
-        請留下資訊，我們將寄發訂閱信給您：
+        請選擇您的訂閱方案與填寫資料：
       </p>
       <form style="display: flex; flex-direction: column; gap: 12px; visibility:visible !important;" onsubmit="event.preventDefault(); window.submitSubForm(this, 'home', 'alwayslucky2hand@gmail.com');">
+        <select required style="padding: 12px; border: 1px solid #e2e8f0; border-radius: 4px; width: 100%; font-family: inherit; font-size: 14px; background: #fff; color: #0f172a; font-weight: 700;">
+          <option value="一般會員(免費)">一般會員 (免費)</option>
+          <option value="享學會員(月繳NT$298)">享學會員 (月繳NT$298)</option>
+          <option value="享學會員(年繳NT$2980)">享學會員 (年繳NT$2980)</option>
+        </select>
         <input type="email" placeholder="您的 Email (必填)" required style="padding: 12px; border: 1px solid #e2e8f0; border-radius: 4px; width: 100%; box-sizing: border-box; font-family: inherit; font-size: 14px; background: #fff;">
         <div style="display: flex; gap: 12px; flex-wrap: wrap;">
           <input type="text" placeholder="姓名 / 暱稱 (必填)" required style="padding: 12px; border: 1px solid #e2e8f0; border-radius: 4px; flex: 1; min-width: 120px; font-family: inherit; font-size: 14px; background: #fff;">
           <input type="text" placeholder="出生年月日 (必填)" onfocus="(this.type='date')" onblur="(this.value==''?this.type='text':this.type='date')" required style="padding: 12px; border: 1px solid #e2e8f0; border-radius: 4px; flex: 1; min-width: 120px; font-family: inherit; font-size: 14px; background: #fff;">
         </div>
-        <button type="submit" style="margin-top: 8px; padding: 12px; background: #0f172a; color: #fff; border: none; border-radius: 4px; font-weight: 700; cursor: pointer; font-size: 14px; transition: background 0.2s;">送出申請</button>
+        <button type="submit" style="margin-top: 8px; padding: 12px; background: #0f172a; color: #fff; border: none; border-radius: 4px; font-weight: 700; cursor: pointer; font-size: 14px; transition: background 0.2s;">送出申請並前往付款</button>
       </form>
     </div>
   
@@ -545,10 +550,12 @@ MEDVi 淨利率比正規醫療平台高出 11%，代價是全盤砍掉了法務�
   
 
   <script>
-
     window.submitSubForm = function(form, logId, authorEmail) {
-      const plan = "一般訂閱"; // 預設值
+      const plan = form.querySelector('select') ? form.querySelector('select').value : "一般會員(免費)";
       const email = form.querySelector('input[type="email"]').value;
+      const inputs = form.querySelectorAll('input[type="text"]');
+      const name = inputs[0] ? inputs[0].value : "";
+      const birth = inputs[1] ? inputs[1].value : "";
       const btn = form.querySelector('button[type="submit"]');
       const oldText = btn.innerHTML;
       
@@ -556,10 +563,23 @@ MEDVi 淨利率比正規醫療平台高出 11%，代價是全盤砍掉了法務�
 
       fetch("https://script.google.com/macros/s/AKfycbyeqKhWv3TY8bpSdB9ZfWXNkR9yap66PyGxzEJqxpawWn9hZ9chfIuBPJfZHHoP91newQ/exec", {
         method: "POST",
-        body: JSON.stringify({ action: "submitSubscription", logId: logId, authorEmail: authorEmail, plan: plan, subscriberEmail: email })
+        body: JSON.stringify({ action: "submitSubscription", logId: logId, authorEmail: authorEmail, plan: plan, subscriberEmail: email, subscriberName: name, subscriberBirth: birth })
       }).then(r => r.json()).then(res => {
-        alert("申請已送出！我們將盡快與您聯繫。");
-        form.reset();
+        const resData = res.data || res;
+        if (resData.payuniForm) {
+          const pForm = document.createElement('form');
+          pForm.method = 'POST'; pForm.action = resData.payuniForm.actionUrl; pForm.style.display = 'none';
+          Object.keys(resData.payuniForm.params).forEach(key => {
+            const hiddenField = document.createElement('input');
+            hiddenField.type = 'hidden'; hiddenField.name = key; hiddenField.value = resData.payuniForm.params[key];
+            pForm.appendChild(hiddenField);
+          });
+          document.body.appendChild(pForm);
+          pForm.submit();
+        } else {
+          alert("免費會員申請成功！");
+          form.reset();
+        }
       }).catch(e => alert("送出失敗，請稍後再試")).finally(() => {
         btn.innerHTML = oldText; btn.disabled = false;
       });
