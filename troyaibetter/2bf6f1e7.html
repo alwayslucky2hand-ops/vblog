@@ -4,6 +4,11 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>別再傻傻寫稿！我用「講」的就能變現，微型創業者的自動化內容金礦｜特洛伊AI賦能師［AI實戰］ | 特洛伊AI賦能師</title>
+
+  <!-- 🌟 新增：強制清除文章頁面快取 -->
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+  <meta http-equiv="Pragma" content="no-cache">
+  <meta http-equiv="Expires" content="0">
   
   <!-- 🌟 文章 SEO 核心標籤 -->
   <meta name="description" content="我實測一套自動化工作流，對著鏡頭說話，AI 隨即將影音、逐字稿與畫面描述轉化為高權威文章。這是我每日節省 80% 創作時間，將口說內容無縫變現為數位資產的實戰驗證，也是微型創業者翻身的關鍵。 身為微型創業者，你一定經歷過這種焦慮。 大腦裡裝滿了專業知識與實戰心得，但只要坐在電腦前對著空白文件，那一閃而逝的靈感就消失得無影無蹤。 想經營個人品牌，卻發現寫出一篇高品質、符合 SEO 且具備專業信譽的文章，往往需要耗費數小時甚至一整天。 在時間即金錢的創業初期，這種低效率的產出模式，正是阻礙你規模化的最大障礙。 最近我觀察到一段令人驚豔的實戰展示，這正是數位轉型的深水區。 這不是教你如何用 AI 生成劣質內容，而是一套完整的「影音轉資產」自動化系統。 它直接擊碎了創業者最核心的痛點。 你不再需要苦思標題、鋪陳結構，甚至是費心堆疊關鍵字。 當你按下錄影鍵的那一刻，系統就開始以 30 秒為單位進行雲端切片與即時解析。 更關鍵的技術細節在於，AI 不只是在聽你說什麼。 它同步分析你的手勢、眼神與情境描述，將這些充滿溫度的「現場感」精準轉化為文字。 最後，透過預設的專業指令，將你的口語直接梳理成符合 Google E-E-A-T 規範的高品質內容。 這種流程完整保留了你最真實的語氣與專業深度。 內容具備權威感的同時，依然保有創作者的獨特靈魂。 對於需要累積數位足跡、建立專業私塾或經營 VIP 會員制的創業者來說，這就是將「大腦智慧」轉化為「自動化財富」的最短路徑。">
@@ -351,7 +356,7 @@
         <img src="https://drive.google.com/thumbnail?id=1KuDoAil9NwRE3nMGgMeD6hby1TtR5lqA&sz=w1280" style="width: 100px; height: 100px; border-radius: 50%; object-fit: cover; border: 2px solid #e2e8f0;">
         <div style="flex: 1; min-width: 200px; text-align: left;">
           <h1 style="font-size: 28px; font-weight: 800; margin-bottom: 12px; color: #0f172a;">特洛伊AI賦能師</h1>
-          <p style="font-size: 15px; color: #64748b; margin-bottom: 16px; line-height: 1.6;">交大電機畢業，刻骨過5次跨界微型創業、銘心過5家飲料店從出生到長大，堅持過6年的家族搬家貨運與轉型循環經濟，我很懂「校長兼撞鐘」的身不由己。我 Vibe Coding 已經超過1萬小時，也帶領10組以上學員做出客製化系統。我正在將知識和經驗系統化、模組化，化為祝福分享在網路上。追蹤我，讓ＡＩ為你效勞、讓創業不再過勞，讓創業也能兼顧伴侶和家庭生活。</p>
+          <p style="font-size: 15px; color: #64748b; margin-bottom: 16px; line-height: 1.6;">交大電機畢業，刻骨過5次跨界微型創業、銘心過5家飲料店從出生到長大，堅持過6年的家族搬家貨運與轉型循環經濟，我很懂「校長兼撞鐘」的身不由己。我 Vibe Coding 已經超過1萬小時，也帶領10組以上學員做出客製化系統。我正在將知識和經驗系統化、模組化，化為祝福分享在網路上。追蹤我，讓ＡＩ為你效勞、讓創業不再過勞，讓創業也能兼顧伴侶和家庭生活。歡迎邀約演講、論壇、講座。</p>
           
           <!-- 🌟 關鍵修改：在這裡補上 introHtml，讓詳細介紹與展開按鈕顯示出來 -->
           
@@ -621,22 +626,24 @@
     // 🚀 核心防護 2：建立「單線程佇列 (Queue)」，保證絕對不會塞爆 GAS 導致 CORS 報錯
     window.videoFetchQueue = Promise.resolve();
 
+    // 🌟 將上面這區塊替換為：
     function fetchVideoChunkBase64(url) {
       if (window.videoBlobCache[url]) return Promise.resolve(window.videoBlobCache[url]);
       
-      // 將每個影片請求強制排隊，實現完美的背景默默預載
       return new Promise((resolve) => {
         window.videoFetchQueue = window.videoFetchQueue.then(async () => {
           if (window.videoBlobCache[url]) { resolve(window.videoBlobCache[url]); return; }
           try {
             const response = await fetch(GAS_API_URL, {
               method: "POST",
-              headers: { "Content-Type": "text/plain;charset=utf-8" },
+              headers: { "Content-Type": "text/plain" },
               body: JSON.stringify({ action: "getVideoChunk", url: url })
             });
             const res = await response.json();
             if (res.status === 'success' && res.data) {
-               const blob = base64ToBlob(res.data.base64, res.data.mimeType);
+               // 🌟 核心修復：讀取真實影片格式，解決單篇文章預覽時的黑畫面
+               const mime = res.data.mimeType || 'video/webm';
+               const blob = base64ToBlob(res.data.base64, mime);
                const objectUrl = URL.createObjectURL(blob);
                window.videoBlobCache[url] = objectUrl;
                resolve(objectUrl);
