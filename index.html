@@ -1306,8 +1306,10 @@
             method: 'POST', 
             headers: { 'Content-Type': 'text/plain;charset=utf-8' }, 
             body: JSON.stringify(payload),
-            mode: 'cors', 
-            redirect: 'follow' 
+            mode: 'cors',
+            redirect: 'follow',
+            
+            credentials: 'omit' 
           });
 
           const contentType = res.headers.get("content-type");
@@ -1316,10 +1318,9 @@
             if (json.status === 'success') return json.data;
             throw new Error(json.message);
           } else {
-            
             const errorText = await res.text();
-            console.error("GAS 伺服器回傳了非 JSON 格式 (可能是後端報錯或權限設定跑掉)：", errorText);
-            throw new Error("與伺服器連線異常，請檢查 GAS 部署權限或後端是否發生錯誤。");
+            console.error("GAS 伺服器回傳了非 JSON 格式 (多半是被 Google 重新導向了)：", errorText);
+            throw new Error("與伺服器連線異常，請檢查網路狀態。");
           }
         } catch (e) {
           console.error(`API 請求失敗 (第 ${i+1} 次):`, e);
