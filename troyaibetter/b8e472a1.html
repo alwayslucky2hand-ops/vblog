@@ -4,6 +4,11 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>給微型創業者的三步清單：如何用AI賦能打造24小時自動變現系統｜特洛伊AI賦能師［AI實戰］ | 特洛伊AI賦能師</title>
+
+  <!-- 🌟 新增：強制清除文章頁面快取 -->
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+  <meta http-equiv="Pragma" content="no-cache">
+  <meta http-equiv="Expires" content="0">
   
   <!-- 🌟 文章 SEO 核心標籤 -->
   <meta name="description" content="在生成式 AI 引爆的全球技術海嘯下，無數創業者陷入了更深層的效率焦慮：訂閱了無數海外工具、狂背提示詞，每天工作時長卻不減反增。   畢業於交大電機系、經歷六次跨界創業的「特洛伊 AI 賦能師」，曾把實體搬家事業衝出 1,600 萬年營收，卻在除夕夜面對戶頭僅剩 2,000 元的殘酷現實。本文是他結合百萬 Token 實測、輔導數十位企業主擺脫「校長兼撞鐘」的真實告白。他直指：**解決營運瓶頸的關鍵從不在於追逐昂貴的外掛，而在於創業者能否建立一套「把經驗資產化、讓系統替你效勞」的底層架構。**   ### 前言：沙漠裡的五星級飯店，與被訂單綁架的創業者 你有多久，沒有在晚上十點後，平靜地牽起另一半的手去散步了？   你有多久，沒有好好吃上一頓不用神經質瞄手機的晚餐？   每天清晨睜開雙眼，晨光還未透進窗簾，床頭震動的手機已經塞滿幾十則未讀的 LINE 詢問、催促的報價單、未簽核的委任合約，以及永遠對不齊的帳目。你當初滿懷熱血離開體制、創立一人公司或微型企業，本是為了追尋時間與財務的自由；然而幾年過去，你卻發現自己成了全公司工時最長、薪水最不固定、連生病都不敢請假的第一號「超級雜工」。   資深商業導師陳修平曾提出過震撼業界的「沙漠五星飯店理論」：   *「如果你在無人踏足的沙漠深處，傾盡所有資源蓋了一棟裝潢奢華的五星級飯店；只要沒有人知道通往這裡的道路，沒有建立起自我造血的流量與營運閉環，那麼這座飯店再富麗堂皇，終局依然是零人光顧、坐以待斃。」*   這座「沙漠飯店」，正是成千上萬微型創業者的真實寫照。許多人把「肉身勤奮」當成解決一切問題的萬靈丹，每天靠著意志力硬撐 16 個小時。但商業的殘酷規律在於：**如果沒有自動化的流程作為地基，盲目的勤奮，只不過是在用最高昂的生命成本，替混亂的營運體制殉葬。**">
@@ -373,7 +378,7 @@ Step 3：無痛架構——Google 生態原生串接
         <img src="https://drive.google.com/thumbnail?id=1KuDoAil9NwRE3nMGgMeD6hby1TtR5lqA&sz=w1280" style="width: 100px; height: 100px; border-radius: 50%; object-fit: cover; border: 2px solid #e2e8f0;">
         <div style="flex: 1; min-width: 200px; text-align: left;">
           <h1 style="font-size: 28px; font-weight: 800; margin-bottom: 12px; color: #0f172a;">特洛伊AI賦能師</h1>
-          <p style="font-size: 15px; color: #64748b; margin-bottom: 16px; line-height: 1.6;">交大電機畢業，刻骨過5次跨界微型創業、銘心過5家飲料店從出生到長大，堅持過6年的家族搬家貨運與轉型循環經濟，我很懂「校長兼撞鐘」的身不由己。我 Vibe Coding 已經超過1萬小時，也帶領10組以上學員做出客製化系統。我正在將知識和經驗系統化、模組化，化為祝福分享在網路上。追蹤我，讓ＡＩ為你效勞、讓創業不再過勞，讓創業也能兼顧伴侶和家庭生活。</p>
+          <p style="font-size: 15px; color: #64748b; margin-bottom: 16px; line-height: 1.6;">交大電機畢業，刻骨過5次跨界微型創業、銘心過5家飲料店從出生到長大，堅持過6年的家族搬家貨運與轉型循環經濟，我很懂「校長兼撞鐘」的身不由己。我 Vibe Coding 已經超過1萬小時，也帶領10組以上學員做出客製化系統。我正在將知識和經驗系統化、模組化，化為祝福分享在網路上。追蹤我，讓ＡＩ為你效勞、讓創業不再過勞，讓創業也能兼顧伴侶和家庭生活。歡迎邀約演講、論壇、講座。</p>
           
           <!-- 🌟 關鍵修改：在這裡補上 introHtml，讓詳細介紹與展開按鈕顯示出來 -->
           
@@ -643,22 +648,24 @@ Step 3：無痛架構——Google 生態原生串接
     // 🚀 核心防護 2：建立「單線程佇列 (Queue)」，保證絕對不會塞爆 GAS 導致 CORS 報錯
     window.videoFetchQueue = Promise.resolve();
 
+    // 🌟 將上面這區塊替換為：
     function fetchVideoChunkBase64(url) {
       if (window.videoBlobCache[url]) return Promise.resolve(window.videoBlobCache[url]);
       
-      // 將每個影片請求強制排隊，實現完美的背景默默預載
       return new Promise((resolve) => {
         window.videoFetchQueue = window.videoFetchQueue.then(async () => {
           if (window.videoBlobCache[url]) { resolve(window.videoBlobCache[url]); return; }
           try {
             const response = await fetch(GAS_API_URL, {
               method: "POST",
-              headers: { "Content-Type": "text/plain;charset=utf-8" },
+              headers: { "Content-Type": "text/plain" },
               body: JSON.stringify({ action: "getVideoChunk", url: url })
             });
             const res = await response.json();
             if (res.status === 'success' && res.data) {
-               const blob = base64ToBlob(res.data.base64, res.data.mimeType);
+               // 🌟 核心修復：讀取真實影片格式，解決單篇文章預覽時的黑畫面
+               const mime = res.data.mimeType || 'video/webm';
+               const blob = base64ToBlob(res.data.base64, mime);
                const objectUrl = URL.createObjectURL(blob);
                window.videoBlobCache[url] = objectUrl;
                resolve(objectUrl);
