@@ -1035,6 +1035,27 @@
   let isHistoryRendered = false;
   let isDashboardRendered = false;
 
+  
+  window.sharedLogsPromise = null;
+  async function getSharedLogs(email) {
+    
+    if (window.sharedLogsPromise) return window.sharedLogsPromise;
+    
+    window.sharedLogsPromise = api({ action: "getHistoryLogs", email: email })
+      .then(logs => {
+        globalLogsCache = Array.isArray(logs) ? logs : [];
+        isLogsFetched = true;
+        isHistoryRendered = false;
+        isDashboardRendered = false;
+        return globalLogsCache;
+      })
+      .finally(() => {
+        window.sharedLogsPromise = null; 
+      });
+      
+    return window.sharedLogsPromise;
+  }
+
   function compressImage(file, maxWidth, callback) {
     const reader = new FileReader();
     reader.readAsDataURL(file);
@@ -1082,9 +1103,10 @@
       loadAuthorProfile(email);
 
       isLogsFetched = false;
-      api({ action: "getHistoryLogs", email: email })
-        .then(logs => { 
-          globalLogsCache = logs || []; 
+      
+      
+      getSharedLogs(email)
+        .then(() => { 
           isLogsFetched = true;
           isHistoryRendered = false;
           isDashboardRendered = false;
@@ -1092,7 +1114,7 @@
           if(document.getElementById('tab-history').classList.contains('active')) loadHistoryLogs(false);
           if(document.getElementById('tab-dashboard').classList.contains('active')) loadDashboardLogs(false);
         })
-        .catch(e => console.log(e));
+        .catch(e => console.log("初始化載入失敗:", e));
 
     } else {
       document.getElementById('loginOverlay').style.display = 'flex';
@@ -1281,25 +1303,29 @@
       for (let i = 0; i <= retries; i++) {
         try {
           const res = await fetch(GAS_WEB_URL, { 
-          method: 'POST', 
-          headers: { 'Content-Type': 'text/plain' }, 
-          body: JSON.stringify(payload),
-          redirect: 'follow' 
+            method: 'POST', 
+            headers: { 'Content-Type': 'text/plain;charset=utf-8' }, 
+            body: JSON.stringify(payload),
+            mode: 'cors', 
+            redirect: 'follow' 
           });
 
-          
           const contentType = res.headers.get("content-type");
           if (contentType && contentType.indexOf("application/json") !== -1) {
             const json = await res.json();
             if (json.status === 'success') return json.data;
             throw new Error(json.message);
           } else {
+            
             const errorText = await res.text();
-            console.error("GAS 伺服器回傳了 HTML 錯誤頁面：", errorText);
-            throw new Error("伺服器回傳格式異常 (請檢查是否有多個 Google 帳號衝突，或需重新發布 GAS 部署)。");
+            console.error("GAS 伺服器回傳了非 JSON 格式 (可能是後端報錯或權限設定跑掉)：", errorText);
+            throw new Error("與伺服器連線異常，請檢查 GAS 部署權限或後端是否發生錯誤。");
           }
         } catch (e) {
-          if (i === retries) throw e;
+          console.error(`API 請求失敗 (第 ${i+1} 次):`, e);
+          if (i === retries) {
+            throw new Error("網路連線失敗或跨域 (CORS) 阻擋，請確認 GAS 後端部署狀態。");
+          }
           await new Promise(r => setTimeout(r, 1000));
         }
       }
@@ -2290,11 +2316,7 @@
       container.innerHTML = '<div style="text-align:center; color:var(--text-muted); padding:32px 0;"><i data-lucide="loader" class="spin"></i> ...</div>';
       lucide.createIcons();
       try {
-        const rawRes = await api({ action: "getHistoryLogs", email: email });
-        globalLogsCache = Array.isArray(rawRes) ? rawRes : [];
-        isLogsFetched = true;
-        isHistoryRendered = false;
-        isDashboardRendered = false;
+        await getSharedLogs(email); 
         currentHistoryRenderCount = 10; 
       } catch (e) {
         container.innerHTML = '<div style="text-align:center; color:var(--danger); padding:30px 0; border:1px solid var(--danger); border-radius:4px;">失敗: ' + e.message + '</div>';
@@ -2500,11 +2522,7 @@
       const email = localStorage.getItem('bvlog_user_email');
       if(email) {
         try { 
-          const rawRes = await api({ action: "getHistoryLogs", email: email }); 
-          globalLogsCache = Array.isArray(rawRes) ? rawRes : [];
-          isLogsFetched = true;
-          isHistoryRendered = false;
-          isDashboardRendered = false;
+          await getSharedLogs(email); // 統一使用共享閘門
         }
         catch(e) { container.innerHTML = "失敗: " + e.message; return; }
       }
