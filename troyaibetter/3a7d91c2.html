@@ -4,6 +4,11 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>吃了 7 顆水煮蛋，帶著學員 6 小時從 0 到1，做出會計事務所的智能客服系統！｜特洛伊AI賦能師［AI實戰］ | 特洛伊AI賦能師</title>
+
+  <!-- 🌟 新增：強制清除文章頁面快取 -->
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+  <meta http-equiv="Pragma" content="no-cache">
+  <meta http-equiv="Expires" content="0">
   
   <!-- 🌟 文章 SEO 核心標籤 -->
   <meta name="description" content="吃了 7 顆水煮蛋，特洛伊 AI 賦能師帶著學員 6 小時從 0 做出會計事務所的智能客服系統！ 擺脫一人創業校長兼撞鐘與決策疲勞。 本文深度拆解 Venture Coding 創業式編程方法論，教你如何用 Google 試算表寫 SOP，串接 Gemini API 打造無 AI 罐頭感的智慧客服與追款助理，兼顧伴侶與家庭，實現真正的 Work-Life Balance。 Hello 各位，今天是我人生第四次創業、專注做 AI 教學與自製系統的第四個月。 從二月初帶著微型創業者們自製客製化系統至今，不知不覺已經度過了四個多月，內心真的充滿感恩。 今天發生了一件非常特別、也非常感恩的事情。 我今天吞下了 7 顆水煮蛋，然後帶著一間會計師事務所的團隊，在短短 6 個小時內，從 0 到 1 做出他們專屬的追款通知與智能客服系統！ 這座系統不僅能處理外面的客戶諮詢，還兼具內部行政幫手的功用——老闆平常只要把自己的行程隨手丟進對話框，系統就能協助員工排入行程；現場有客人來到公司時，能提示員工協助接待；甚至還能幫老闆記住所有重要的行程細節。 這篇文章，我想跟你完整分享我們是怎麼在 6 小時內辦到的，以及這背後一套能幫助一人公司與微型創業老闆擺脫決策疲勞的 Venture Coding（創業式編程）核心方法論。">
@@ -429,7 +434,7 @@ Venture Coding（創業式編程）是一種專為微型創業與一人公司設
         <img src="https://drive.google.com/thumbnail?id=1KuDoAil9NwRE3nMGgMeD6hby1TtR5lqA&sz=w1280" style="width: 100px; height: 100px; border-radius: 50%; object-fit: cover; border: 2px solid #e2e8f0;">
         <div style="flex: 1; min-width: 200px; text-align: left;">
           <h1 style="font-size: 28px; font-weight: 800; margin-bottom: 12px; color: #0f172a;">特洛伊AI賦能師</h1>
-          <p style="font-size: 15px; color: #64748b; margin-bottom: 16px; line-height: 1.6;">交大電機畢業，刻骨過5次跨界微型創業、銘心過5家飲料店從出生到長大，堅持過6年的家族搬家貨運與轉型循環經濟，我很懂「校長兼撞鐘」的身不由己。我 Vibe Coding 已經超過1萬小時，也帶領10組以上學員做出客製化系統。我正在將知識和經驗系統化、模組化，化為祝福分享在網路上。追蹤我，讓ＡＩ為你效勞、讓創業不再過勞，讓創業也能兼顧伴侶和家庭生活。</p>
+          <p style="font-size: 15px; color: #64748b; margin-bottom: 16px; line-height: 1.6;">交大電機畢業，刻骨過5次跨界微型創業、銘心過5家飲料店從出生到長大，堅持過6年的家族搬家貨運與轉型循環經濟，我很懂「校長兼撞鐘」的身不由己。我 Vibe Coding 已經超過1萬小時，也帶領10組以上學員做出客製化系統。我正在將知識和經驗系統化、模組化，化為祝福分享在網路上。追蹤我，讓ＡＩ為你效勞、讓創業不再過勞，讓創業也能兼顧伴侶和家庭生活。歡迎邀約演講、論壇、講座。</p>
           
           <!-- 🌟 關鍵修改：在這裡補上 introHtml，讓詳細介紹與展開按鈕顯示出來 -->
           
@@ -699,22 +704,24 @@ Venture Coding（創業式編程）是一種專為微型創業與一人公司設
     // 🚀 核心防護 2：建立「單線程佇列 (Queue)」，保證絕對不會塞爆 GAS 導致 CORS 報錯
     window.videoFetchQueue = Promise.resolve();
 
+    // 🌟 將上面這區塊替換為：
     function fetchVideoChunkBase64(url) {
       if (window.videoBlobCache[url]) return Promise.resolve(window.videoBlobCache[url]);
       
-      // 將每個影片請求強制排隊，實現完美的背景默默預載
       return new Promise((resolve) => {
         window.videoFetchQueue = window.videoFetchQueue.then(async () => {
           if (window.videoBlobCache[url]) { resolve(window.videoBlobCache[url]); return; }
           try {
             const response = await fetch(GAS_API_URL, {
               method: "POST",
-              headers: { "Content-Type": "text/plain;charset=utf-8" },
+              headers: { "Content-Type": "text/plain" },
               body: JSON.stringify({ action: "getVideoChunk", url: url })
             });
             const res = await response.json();
             if (res.status === 'success' && res.data) {
-               const blob = base64ToBlob(res.data.base64, res.data.mimeType);
+               // 🌟 核心修復：讀取真實影片格式，解決單篇文章預覽時的黑畫面
+               const mime = res.data.mimeType || 'video/webm';
+               const blob = base64ToBlob(res.data.base64, mime);
                const objectUrl = URL.createObjectURL(blob);
                window.videoBlobCache[url] = objectUrl;
                resolve(objectUrl);
