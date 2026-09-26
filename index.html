@@ -1278,10 +1278,10 @@
       for (let i = 0; i <= retries; i++) {
         try {
           const res = await fetch(GAS_WEB_URL, { 
-              method: 'POST', 
-              headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-              body: JSON.stringify(payload),
-              redirect: 'follow' 
+          method: 'POST', 
+          headers: { 'Content-Type': 'text/plain' }, 
+          body: JSON.stringify(payload),
+          redirect: 'follow' 
           });
 
           
@@ -3260,7 +3260,8 @@
         try {
           const res = await api({ action: "getVideoChunk", url: url });
           if (res && res.base64) {
-             const blob = window.base64ToBlob(res.base64, res.mimeType);
+             // 🌟 核心修復：強制給予 'video/webm' 標籤，不使用 res.mimeType，確保畫面與聲音都能正確解碼！
+             const blob = window.base64ToBlob(res.base64, 'video/webm');
              const objectUrl = URL.createObjectURL(blob);
              window.videoBlobCache[url] = objectUrl;
              resolve(objectUrl);
