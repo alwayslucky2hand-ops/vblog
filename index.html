@@ -1281,13 +1281,20 @@
               method: 'POST', 
               headers: { 'Content-Type': 'text/plain;charset=utf-8' },
               body: JSON.stringify(payload),
-              
-              
               redirect: 'follow' 
           });
-          const json = await res.json();
-          if (json.status === 'success') return json.data;
-          throw new Error(json.message);
+
+          
+          const contentType = res.headers.get("content-type");
+          if (contentType && contentType.indexOf("application/json") !== -1) {
+            const json = await res.json();
+            if (json.status === 'success') return json.data;
+            throw new Error(json.message);
+          } else {
+            const errorText = await res.text();
+            console.error("GAS 伺服器回傳了 HTML 錯誤頁面：", errorText);
+            throw new Error("伺服器回傳格式異常 (請檢查是否有多個 Google 帳號衝突，或需重新發布 GAS 部署)。");
+          }
         } catch (e) {
           if (i === retries) throw e;
           await new Promise(r => setTimeout(r, 1000));
@@ -1579,9 +1586,10 @@
     const currentVal = sel.value;
     let html = '';
     window.currentLogPrompts.forEach(p => {
-      if(p.name) html += `<option value="${escapeHtml(p.content)}">${escapeHtml(p.name)}</option>`;
+      // 🌟 核心修復：使用 encodeURIComponent 對提示詞進行編碼，防止雙引號或換行破壞 HTML
+      if(p.name) html += `<option value="${encodeURIComponent(p.content)}">${escapeHtml(p.name)}</option>`;
     });
-    sel.innerHTML = html || '<option value="請幫我摘要以下重點：">預設總結</option>';
+    sel.innerHTML = html || '<option value="default">預設總結</option>';
     if (currentVal && Array.from(sel.options).some(o => o.value === currentVal)) sel.value = currentVal;
   }
 
@@ -1963,6 +1971,13 @@
     log("[系統] 開始分析 YouTube 影片，這可能需要幾十秒鐘的時間...");
     urlInput.disabled = true;
 
+    // 🌟 核心修復：將編碼過的提示詞解碼還原
+    let logPromptContent = "請幫我摘要以下重點：";
+    const selLogPrompt = document.getElementById('liveLogPromptSelect');
+    if (selLogPrompt && selLogPrompt.value !== "default") {
+      logPromptContent = decodeURIComponent(selLogPrompt.value);
+    }
+
     try {
       const logPromptContent = document.getElementById('liveLogPromptSelect') ? document.getElementById('liveLogPromptSelect').value : "";
       await api({ action: "processYouTube", url: url, email: email, logPromptContent: logPromptContent });
@@ -1993,7 +2008,7 @@
     document.getElementById('btnStart').disabled = true;
     document.getElementById('archiveView').style.display = 'none';
 
-    // 🌟 初始化與歸零所有的全域變數與排隊佇列
+    
     window.chunkProcessQueue = Promise.resolve();
     pendingChunksCount = 0;
 
@@ -2155,6 +2170,13 @@
     await window.chunkProcessQueue; 
 
     log("[處理] 所有切片解析完畢，開始進行全局總結與歸檔...");
+
+    
+    let logPromptContent = "請幫我摘要以下重點：";
+    const selLogPrompt = document.getElementById('liveLogPromptSelect');
+    if (selLogPrompt && selLogPrompt.value !== "default") {
+      logPromptContent = decodeURIComponent(selLogPrompt.value);
+    }
 
     try {
       const logPromptContent = document.getElementById('liveLogPromptSelect') ? document.getElementById('liveLogPromptSelect').value : "";
