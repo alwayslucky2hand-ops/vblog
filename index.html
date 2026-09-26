@@ -1037,16 +1037,27 @@
 
   
   window.sharedLogsPromise = null;
-  async function getSharedLogs(email) {
+  async function getSharedLogs(email, forceRefresh = false) {
+    const cacheKey = 'bvlog_cache_logs_' + email;
+    const cached = localStorage.getItem(cacheKey);
+
+    
+    if (cached && !forceRefresh) {
+      try {
+        globalLogsCache = JSON.parse(cached);
+        isLogsFetched = true;
+      } catch(e) {}
+    }
+
     
     if (window.sharedLogsPromise) return window.sharedLogsPromise;
+
     
     window.sharedLogsPromise = api({ action: "getHistoryLogs", email: email })
       .then(logs => {
         globalLogsCache = Array.isArray(logs) ? logs : [];
+        localStorage.setItem(cacheKey, JSON.stringify(globalLogsCache)); 
         isLogsFetched = true;
-        isHistoryRendered = false;
-        isDashboardRendered = false;
         return globalLogsCache;
       })
       .finally(() => {
@@ -1098,23 +1109,24 @@
       document.getElementById('currentUserEmail').innerText = email;
       document.getElementById('mobileUserEmail').innerText = email;
 
+      
       loadUserAccountInfo(email);
       loadPrompts(email);
       loadAuthorProfile(email);
 
-      isLogsFetched = false;
       
       
-      getSharedLogs(email)
-        .then(() => { 
-          isLogsFetched = true;
-          isHistoryRendered = false;
-          isDashboardRendered = false;
-          
-          if(document.getElementById('tab-history').classList.contains('active')) loadHistoryLogs(false);
-          if(document.getElementById('tab-dashboard').classList.contains('active')) loadDashboardLogs(false);
-        })
-        .catch(e => console.log("初始化載入失敗:", e));
+      getSharedLogs(email).then(() => {
+        
+        isHistoryRendered = false;
+        isDashboardRendered = false;
+        if(document.getElementById('tab-history').classList.contains('active')) loadHistoryLogs(false);
+        if(document.getElementById('tab-dashboard').classList.contains('active')) loadDashboardLogs(false);
+      }).catch(e => console.log("背景更新失敗:", e));
+
+      
+      if(document.getElementById('tab-history').classList.contains('active')) loadHistoryLogs(false);
+      if(document.getElementById('tab-dashboard').classList.contains('active')) loadDashboardLogs(false);
 
     } else {
       document.getElementById('loginOverlay').style.display = 'flex';
@@ -2313,20 +2325,28 @@
 
     const container = document.getElementById('historyContainer');
     
-    if (forceRefresh || !isLogsFetched) {
-      container.innerHTML = '<div style="text-align:center; color:var(--text-muted); padding:32px 0;"><i data-lucide="loader" class="spin"></i> ...</div>';
+    
+    if (forceRefresh) {
+      container.innerHTML = '<div style="text-align:center; color:var(--text-muted); padding:32px 0;"><i data-lucide="loader" class="spin"></i> 同步最新資料中...</div>';
       lucide.createIcons();
       try {
-        await getSharedLogs(email); 
+        await getSharedLogs(email, true); 
         currentHistoryRenderCount = 10; 
+        isHistoryRendered = false;
       } catch (e) {
-        container.innerHTML = '<div style="text-align:center; color:var(--danger); padding:30px 0; border:1px solid var(--danger); border-radius:4px;">失敗: ' + e.message + '</div>';
+        container.innerHTML = '<div style="text-align:center; color:var(--danger); padding:30px 0; border:1px solid var(--danger); border-radius:4px;">同步失敗: ' + e.message + '</div>';
         return;
       }
+    } else if (!isLogsFetched) {
+      
+      container.innerHTML = '<div style="text-align:center; color:var(--text-muted); padding:32px 0;"><i data-lucide="loader" class="spin"></i> 初次載入中...</div>';
+      lucide.createIcons();
+      await getSharedLogs(email);
     }
 
     if (isHistoryRendered && !forceRefresh && document.querySelector('#historyContainer .history-card')) return; 
 
+    
     const searchKeyword = document.getElementById('historySearch') ? document.getElementById('historySearch').value.toLowerCase().trim() : '';
     
     let filteredLogs = globalLogsCache || [];
@@ -2516,17 +2536,25 @@
 
   async function loadDashboardLogs(forceRefresh = false) {
     const container = document.getElementById('dashboardContainer');
+    const email = localStorage.getItem('bvlog_user_email');
+    if (!email) return;
 
-    if(forceRefresh || !isLogsFetched) {
-      container.innerHTML = '<div style="text-align:center; color:var(--text-muted); padding:32px 0;"><i data-lucide="loader" class="spin"></i> ...</div>';
+    // 手動重整才轉圈圈
+    if(forceRefresh) {
+      container.innerHTML = '<div style="text-align:center; color:var(--text-muted); padding:32px 0;"><i data-lucide="loader" class="spin"></i> 同步最新資料中...</div>';
       lucide.createIcons();
-      const email = localStorage.getItem('bvlog_user_email');
-      if(email) {
-        try { 
-          await getSharedLogs(email); // 統一使用共享閘門
-        }
-        catch(e) { container.innerHTML = "失敗: " + e.message; return; }
+      try { 
+        await getSharedLogs(email, true); 
+        isDashboardRendered = false;
+      } catch(e) { 
+        container.innerHTML = '<div style="text-align:center; color:var(--danger); padding:30px 0;">同步失敗: ' + e.message + '</div>'; 
+        return; 
       }
+    } else if (!isLogsFetched) {
+      
+      container.innerHTML = '<div style="text-align:center; color:var(--text-muted); padding:32px 0;"><i data-lucide="loader" class="spin"></i> 初次載入中...</div>';
+      lucide.createIcons();
+      await getSharedLogs(email);
     }
 
     if (isDashboardRendered && !forceRefresh) return; 
