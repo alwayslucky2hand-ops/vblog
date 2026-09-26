@@ -415,6 +415,18 @@
     .ai-chat-btn:hover { transform: scale(1.05); box-shadow: 0 12px 28px rgba(0,0,0,0.2); }
     
     .ai-chat-badge { position: absolute; top: -2px; right: -2px; background: #ef4444; color: white; font-size: 13px; font-weight: 800; width: 22px; height: 22px; border-radius: 50%; display: flex; align-items: center; justify-content: center; border: 2px solid #fff; box-sizing: content-box; animation: badgePulse 2s infinite; transition: opacity 0.3s ease; pointer-events: none; }
+
+    /* 🌟 新增：自訂極簡播放器 UI 樣式 */
+    .custom-player-container { cursor: default; }
+    .custom-player-container.is-idle { cursor: none; }
+    .custom-player-container.is-idle .player-controls,
+    .custom-player-container.is-idle #bigPlayBtn { opacity: 0 !important; pointer-events: none; }
+    
+    .player-controls svg { cursor: pointer; transition: 0.2s transform, 0.2s filter; }
+    .player-controls svg:hover { transform: scale(1.15); filter: drop-shadow(0 0 6px rgba(255,255,255,0.6)); }
+    
+    .chunk-dot { width: 6px; height: 6px; border-radius: 50%; background: rgba(255,255,255,0.3); transition: 0.3s; }
+    .chunk-dot.active { background: #3b82f6; box-shadow: 0 0 6px #3b82f6; transform: scale(1.2); }
     
     /* 🎯 核心修復：電腦版寬度延展至 80vw、拉滿 90% 高度 */
     .ai-chat-window { 
@@ -464,6 +476,8 @@
       }
       .ai-chat-btn { width: 56px; height: 56px; }
     }
+
+
   </style>
   <div class="ai-chat-widget" id="aiChatWidget">
     <div id="aiChatWindow" class="ai-chat-window">
@@ -578,11 +592,20 @@
 
     function bindVideoLogic(urls) {
       if (!urls || urls.length === 0) return;
-      const statusEl = document.getElementById('videoStatus');
-      const btnStart = document.getElementById('btnStartStream');
-      const btnPrev = document.getElementById('btnPrevChunk');
-      const btnNext = document.getElementById('btnNextChunk');
-      const selector = document.getElementById('chunkSelector');
+      
+      const container = document.getElementById('seamlessVideoContainer');
+      const controls = document.getElementById('playerControls');
+      const bigPlayBtn = document.getElementById('bigPlayBtn');
+      const loading = document.getElementById('videoLoading');
+      const progressBar = document.getElementById('progressBar');
+      const progressHitbox = document.getElementById('progressHitbox');
+      const timeDisplay = document.getElementById('timeDisplay');
+      
+      const btnPrev = document.getElementById('btnPrevIcon');
+      const btnNext = document.getElementById('btnNextIcon');
+      const btnPlayPause = document.getElementById('btnPlayPauseIcon');
+      const btnFullscreen = document.getElementById('btnFullscreenIcon');
+      const chunkDots = document.getElementById('chunkDots');
       
       const vidA = document.getElementById('videoPlayerA');
       const vidB = document.getElementById('videoPlayerB');
@@ -592,40 +615,97 @@
       let nextVid = vidB;
       let streamUrls = urls;
       let isTransitioning = false;
-      
-      selector.innerHTML = '';
-      urls.forEach((url, i) => {
-        const opt = document.createElement('option');
-        opt.value = i;
-        opt.innerText = '片段 ' + (i + 1);
-        selector.appendChild(opt);
+      let hasStarted = false;
+      let idleTimer;
+
+      // 1. 初始化片段指示點
+      chunkDots.innerHTML = '';
+      urls.forEach((_, i) => {
+        const dot = document.createElement('div');
+        dot.className = 'chunk-dot' + (i === 0 ? ' active' : '');
+        chunkDots.appendChild(dot);
       });
-      selector.disabled = false;
-      
+
+      // 2. 滑鼠靜止隱藏 UI 的邏輯 (完美無縫體驗核心)
+      function resetIdleTimer() {
+        if (!hasStarted) return; // 還沒按過播放前不隱藏
+        container.classList.remove('is-idle');
+        controls.style.opacity = '1';
+        controls.style.pointerEvents = 'auto';
+        
+        clearTimeout(idleTimer);
+        idleTimer = setTimeout(() => {
+          if (!activeVid.paused) {
+            container.classList.add('is-idle'); // 隱藏游標與面板
+          }
+        }, 2500);
+      }
+      container.addEventListener('mousemove', resetIdleTimer);
+      container.addEventListener('mouseleave', () => { 
+        if(!activeVid.paused) container.classList.add('is-idle'); 
+      });
+
+      // 3. UI 狀態更新
       function updateControls() {
-        selector.value = currentIndex;
-        btnPrev.disabled = (currentIndex === 0);
-        btnNext.disabled = (currentIndex === urls.length - 1);
-        btnPrev.style.opacity = btnPrev.disabled ? '0.4' : '1';
-        btnNext.style.opacity = btnNext.disabled ? '0.4' : '1';
+        btnPrev.style.opacity = currentIndex === 0 ? '0.2' : '1';
+        btnPrev.style.pointerEvents = currentIndex === 0 ? 'none' : 'auto';
+        btnNext.style.opacity = currentIndex === urls.length - 1 ? '0.2' : '1';
+        btnNext.style.pointerEvents = currentIndex === urls.length - 1 ? 'none' : 'auto';
+        
+        Array.from(chunkDots.children).forEach((dot, i) => {
+          dot.className = 'chunk-dot' + (i === currentIndex ? ' active' : '');
+        });
       }
 
+      function formatTime(sec) {
+        if (isNaN(sec)) return "0:00";
+        const m = Math.floor(sec / 60);
+        const s = Math.floor(sec % 60);
+        return m + ":" + (s < 10 ? "0" : "") + s;
+      }
+
+      function updatePlayPauseIcon() {
+        if (activeVid.paused) {
+          btnPlayPause.innerHTML = '<polygon points="5 3 19 12 5 21 5 3"></polygon>';
+          btnPlayPause.setAttribute('fill', 'white');
+        } else {
+          btnPlayPause.innerHTML = '<rect x="6" y="4" width="4" height="16"></rect><rect x="14" y="4" width="4" height="16"></rect>';
+          btnPlayPause.setAttribute('fill', 'none');
+        }
+      }
+
+      // 4. 監聽影片進度
       function monitorPlayback(e) {
         const v = e.target;
         if (v !== activeVid) return;
         if (!v.duration) return;
+        
         nextVid.volume = activeVid.volume;
+        
+        // 更新進度條
+        const percent = (v.currentTime / v.duration) * 100;
+        progressBar.style.width = percent + '%';
+        timeDisplay.innerText = formatTime(v.currentTime);
+
+        // 無縫切換判斷
         if (v.duration - v.currentTime <= 0.3 && !isTransitioning) {
           isTransitioning = true;
           if (currentIndex < urls.length - 1) {
             playVideoChunk(currentIndex + 1);
           } else {
-            statusEl.innerText = '全片播放完畢';
+             // 播完了
+             activeVid.pause();
+             updatePlayPauseIcon();
+             resetIdleTimer();
           }
         }
       }
       vidA.addEventListener('timeupdate', monitorPlayback);
       vidB.addEventListener('timeupdate', monitorPlayback);
+      vidA.addEventListener('play', updatePlayPauseIcon);
+      vidA.addEventListener('pause', updatePlayPauseIcon);
+      vidB.addEventListener('play', updatePlayPauseIcon);
+      vidB.addEventListener('pause', updatePlayPauseIcon);
 
       const onVideoEnded = (e) => {
         if (e.target !== activeVid) return;
@@ -636,21 +716,20 @@
       vidA.addEventListener('ended', onVideoEnded);
       vidB.addEventListener('ended', onVideoEnded);
 
+      // 5. 核心播放邏輯
       async function playVideoChunk(targetIndex) {
         if (targetIndex !== undefined) currentIndex = targetIndex;
         updateControls();
-        statusEl.innerText = "雲端擷取中，請稍候...";
+        loading.style.display = 'block';
         
         const targetUrl = streamUrls[currentIndex];
         const streamUrl = await window.fetchVideoChunkBase64(targetUrl);
         
-        if (currentIndex !== targetIndex) return;
-        if (!streamUrl) {
-          statusEl.innerText = "載入失敗";
-          isTransitioning = false; return;
-        }
+        if (currentIndex !== targetIndex) return; // 避免狂點錯亂
+        if (!streamUrl) { loading.style.display = 'none'; isTransitioning = false; return; }
         
         let videoEl = activeVid;
+        // 如果 nextVid 已經預載好這一段
         if (nextVid.dataset.chunkIndex == currentIndex && nextVid.src) {
             const temp = activeVid;
             activeVid = nextVid;
@@ -660,11 +739,9 @@
         
         activeVid.style.opacity = '1';
         activeVid.style.zIndex = '2';
-        activeVid.controls = true;
         
         nextVid.style.opacity = '0';
         nextVid.style.zIndex = '1';
-        nextVid.controls = false;
         nextVid.pause();
         
         if (videoEl.src !== streamUrl) {
@@ -677,9 +754,12 @@
           const playPromise = videoEl.play();
           if (playPromise !== undefined) {
             playPromise.then(() => {
-              statusEl.innerText = "播放中: 片段 " + (currentIndex + 1) + " / " + urls.length;
+              loading.style.display = 'none';
+              resetIdleTimer(); // 播放成功後啟動靜止偵測
             }).catch(e => { 
-              statusEl.innerText = "已就緒，請點擊影片播放"; 
+              loading.style.display = 'none';
+              // 瀏覽器阻擋自動播放
+              updatePlayPauseIcon();
             });
           }
         };
@@ -708,24 +788,80 @@
         }
       }
 
-      btnStart.addEventListener('click', function() {
-        btnStart.style.display = 'none';
+      // 6. 綁定控制按鈕事件
+      const togglePlay = () => {
+        if (activeVid.paused) {
+          activeVid.play();
+        } else {
+          activeVid.pause();
+        }
+        resetIdleTimer();
+      };
+
+      bigPlayBtn.addEventListener('click', function() {
+        bigPlayBtn.style.display = 'none'; // 永遠消失
+        hasStarted = true;
+        
+        // 喚醒 iOS 權限
         vidA.play().catch(()=>{}); vidA.pause();
         vidB.play().catch(()=>{}); vidB.pause();
+        
         playVideoChunk(0);
         if (window.sendMetricData) window.sendMetricData('play'); 
       });
+
+      btnPlayPause.addEventListener('click', togglePlay);
+      
       btnPrev.addEventListener('click', function() {
         if (currentIndex > 0) playVideoChunk(currentIndex - 1);
       });
+      
       btnNext.addEventListener('click', function() {
         if (currentIndex < urls.length - 1) playVideoChunk(currentIndex + 1);
       });
-      selector.addEventListener('change', function() {
-        playVideoChunk(parseInt(this.value, 10));
+
+      // 點擊進度條跳轉
+      progressHitbox.addEventListener('click', function(e) {
+        if (!activeVid.duration) return;
+        const rect = progressHitbox.getBoundingClientRect();
+        const pos = (e.clientX - rect.left) / rect.width;
+        activeVid.currentTime = pos * activeVid.duration;
+        resetIdleTimer();
       });
 
-      statusEl.innerText = '已就緒 (可點擊啟動播放)';
+      // 點擊畫面也可暫停/播放
+      container.addEventListener('click', function(e) {
+        if (e.target === container || e.target === vidA || e.target === vidB) {
+          if (hasStarted) togglePlay();
+        }
+      });
+
+      // 7. 完美全螢幕綁定 (綁定在外層 Container)
+      btnFullscreen.addEventListener('click', function() {
+        if (!document.fullscreenElement) {
+          if (container.requestFullscreen) {
+            container.requestFullscreen();
+          } else if (container.webkitRequestFullscreen) { /* Safari */
+            container.webkitRequestFullscreen();
+          } else if (container.msRequestFullscreen) { /* IE11 */
+            container.msRequestFullscreen();
+          }
+        } else {
+          if (document.exitFullscreen) {
+            document.exitFullscreen();
+          } else if (document.webkitExitFullscreen) { /* Safari */
+            document.webkitExitFullscreen();
+          } else if (document.msExitFullscreen) { /* IE11 */
+            document.msExitFullscreen();
+          }
+        }
+      });
+
+      // 監聽全螢幕狀態改變 UI (可選，這裡已是極簡風格)
+      document.addEventListener('fullscreenchange', () => {
+         resetIdleTimer();
+      });
+
       updateControls();
     }
   
@@ -762,7 +898,7 @@
       const btn = document.getElementById("btnAuthAction");
       const msg = document.getElementById("authMsg");
       const email = document.getElementById("authEmail").value.trim();
-      const GAS_API_URL = "https://script.google.com/macros/s/AKfycbyeqKhWv3TY8bpSdB9ZfWXNkR9yap66PyGxzEJqxpawWn9hZ9chfIuBPJfZHHoP91newQ/exec";
+      const GAS_API_URL = "https://script.google.com/macros/s/AKfycbzNVJjdnOKJMy9v3A6TURw8p6U7OdUy4fnUZHIcU3dL1t6DSNWBi1oB79wrEWN2XHQiUQ/exec";
       
       if (authState === "email") {
         if(!email || !email.includes("@")) { msg.innerText = "請輸入正確的 Email 格式"; msg.style.color = "#ef4444"; return; }
