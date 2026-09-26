@@ -3273,97 +3273,103 @@
   window.videoFetchQueue = Promise.resolve();
 
   window.fetchVideoChunkBase64 = function(url) {
-    if (window.videoBlobCache[url]) return Promise.resolve(window.videoBlobCache[url]);
-    
-    return new Promise((resolve) => {
-      window.videoFetchQueue = window.videoFetchQueue.then(async () => {
-        if (window.videoBlobCache[url]) { resolve(window.videoBlobCache[url]); return; }
-        try {
-          const res = await api({ action: "getVideoChunk", url: url });
-          if (res && res.base64) {
-             // 🌟 核心修復：動態讀取真實的 mimeType，避免因為強制寫死 webm 導致 MP4 或其他格式有聲音沒畫面！
-             const mime = res.mimeType || 'video/webm';
-             const blob = window.base64ToBlob(res.base64, mime);
-             const objectUrl = URL.createObjectURL(blob);
-             window.videoBlobCache[url] = objectUrl;
-             resolve(objectUrl);
-          } else {
-             resolve(null);
-          }
-        } catch (e) {
-          console.error("影片載入失敗", e);
-          resolve(null);
+  if (window.videoBlobCache[url]) return Promise.resolve(window.videoBlobCache[url]);
+  
+  return new Promise((resolve) => {
+    window.videoFetchQueue = window.videoFetchQueue.then(async () => {
+      if (window.videoBlobCache[url]) { resolve(window.videoBlobCache[url]); return; }
+      try {
+        // 🌟 關鍵修復：加入 500ms 緩衝，避免瞬間大量請求觸發 Google Drive 阻擋機制
+        await new Promise(r => setTimeout(r, 500));
+        
+        const res = await api({ action: "getVideoChunk", url: url });
+        if (res && res.base64) {
+           const mime = res.mimeType || 'video/webm';
+           const blob = window.base64ToBlob(res.base64, mime);
+           const objectUrl = URL.createObjectURL(blob);
+           window.videoBlobCache[url] = objectUrl;
+           resolve(objectUrl);
+        } else {
+           resolve(null);
         }
-      });
+      } catch (e) {
+        console.error("影片載入失敗", e);
+        resolve(null);
+      }
     });
-  };
+  });
+};
 
   window.startSeamlessPlay = async function(logId) {
-    const urls = window.logPlaylists[logId];
-    if (!urls || urls.length === 0) return;
-    const statusEl = document.getElementById('player-status-' + logId);
-    const vidA = document.getElementById('playerA-' + logId);
-    const vidB = document.getElementById('playerB-' + logId);
+  const urls = window.logPlaylists[logId];
+  if (!urls || urls.length === 0) return;
+  const statusEl = document.getElementById('player-status-' + logId);
+  const vidA = document.getElementById('playerA-' + logId);
+  const vidB = document.getElementById('playerB-' + logId);
 
-    let state = window.historyPlayerStates[logId];
-    if (!state) {
-      state = {
-        currentIndex: 0,
-        activeVid: vidA,
-        nextVid: vidB,
-        isTransitioning: false,
-        streamUrls: urls
-      };
-      window.historyPlayerStates[logId] = state;
-      
-      state.startAggressivePreload = async function() {
-        for (let i = 1; i < state.streamUrls.length; i++) {
+  let state = window.historyPlayerStates[logId];
+  if (!state) {
+    state = {
+      currentIndex: 0,
+      activeVid: vidA,
+      nextVid: vidB,
+      isTransitioning: false,
+      streamUrls: urls
+    };
+    window.historyPlayerStates[logId] = state;
+    
+    
+    state.startAggressivePreload = async function() {
+      const maxPreload = Math.min(state.currentIndex + 3, state.streamUrls.length);
+      for (let i = state.currentIndex + 1; i < maxPreload; i++) {
+        if (!window.videoBlobCache[state.streamUrls[i]]) {
           await window.fetchVideoChunkBase64(state.streamUrls[i]);
         }
-        console.log("日誌區：後續影音已全數排隊預載完畢！");
-      };
+      }
+      console.log("日誌區：鄰近影音切片已排隊預載！");
+    };
 
-      state.prepareNextPlayer = function(targetIndex) {
-        if (targetIndex + 1 < state.streamUrls.length) {
-          window.fetchVideoChunkBase64(state.streamUrls[targetIndex + 1]).then(nextDataUrl => {
-            if (nextDataUrl && state.nextVid.dataset.chunkIndex != (targetIndex + 1)) {
-              state.nextVid.src = nextDataUrl;
-              state.nextVid.dataset.chunkIndex = targetIndex + 1;
-              state.nextVid.preload = "auto";
-              state.nextVid.load();
-            }
-          });
-        }
-      };
-
-      function monitorPlayback(e) {
-        const v = e.target;
-        if (v !== state.activeVid) return; 
-        if (!v.duration) return;
-        state.nextVid.volume = state.activeVid.volume;
-        if (v.duration - v.currentTime <= 0.3 && !state.isTransitioning) {
-          state.isTransitioning = true;
-          if (state.currentIndex < state.streamUrls.length - 1) {
-            window.playHistoryChunk(logId, state.currentIndex + 1);
-          } else {
-            statusEl.innerText = '播放完畢';
+    state.prepareNextPlayer = function(targetIndex) {
+      if (targetIndex + 1 < state.streamUrls.length) {
+        window.fetchVideoChunkBase64(state.streamUrls[targetIndex + 1]).then(nextDataUrl => {
+          if (nextDataUrl && state.nextVid.dataset.chunkIndex != (targetIndex + 1)) {
+            state.nextVid.src = nextDataUrl;
+            state.nextVid.dataset.chunkIndex = targetIndex + 1;
+            state.nextVid.preload = "auto";
+            state.nextVid.load();
           }
+        });
+      }
+    };
+
+    function monitorPlayback(e) {
+      const v = e.target;
+      if (v !== state.activeVid) return; 
+      if (!v.duration) return;
+      state.nextVid.volume = state.activeVid.volume;
+      if (v.duration - v.currentTime <= 0.3 && !state.isTransitioning) {
+        state.isTransitioning = true;
+        if (state.currentIndex < state.streamUrls.length - 1) {
+          window.playHistoryChunk(logId, state.currentIndex + 1);
+        } else {
+          statusEl.innerText = '播放完畢';
         }
       }
-      vidA.addEventListener('timeupdate', monitorPlayback);
-      vidB.addEventListener('timeupdate', monitorPlayback);
-      
-      const onEnded = (e) => { 
-        if(e.target === state.activeVid && !state.isTransitioning && state.currentIndex < state.streamUrls.length - 1) {
-            window.playHistoryChunk(logId, state.currentIndex + 1); 
-        }
-      };
-      vidA.addEventListener('ended', onEnded);
-      vidB.addEventListener('ended', onEnded);
     }
+    vidA.addEventListener('timeupdate', monitorPlayback);
+    vidB.addEventListener('timeupdate', monitorPlayback);
     
-    window.playHistoryChunk(logId, 0);
-  };
+    const onEnded = (e) => { 
+      if(e.target === state.activeVid && !state.isTransitioning && state.currentIndex < state.streamUrls.length - 1) {
+          window.playHistoryChunk(logId, state.currentIndex + 1); 
+      }
+    };
+    vidA.addEventListener('ended', onEnded);
+    vidB.addEventListener('ended', onEnded);
+  }
+  
+  window.playHistoryChunk(logId, 0);
+};
 
   window.playHistoryChunk = async function(logId, targetIndex) {
     const state = window.historyPlayerStates[logId];
@@ -3435,88 +3441,92 @@
   window.previewPlayerStates = window.previewPlayerStates || {};
 
   window.initPreviewPlayer = async function(logId, autoPreloadOnly = false) {
-    const urls = window.logPlaylists[logId];
-    if (!urls || urls.length === 0) return;
-    const statusEl = document.getElementById('preview-player-status');
-    const vidA = document.getElementById('preview-playerA');
-    const vidB = document.getElementById('preview-playerB');
+  const urls = window.logPlaylists[logId];
+  if (!urls || urls.length === 0) return;
+  const statusEl = document.getElementById('preview-player-status');
+  const vidA = document.getElementById('preview-playerA');
+  const vidB = document.getElementById('preview-playerB');
+  
+  let state = window.previewPlayerStates[logId];
+  if (!state) {
+    state = {
+      currentIndex: 0,
+      activeVid: vidA,
+      nextVid: vidB,
+      isTransitioning: false,
+      streamUrls: urls
+    };
+    window.previewPlayerStates[logId] = state;
     
-    let state = window.previewPlayerStates[logId];
-    if (!state) {
-      state = {
-        currentIndex: 0,
-        activeVid: vidA,
-        nextVid: vidB,
-        isTransitioning: false,
-        streamUrls: urls
-      };
-      window.previewPlayerStates[logId] = state;
-      
-      state.startAggressivePreload = async function() {
-        for (let i = 1; i < state.streamUrls.length; i++) {
+    
+    state.startAggressivePreload = async function() {
+      const maxPreload = Math.min(state.currentIndex + 3, state.streamUrls.length);
+      for (let i = state.currentIndex + 1; i < maxPreload; i++) {
+        if (!window.videoBlobCache[state.streamUrls[i]]) {
           await window.fetchVideoChunkBase64(state.streamUrls[i]);
         }
-        console.log("工坊預覽區：後續影音已全數排隊預載完畢！");
-      };
+      }
+      console.log("工坊預覽區：鄰近影音切片已排隊預載！");
+    };
 
-      state.prepareNextPlayer = function(targetIndex) {
-        if (targetIndex + 1 < state.streamUrls.length) {
-          window.fetchVideoChunkBase64(state.streamUrls[targetIndex + 1]).then(nextDataUrl => {
-            if (nextDataUrl && state.nextVid.dataset.chunkIndex != (targetIndex + 1)) {
-              state.nextVid.src = nextDataUrl;
-              state.nextVid.dataset.chunkIndex = targetIndex + 1;
-              state.nextVid.preload = "auto";
-              state.nextVid.load();
-            }
-          });
-        }
-      };
-      
-      function monitorPlayback(e) {
-        const v = e.target;
-        if (v !== state.activeVid) return; 
-        if (!v.duration) return;
-        state.nextVid.volume = state.activeVid.volume;
-        if (v.duration - v.currentTime <= 0.3 && !state.isTransitioning) {
-          state.isTransitioning = true;
-          if (state.currentIndex < state.streamUrls.length - 1) {
-            window.playPreviewChunk(logId, state.currentIndex + 1);
-          } else {
-            statusEl.innerText = '全片播放完畢';
+    state.prepareNextPlayer = function(targetIndex) {
+      if (targetIndex + 1 < state.streamUrls.length) {
+        window.fetchVideoChunkBase64(state.streamUrls[targetIndex + 1]).then(nextDataUrl => {
+          if (nextDataUrl && state.nextVid.dataset.chunkIndex != (targetIndex + 1)) {
+            state.nextVid.src = nextDataUrl;
+            state.nextVid.dataset.chunkIndex = targetIndex + 1;
+            state.nextVid.preload = "auto";
+            state.nextVid.load();
           }
+        });
+      }
+    };
+    
+    function monitorPlayback(e) {
+      const v = e.target;
+      if (v !== state.activeVid) return; 
+      if (!v.duration) return;
+      state.nextVid.volume = state.activeVid.volume;
+      if (v.duration - v.currentTime <= 0.3 && !state.isTransitioning) {
+        state.isTransitioning = true;
+        if (state.currentIndex < state.streamUrls.length - 1) {
+          window.playPreviewChunk(logId, state.currentIndex + 1);
+        } else {
+          statusEl.innerText = '全片播放完畢';
         }
       }
-      vidA.addEventListener('timeupdate', monitorPlayback);
-      vidB.addEventListener('timeupdate', monitorPlayback);
-      
-      const onEnded = (e) => { 
-        if(e.target === state.activeVid && !state.isTransitioning && state.currentIndex < state.streamUrls.length - 1) {
-            window.playPreviewChunk(logId, state.currentIndex + 1); 
-        }
-      };
-      vidA.addEventListener('ended', onEnded);
-      vidB.addEventListener('ended', onEnded);
     }
+    vidA.addEventListener('timeupdate', monitorPlayback);
+    vidB.addEventListener('timeupdate', monitorPlayback);
     
-    if (autoPreloadOnly) {
-       statusEl.innerText = '正在預備首支影片...';
-       window.fetchVideoChunkBase64(state.streamUrls[0]).then(dataUrl => {
-           if(dataUrl) {
-              state.activeVid.src = dataUrl;
-              state.activeVid.preload = "auto";
-              state.activeVid.load();
-              statusEl.innerText = '已就緒 (可點擊啟動聯播)';
-              state.prepareNextPlayer(0); 
-              state.startAggressivePreload();
-           } else {
-              statusEl.innerText = '影片載入錯誤';
-           }
-       });
-       return; 
-    }
+    const onEnded = (e) => { 
+      if(e.target === state.activeVid && !state.isTransitioning && state.currentIndex < state.streamUrls.length - 1) {
+          window.playPreviewChunk(logId, state.currentIndex + 1); 
+      }
+    };
+    vidA.addEventListener('ended', onEnded);
+    vidB.addEventListener('ended', onEnded);
+  }
+  
+  if (autoPreloadOnly) {
+     statusEl.innerText = '正在預備首支影片...';
+     window.fetchVideoChunkBase64(state.streamUrls[0]).then(dataUrl => {
+         if(dataUrl) {
+            state.activeVid.src = dataUrl;
+            state.activeVid.preload = "auto";
+            state.activeVid.load();
+            statusEl.innerText = '已就緒 (可點擊啟動聯播)';
+            state.prepareNextPlayer(0); 
+            state.startAggressivePreload();
+         } else {
+            statusEl.innerText = '影片載入錯誤';
+         }
+     });
+     return; 
+  }
 
-    window.playPreviewChunk(logId, 0, true);
-  };
+  window.playPreviewChunk(logId, 0, true);
+};
 
   window.playPreviewChunk = async function(logId, targetIndex, forcePlay = false) {
     const state = window.previewPlayerStates[logId];
