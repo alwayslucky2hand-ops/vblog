@@ -4,6 +4,11 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>從 Vibe Coding 到 Venture Coding：會計助理 1 天完成客製化系統，解放時間的 AI 實戰指南［AI實戰］ | 特洛伊AI賦能師</title>
+
+  <!-- 🌟 新增：強制清除文章頁面快取 -->
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+  <meta http-equiv="Pragma" content="no-cache">
+  <meta http-equiv="Expires" content="0">
   
   <!-- 🌟 文章 SEO 核心標籤 -->
   <meta name="description" content="為什麼一人創業與微型企業總是深陷「校長兼撞鐘」？ 每天早晨醒來，你的第一反應是期待今天的業務突破，還是被無休止的雜務壓得喘不過氣？ 對於許多一人創業、微型創業或一人公司的老闆來說，現實往往與當初創業的初衷背道而馳。你本想追求自由與事業成就，最後卻成了全公司最累的員工。 從業務開發、客戶溝通、報價單撰寫、合約追蹤，到售後服務與請款，你必須一人分飾多角。 這種「校長兼撞鐘」的營運模式，帶來的直接後果就是嚴重的決策疲勞與家庭缺席。 當你每天要花上 2 到 3 個小時處理重複性的行政勞務，你哪裡還有心力去思考公司的長期戰略？又哪裡有時間陪伴伴侶與孩子，實現真正的 work-life balance？ 什麼是 Venture Coding（創業式編程）？ Venture Coding 是以「解決實際商業痛點、釋放人力時間」為核心的 AI 實戰開發方法。 與單純強調隨性嘗試的 Vibe Coding 不同，Venture Coding 主張「意圖大於編碼（Intent &gt; Coding）」，從真實工作經驗出發，透過一人指揮「6 大 AI 虛擬團隊角色」，並採用「堆積木式微疊代 SOP」，將模糊的業務需求精準轉化為專屬的自動化營運系統。 這能讓微型企業與一人公司徹底擺脫校長兼撞鐘的過勞陷阱，重獲時間自主與家庭平衡。">
@@ -493,7 +498,7 @@ https://rubybranddesign-cloud.github.io</div></noscript>
         <img src="https://drive.google.com/thumbnail?id=1KuDoAil9NwRE3nMGgMeD6hby1TtR5lqA&sz=w1280" style="width: 100px; height: 100px; border-radius: 50%; object-fit: cover; border: 2px solid #e2e8f0;">
         <div style="flex: 1; min-width: 200px; text-align: left;">
           <h1 style="font-size: 28px; font-weight: 800; margin-bottom: 12px; color: #0f172a;">特洛伊AI賦能師</h1>
-          <p style="font-size: 15px; color: #64748b; margin-bottom: 16px; line-height: 1.6;">交大電機畢業，刻骨過5次跨界微型創業、銘心過5家飲料店從出生到長大，堅持過6年的家族搬家貨運與轉型循環經濟，我很懂「校長兼撞鐘」的身不由己。我 Vibe Coding 已經超過1萬小時，也帶領10組以上學員做出客製化系統。我正在將知識和經驗系統化、模組化，化為祝福分享在網路上。追蹤我，讓ＡＩ為你效勞、讓創業不再過勞，讓創業也能兼顧伴侶和家庭生活。</p>
+          <p style="font-size: 15px; color: #64748b; margin-bottom: 16px; line-height: 1.6;">交大電機畢業，刻骨過5次跨界微型創業、銘心過5家飲料店從出生到長大，堅持過6年的家族搬家貨運與轉型循環經濟，我很懂「校長兼撞鐘」的身不由己。我 Vibe Coding 已經超過1萬小時，也帶領10組以上學員做出客製化系統。我正在將知識和經驗系統化、模組化，化為祝福分享在網路上。追蹤我，讓ＡＩ為你效勞、讓創業不再過勞，讓創業也能兼顧伴侶和家庭生活。歡迎邀約演講、論壇、講座。</p>
           
           <!-- 🌟 關鍵修改：在這裡補上 introHtml，讓詳細介紹與展開按鈕顯示出來 -->
           
@@ -763,22 +768,24 @@ https://rubybranddesign-cloud.github.io</div></noscript>
     // 🚀 核心防護 2：建立「單線程佇列 (Queue)」，保證絕對不會塞爆 GAS 導致 CORS 報錯
     window.videoFetchQueue = Promise.resolve();
 
+    // 🌟 將上面這區塊替換為：
     function fetchVideoChunkBase64(url) {
       if (window.videoBlobCache[url]) return Promise.resolve(window.videoBlobCache[url]);
       
-      // 將每個影片請求強制排隊，實現完美的背景默默預載
       return new Promise((resolve) => {
         window.videoFetchQueue = window.videoFetchQueue.then(async () => {
           if (window.videoBlobCache[url]) { resolve(window.videoBlobCache[url]); return; }
           try {
             const response = await fetch(GAS_API_URL, {
               method: "POST",
-              headers: { "Content-Type": "text/plain;charset=utf-8" },
+              headers: { "Content-Type": "text/plain" },
               body: JSON.stringify({ action: "getVideoChunk", url: url })
             });
             const res = await response.json();
             if (res.status === 'success' && res.data) {
-               const blob = base64ToBlob(res.data.base64, res.data.mimeType);
+               // 🌟 核心修復：讀取真實影片格式，解決單篇文章預覽時的黑畫面
+               const mime = res.data.mimeType || 'video/webm';
+               const blob = base64ToBlob(res.data.base64, mime);
                const objectUrl = URL.createObjectURL(blob);
                window.videoBlobCache[url] = objectUrl;
                resolve(objectUrl);
