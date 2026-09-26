@@ -717,6 +717,14 @@ Venture Coding（創業式編程）是一種專為微型創業與一人公司設
       const vidA = document.getElementById('videoPlayerA');
       const vidB = document.getElementById('videoPlayerB');
       
+      const centerBtn = document.getElementById('center-start-ssg');
+      const bottomCtrl = document.getElementById('bottom-controls-ssg');
+      const btnPlayPause = document.getElementById('btnPlayPause');
+      const iconPlay = document.getElementById('iconPlay');
+      const iconPause = document.getElementById('iconPause');
+      const timeDisplay = document.getElementById('timeDisplay');
+      const btnFullscreen = document.getElementById('btnFullscreen');
+      
       let currentIndex = 0;
       let activeVid = vidA;
       let nextVid = vidB;
@@ -732,6 +740,13 @@ Venture Coding（創業式編程）是一種專為微型創業與一人公司設
       });
       selector.disabled = false;
       
+      function formatTime(seconds) {
+        if (!seconds || isNaN(seconds)) return "00:00";
+        const m = Math.floor(seconds / 60).toString().padStart(2, '0');
+        const s = Math.floor(seconds % 60).toString().padStart(2, '0');
+        return m + ":" + s;
+      }
+
       function updateControls() {
         selector.value = currentIndex;
         btnPrev.disabled = (currentIndex === 0);
@@ -743,6 +758,9 @@ Venture Coding（創業式編程）是一種專為微型創業與一人公司設
       function monitorPlayback(e) {
         const v = e.target;
         if (v !== activeVid) return;
+        
+        if (v.duration) timeDisplay.innerText = formatTime(v.currentTime) + " / " + formatTime(v.duration);
+
         if (!v.duration) return;
         nextVid.volume = activeVid.volume;
         if (v.duration - v.currentTime <= 0.3 && !isTransitioning) {
@@ -767,6 +785,12 @@ Venture Coding（創業式編程）是一種專為微型創業與一人公司設
       vidB.addEventListener('ended', onVideoEnded);
 
       async function playVideoChunk(targetIndex) {
+        // UI 切換
+        if (centerBtn) centerBtn.style.display = 'none';
+        if (bottomCtrl) bottomCtrl.style.display = 'flex';
+        if (iconPlay) iconPlay.style.display = 'none'; 
+        if (iconPause) iconPause.style.display = 'block';
+
         if (targetIndex !== undefined) currentIndex = targetIndex;
         updateControls();
         statusEl.innerText = "雲端擷取中，請稍候...";
@@ -790,7 +814,7 @@ Venture Coding（創業式編程）是一種專為微型創業與一人公司設
         
         activeVid.style.opacity = '1';
         activeVid.style.zIndex = '2';
-        activeVid.controls = true;
+        activeVid.controls = false; // 關閉原生控制，使用自訂 UI
         
         nextVid.style.opacity = '0';
         nextVid.style.zIndex = '1';
@@ -810,6 +834,7 @@ Venture Coding（創業式編程）是一種專為微型創業與一人公司設
               statusEl.innerText = "播放中: 片段 " + (currentIndex + 1) + " / " + urls.length;
             }).catch(e => { 
               statusEl.innerText = "已就緒，請點擊影片播放"; 
+              if (iconPlay) { iconPlay.style.display = 'block'; iconPause.style.display = 'none'; }
             });
           }
         };
@@ -838,22 +863,60 @@ Venture Coding（創業式編程）是一種專為微型創業與一人公司設
         }
       }
 
-      btnStart.addEventListener('click', function() {
-        btnStart.style.display = 'none';
-        vidA.play().catch(()=>{}); vidA.pause();
-        vidB.play().catch(()=>{}); vidB.pause();
-        playVideoChunk(0);
-        if (window.sendMetricData) window.sendMetricData('play'); 
-      });
-      btnPrev.addEventListener('click', function() {
-        if (currentIndex > 0) playVideoChunk(currentIndex - 1);
-      });
-      btnNext.addEventListener('click', function() {
-        if (currentIndex < urls.length - 1) playVideoChunk(currentIndex + 1);
-      });
-      selector.addEventListener('change', function() {
-        playVideoChunk(parseInt(this.value, 10));
-      });
+      if (btnStart) {
+        btnStart.addEventListener('click', function() {
+          btnStart.style.display = 'none';
+          vidA.play().catch(()=>{}); vidA.pause();
+          vidB.play().catch(()=>{}); vidB.pause();
+          playVideoChunk(0);
+          if (window.sendMetricData) window.sendMetricData('play'); 
+        });
+      }
+
+      if (btnPrev) {
+        btnPrev.addEventListener('click', function() {
+          if (currentIndex > 0) playVideoChunk(currentIndex - 1);
+        });
+      }
+
+      if (btnNext) {
+        btnNext.addEventListener('click', function() {
+          if (currentIndex < urls.length - 1) playVideoChunk(currentIndex + 1);
+        });
+      }
+
+      if (selector) {
+        selector.addEventListener('change', function() {
+          playVideoChunk(parseInt(this.value, 10));
+        });
+      }
+
+      if (btnPlayPause) {
+        btnPlayPause.addEventListener('click', function() {
+          if (activeVid.paused) {
+             activeVid.play();
+             iconPlay.style.display = 'none'; iconPause.style.display = 'block';
+          } else {
+             activeVid.pause();
+             iconPlay.style.display = 'block'; iconPause.style.display = 'none';
+          }
+        });
+      }
+
+      if (btnFullscreen) {
+        btnFullscreen.addEventListener('click', function() {
+          const wrapper = document.getElementById('player-wrapper-ssg');
+          if (!document.fullscreenElement) {
+              if (wrapper.requestFullscreen) wrapper.requestFullscreen();
+              else if (wrapper.webkitRequestFullscreen) wrapper.webkitRequestFullscreen();
+              else if (wrapper.msRequestFullscreen) wrapper.msRequestFullscreen();
+          } else {
+              if (document.exitFullscreen) document.exitFullscreen();
+              else if (document.webkitExitFullscreen) document.webkitExitFullscreen();
+              else if (document.msExitFullscreen) document.msExitFullscreen();
+          }
+        });
+      }
 
       statusEl.innerText = '已就緒 (可點擊啟動播放)';
       updateControls();
@@ -892,7 +955,7 @@ Venture Coding（創業式編程）是一種專為微型創業與一人公司設
       const btn = document.getElementById("btnAuthAction");
       const msg = document.getElementById("authMsg");
       const email = document.getElementById("authEmail").value.trim();
-      const GAS_API_URL = "https://script.google.com/macros/s/AKfycbyeqKhWv3TY8bpSdB9ZfWXNkR9yap66PyGxzEJqxpawWn9hZ9chfIuBPJfZHHoP91newQ/exec";
+      const GAS_API_URL = "https://script.google.com/macros/s/AKfycbzNVJjdnOKJMy9v3A6TURw8p6U7OdUy4fnUZHIcU3dL1t6DSNWBi1oB79wrEWN2XHQiUQ/exec";
       
       if (authState === "email") {
         if(!email || !email.includes("@")) { msg.innerText = "請輸入正確的 Email 格式"; msg.style.color = "#ef4444"; return; }
