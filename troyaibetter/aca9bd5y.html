@@ -4,6 +4,11 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>讓系統為你效勞，讓創業不再過勞：一個交大電機男孩的八年飲料夢、貨車後斗的眼淚，與AI時代的生命救贖｜特洛伊AI賦能師［創業日記］ | 特洛伊AI賦能師</title>
+
+  <!-- 🌟 新增：強制清除文章頁面快取 -->
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+  <meta http-equiv="Pragma" content="no-cache">
+  <meta http-equiv="Expires" content="0">
   
   <!-- 🌟 文章 SEO 核心標籤 -->
   <meta name="description" content="這不是一篇坐在冷氣房裡敲出來的科技成功學，更不是大企業動輒上百萬的空洞管理論。這是一個在台中二中打著籃球校隊、考上交大電機系的普通好學生，在滿手茶香的吧台裡泡了八年、在台北深夜冒雨跑外送痛哭、跌落至貨車後斗當搬家師傅、深入工廠拆解廢棄床墊，最後在二○二四年四月母親安息主懷的悲痛中，徹底痛醒的真實生命手記。 如果你現在也是一位每天在店裡校長兼撞鐘、被雜務榨乾、不敢生病、不敢休假，正用肉身硬扛生意的微型創業者，請給自己一杯咖啡的時間，讀完這篇文字。這是我用十幾年的生命跌撞，為你寫下的解藥。">
@@ -1849,7 +1854,7 @@ Ruby 是我的摯愛，從小具有極高的藝術美感與商業設計敏銳度
         <img src="https://drive.google.com/thumbnail?id=1KuDoAil9NwRE3nMGgMeD6hby1TtR5lqA&sz=w1280" style="width: 100px; height: 100px; border-radius: 50%; object-fit: cover; border: 2px solid #e2e8f0;">
         <div style="flex: 1; min-width: 200px; text-align: left;">
           <h1 style="font-size: 28px; font-weight: 800; margin-bottom: 12px; color: #0f172a;">特洛伊AI賦能師</h1>
-          <p style="font-size: 15px; color: #64748b; margin-bottom: 16px; line-height: 1.6;">交大電機畢業，刻骨過5次跨界微型創業、銘心過5家飲料店從出生到長大，堅持過6年的家族搬家貨運與轉型循環經濟，我很懂「校長兼撞鐘」的身不由己。我 Vibe Coding 已經超過1萬小時，也帶領10組以上學員做出客製化系統。我正在將知識和經驗系統化、模組化，化為祝福分享在網路上。追蹤我，讓ＡＩ為你效勞、讓創業不再過勞，讓創業也能兼顧伴侶和家庭生活。</p>
+          <p style="font-size: 15px; color: #64748b; margin-bottom: 16px; line-height: 1.6;">交大電機畢業，刻骨過5次跨界微型創業、銘心過5家飲料店從出生到長大，堅持過6年的家族搬家貨運與轉型循環經濟，我很懂「校長兼撞鐘」的身不由己。我 Vibe Coding 已經超過1萬小時，也帶領10組以上學員做出客製化系統。我正在將知識和經驗系統化、模組化，化為祝福分享在網路上。追蹤我，讓ＡＩ為你效勞、讓創業不再過勞，讓創業也能兼顧伴侶和家庭生活。歡迎邀約演講、論壇、講座。</p>
           
           <!-- 🌟 關鍵修改：在這裡補上 introHtml，讓詳細介紹與展開按鈕顯示出來 -->
           
@@ -2119,22 +2124,24 @@ Ruby 是我的摯愛，從小具有極高的藝術美感與商業設計敏銳度
     // 🚀 核心防護 2：建立「單線程佇列 (Queue)」，保證絕對不會塞爆 GAS 導致 CORS 報錯
     window.videoFetchQueue = Promise.resolve();
 
+    // 🌟 將上面這區塊替換為：
     function fetchVideoChunkBase64(url) {
       if (window.videoBlobCache[url]) return Promise.resolve(window.videoBlobCache[url]);
       
-      // 將每個影片請求強制排隊，實現完美的背景默默預載
       return new Promise((resolve) => {
         window.videoFetchQueue = window.videoFetchQueue.then(async () => {
           if (window.videoBlobCache[url]) { resolve(window.videoBlobCache[url]); return; }
           try {
             const response = await fetch(GAS_API_URL, {
               method: "POST",
-              headers: { "Content-Type": "text/plain;charset=utf-8" },
+              headers: { "Content-Type": "text/plain" },
               body: JSON.stringify({ action: "getVideoChunk", url: url })
             });
             const res = await response.json();
             if (res.status === 'success' && res.data) {
-               const blob = base64ToBlob(res.data.base64, res.data.mimeType);
+               // 🌟 核心修復：讀取真實影片格式，解決單篇文章預覽時的黑畫面
+               const mime = res.data.mimeType || 'video/webm';
+               const blob = base64ToBlob(res.data.base64, mime);
                const objectUrl = URL.createObjectURL(blob);
                window.videoBlobCache[url] = objectUrl;
                resolve(objectUrl);
