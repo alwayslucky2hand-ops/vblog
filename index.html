@@ -4,6 +4,9 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>VBLOG-錄誌</title>
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+  <meta http-equiv="Pragma" content="no-cache">
+  <meta http-equiv="Expires" content="0">
   <script src="https://unpkg.com/lucide@latest"></script>
   <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
   <style>
@@ -3260,8 +3263,9 @@
         try {
           const res = await api({ action: "getVideoChunk", url: url });
           if (res && res.base64) {
-             // 🌟 核心修復：強制給予 'video/webm' 標籤，不使用 res.mimeType，確保畫面與聲音都能正確解碼！
-             const blob = window.base64ToBlob(res.base64, 'video/webm');
+             // 🌟 核心修復：動態讀取真實的 mimeType，避免因為強制寫死 webm 導致 MP4 或其他格式有聲音沒畫面！
+             const mime = res.mimeType || 'video/webm';
+             const blob = window.base64ToBlob(res.base64, mime);
              const objectUrl = URL.createObjectURL(blob);
              window.videoBlobCache[url] = objectUrl;
              resolve(objectUrl);
