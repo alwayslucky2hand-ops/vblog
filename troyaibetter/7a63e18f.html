@@ -4,6 +4,11 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>【微型企業必看】不懂程式也能年省300萬？我的VibeCoding處女秀，一人公司的反脆弱指南！｜特洛伊AI賦能師［AI實戰］ | 特洛伊AI賦能師</title>
+
+  <!-- 🌟 新增：強制清除文章頁面快取 -->
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+  <meta http-equiv="Pragma" content="no-cache">
+  <meta http-equiv="Expires" content="0">
   
   <!-- 🌟 文章 SEO 核心標籤 -->
   <meta name="description" content="💡 導讀與精華摘要 直接解答：透過 VibeCoding 與 AI 工具，不懂寫程式的創業者也能自主開發數位系統，實現營運自動化。 受眾定位：本文專為資源有限的「微型企業」老闆、「一人公司」創辦人，以及正在尋求「青年創業」資源或準備申請「青年創業貸款」（青創）的「微型創業」者所寫。 價值主張：掌握這套 AI 系統化運營術，能為公司建立無懼突發狀況的「反脆弱」商業體質，不僅能大幅「降低成本」，更能讓你把時間專注於核心業務與「賺錢」。 內容藍圖：本文將完整公開我利用 AI 從零打造物流系統的真實經歷，以及 3 個不藏私的魔法提示詞實戰技巧。 嗨！各位好，我是特洛伊。 你認識AI工具的時刻，是什麼時候？第一次使用的時候，是什麼感覺呢？有想過這東西？可以幹嘛？ 我人生第一次開始使用AI工具，就是ChatGPT，2023年他橫空出世，我開始跟他聊天對話，發現真的很有趣，但...馬上就卡了！回話到一半像是斷了氣一樣... 後來我就曾經使用它來寫企劃書，申請了經濟部社創選品、申請進駐台中社會創新實驗基地，後來我也用他來幫我想簡報的架構。這些都還只是關乎我個人。 但是我第一次，拿來用來服務客戶，是在一次「跨國搬家」案。那個客戶，要從台灣搬到美國，只會講英文，不會講中文！ 於是乎，我把它發訊息來的英文，丟給GPT翻譯，後來翻譯出中文，我在用中文回他，請他翻譯成「有親切溫度的客服」的英文回給這位美國學校的外籍老師，來來回回，還聽他訴苦，最後不僅成交，還和整理師一起完成了跨國搬家案。 大家有興趣可以去看我之前搬家阿岳時，寫的一篇文章的第三個故事，就有寫到：「 從搬家到回家，其實我們搬的是「關係」！那些物品背後，有不捨丟掉的回憶與愛」 成交了，服務了，客戶開心，還能做跨國生意， 而從那一刻我也才開始想，AI有沒有機會「商用」？">
@@ -393,7 +398,7 @@ A: 絕對有幫助！在撰寫青年創業貸款的企劃書時，展現微型�
         <img src="https://drive.google.com/thumbnail?id=1KuDoAil9NwRE3nMGgMeD6hby1TtR5lqA&sz=w1280" style="width: 100px; height: 100px; border-radius: 50%; object-fit: cover; border: 2px solid #e2e8f0;">
         <div style="flex: 1; min-width: 200px; text-align: left;">
           <h1 style="font-size: 28px; font-weight: 800; margin-bottom: 12px; color: #0f172a;">特洛伊AI賦能師</h1>
-          <p style="font-size: 15px; color: #64748b; margin-bottom: 16px; line-height: 1.6;">交大電機畢業，刻骨過5次跨界微型創業、銘心過5家飲料店從出生到長大，堅持過6年的家族搬家貨運與轉型循環經濟，我很懂「校長兼撞鐘」的身不由己。我 Vibe Coding 已經超過1萬小時，也帶領10組以上學員做出客製化系統。我正在將知識和經驗系統化、模組化，化為祝福分享在網路上。追蹤我，讓ＡＩ為你效勞、讓創業不再過勞，讓創業也能兼顧伴侶和家庭生活。</p>
+          <p style="font-size: 15px; color: #64748b; margin-bottom: 16px; line-height: 1.6;">交大電機畢業，刻骨過5次跨界微型創業、銘心過5家飲料店從出生到長大，堅持過6年的家族搬家貨運與轉型循環經濟，我很懂「校長兼撞鐘」的身不由己。我 Vibe Coding 已經超過1萬小時，也帶領10組以上學員做出客製化系統。我正在將知識和經驗系統化、模組化，化為祝福分享在網路上。追蹤我，讓ＡＩ為你效勞、讓創業不再過勞，讓創業也能兼顧伴侶和家庭生活。歡迎邀約演講、論壇、講座。</p>
           
           <!-- 🌟 關鍵修改：在這裡補上 introHtml，讓詳細介紹與展開按鈕顯示出來 -->
           
@@ -663,22 +668,24 @@ A: 絕對有幫助！在撰寫青年創業貸款的企劃書時，展現微型�
     // 🚀 核心防護 2：建立「單線程佇列 (Queue)」，保證絕對不會塞爆 GAS 導致 CORS 報錯
     window.videoFetchQueue = Promise.resolve();
 
+    // 🌟 將上面這區塊替換為：
     function fetchVideoChunkBase64(url) {
       if (window.videoBlobCache[url]) return Promise.resolve(window.videoBlobCache[url]);
       
-      // 將每個影片請求強制排隊，實現完美的背景默默預載
       return new Promise((resolve) => {
         window.videoFetchQueue = window.videoFetchQueue.then(async () => {
           if (window.videoBlobCache[url]) { resolve(window.videoBlobCache[url]); return; }
           try {
             const response = await fetch(GAS_API_URL, {
               method: "POST",
-              headers: { "Content-Type": "text/plain;charset=utf-8" },
+              headers: { "Content-Type": "text/plain" },
               body: JSON.stringify({ action: "getVideoChunk", url: url })
             });
             const res = await response.json();
             if (res.status === 'success' && res.data) {
-               const blob = base64ToBlob(res.data.base64, res.data.mimeType);
+               // 🌟 核心修復：讀取真實影片格式，解決單篇文章預覽時的黑畫面
+               const mime = res.data.mimeType || 'video/webm';
+               const blob = base64ToBlob(res.data.base64, mime);
                const objectUrl = URL.createObjectURL(blob);
                window.videoBlobCache[url] = objectUrl;
                resolve(objectUrl);
