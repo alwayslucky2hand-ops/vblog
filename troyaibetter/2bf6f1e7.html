@@ -606,90 +606,27 @@
 
     
     window.videoBlobCache = window.videoBlobCache || {};
-    const GAS_API_URL = "https://script.google.com/macros/s/AKfycbyeqKhWv3TY8bpSdB9ZfWXNkR9yap66PyGxzEJqxpawWn9hZ9chfIuBPJfZHHoP91newQ/exec";
 
-    // 🚀 核心防護 1：高效率 Blob 轉換引擎
-    function base64ToBlob(base64, mime) {
-      const byteCharacters = atob(base64);
-      const byteArrays = [];
-      for (let offset = 0; offset < byteCharacters.length; offset += 512) {
-          const slice = byteCharacters.slice(offset, offset + 512);
-          const byteNumbers = new Array(slice.length);
-          for (let i = 0; i < slice.length; i++) {
-              byteNumbers[i] = slice.charCodeAt(i);
-          }
-          byteArrays.push(new Uint8Array(byteNumbers));
-      }
-      return new Blob(byteArrays, {type: mime});
-    }
-
-    // 🚀 核心防護 2：建立「單線程佇列 (Queue)」，保證絕對不會塞爆 GAS 導致 CORS 報錯
-    window.videoFetchQueue = Promise.resolve();
-
-    function fetchVideoChunkBase64(url) {
-      if (window.videoBlobCache[url]) return Promise.resolve(window.videoBlobCache[url]);
+    // 真正能繞過 Google Drive CORS 的前端代理抓取器
+    window.fetchVideoChunkBase64 = async function(url) {
+      if (!url) return null;
+      if (url.includes('youtube.com') || url.includes('youtu.be')) return url;
+      if (window.videoBlobCache[url]) return window.videoBlobCache[url];
       
-      return new Promise((resolve) => {
-        window.videoFetchQueue = window.videoFetchQueue.then(async () => {
-          if (window.videoBlobCache[url]) { resolve(window.videoBlobCache[url]); return; }
-          try {
-            await new Promise(r => setTimeout(r, 500));
-            
-            const callbackName = 'jsonp_video_' + Math.round(100000 * Math.random());
-            const requestUrl = GAS_API_URL + "?action=getVideoChunk&url=" + encodeURIComponent(url) + "&callback=" + callbackName;
-            
-            return new Promise((innerResolve) => {
-               const script = document.createElement('script');
-               script.src = requestUrl;
-               
-               // 🌟 核心防護：建立單一清理口
-               let isCleanedUp = false;
-               const cleanup = () => {
-                 if (isCleanedUp) return;
-                 isCleanedUp = true;
-                 if (window[callbackName]) delete window[callbackName];
-                 if (script && script.parentNode) {
-                   script.parentNode.removeChild(script);
-                 }
-               };
-
-               // 🌟 加入 45 秒超時保護機制
-               const timeoutId = setTimeout(() => {
-                 cleanup();
-                 innerResolve(null); // 影片載入失敗，優雅降級回傳 null
-               }, 45000);
-               
-               window[callbackName] = function(res) {
-                 clearTimeout(timeoutId);
-                 cleanup(); // 安全清理
-                 
-                 if (res.status === 'success' && res.data) {
-                    const mime = res.data.mimeType || 'video/webm';
-                    const blob = base64ToBlob(res.data.base64, mime);
-                    const objectUrl = URL.createObjectURL(blob);
-                    window.videoBlobCache[url] = objectUrl;
-                    innerResolve(objectUrl);
-                 } else {
-                    innerResolve(null);
-                 }
-               };
-               
-               script.onerror = function() {
-                 clearTimeout(timeoutId);
-                 cleanup(); // 安全清理
-                 innerResolve(null);
-               };
-               
-               document.body.appendChild(script);
-            }).then(resolve);
-            
-          } catch (e) {
-            console.error("影片載入失敗", e);
-            resolve(null);
-          }
-        });
-      });
-    }
+      try {
+        const res = await fetch("https://script.google.com/macros/s/AKfycbyeqKhWv3TY8bpSdB9ZfWXNkR9yap66PyGxzEJqxpawWn9hZ9chfIuBPJfZHHoP91newQ/exec", {
+          method: "POST",
+          body: JSON.stringify({ action: "getVideoChunk", url: url })
+        }).then(r => r.json());
+        
+        if (res && res.data && res.data.base64) {
+           const dataUrl = 'data:' + res.data.mimeType + ';base64,' + res.data.base64;
+           window.videoBlobCache[url] = dataUrl;
+           return dataUrl;
+        }
+        return null;
+      } catch(e) { return null; }
+    };
 
     function bindVideoLogic(urls) {
       if (!urls || urls.length === 0) return;
@@ -725,32 +662,6 @@
         btnNext.style.opacity = btnNext.disabled ? '0.4' : '1';
       }
 
-      // 🚀 核心升級：暴風背景預載引擎 (Aggressive Background Preloader)
-      // 網頁一打開，第一支影片載入後，這個函數就會被喚醒，並一口氣把後面所有影片排隊下載完畢
-      async function startAggressivePreload() {
-        // 從第 2 段 (index = 1) 開始抓取，因為第 1 段已經預載了
-        for (let i = 1; i < streamUrls.length; i++) {
-          // 強制將後續所有片段排入佇列下載
-          // 因為前面有 window.videoFetchQueue 保護，所以會「乖乖排隊」依序下載，絕對不會塞爆 GAS！
-          await fetchVideoChunkBase64(streamUrls[i]);
-        }
-        console.log("所有影音切片已在背景預載完畢！");
-      }
-
-      // 將原本只預載「下一支」的邏輯，改為直接從快取池提取已預載好的影片
-      function prepareNextPlayer(targetIndex) {
-        if (targetIndex + 1 < streamUrls.length) {
-          fetchVideoChunkBase64(streamUrls[targetIndex + 1]).then(nextDataUrl => {
-            if (nextDataUrl && nextVid.dataset.chunkIndex != (targetIndex + 1)) {
-              nextVid.src = nextDataUrl;
-              nextVid.dataset.chunkIndex = targetIndex + 1; 
-              nextVid.preload = "auto";
-              nextVid.load();
-            }
-          });
-        }
-      }
-
       function monitorPlayback(e) {
         const v = e.target;
         if (v !== activeVid) return;
@@ -780,57 +691,79 @@
       async function playVideoChunk(targetIndex) {
         if (targetIndex !== undefined) currentIndex = targetIndex;
         updateControls();
-        statusEl.innerText = "高速緩衝中...";
+        statusEl.innerText = "雲端擷取中，請稍候...";
         
         const targetUrl = streamUrls[currentIndex];
-        const dataUrl = await fetchVideoChunkBase64(targetUrl);
+        const streamUrl = await window.fetchVideoChunkBase64(targetUrl);
         
         if (currentIndex !== targetIndex) return;
-
-        if (!dataUrl) {
+        if (!streamUrl) {
           statusEl.innerText = "載入失敗";
-          isTransitioning = false;
-          return;
+          isTransitioning = false; return;
         }
         
-        const isFullscreen = !!(document.fullscreenElement || document.webkitFullscreenElement);
-        const fsElement = document.fullscreenElement || document.webkitFullscreenElement;
+        let videoEl = activeVid;
+        if (nextVid.dataset.chunkIndex == currentIndex && nextVid.src) {
+            const temp = activeVid;
+            activeVid = nextVid;
+            nextVid = temp;
+            videoEl = activeVid;
+        }
+        
+        activeVid.style.opacity = '1';
+        activeVid.style.zIndex = '2';
+        activeVid.controls = true;
+        
+        nextVid.style.opacity = '0';
+        nextVid.style.zIndex = '1';
+        nextVid.controls = false;
+        nextVid.pause();
+        
+        if (videoEl.src !== streamUrl) {
+          videoEl.src = streamUrl;
+          videoEl.load();
+        }
+        
+        const playVideo = () => {
+          videoEl.currentTime = 0;
+          const playPromise = videoEl.play();
+          if (playPromise !== undefined) {
+            playPromise.then(() => {
+              statusEl.innerText = "播放中: 片段 " + (currentIndex + 1) + " / " + urls.length;
+            }).catch(e => { 
+              statusEl.innerText = "已就緒，請點擊影片播放"; 
+            });
+          }
+        };
 
-        if (isFullscreen && fsElement === activeVid) {
-            activeVid.src = dataUrl;
-            activeVid.load(); 
-            activeVid.currentTime = 0;
-            try { await activeVid.play(); } catch(e){}
+        if (videoEl.readyState >= 1) {
+          playVideo();
         } else {
-            if (nextVid.dataset.chunkIndex == currentIndex && nextVid.src) {
-              const temp = activeVid;
-              activeVid = nextVid;
-              nextVid = temp;
-            } else {
-              activeVid.src = dataUrl;
-              activeVid.load(); 
-              activeVid.currentTime = 0;
-            }
-            
-            activeVid.style.opacity = '1';
-            activeVid.style.zIndex = '2';
-            activeVid.controls = true;
-            
-            nextVid.style.opacity = '0';
-            nextVid.style.zIndex = '1';
-            nextVid.controls = false;
-            nextVid.pause();
-            
-            try { await activeVid.play(); } catch(e) { statusEl.innerText = "已暫停，請點擊播放"; }
+          const onMeta = function() {
+            playVideo();
+            videoEl.removeEventListener('loadedmetadata', onMeta);
+          };
+          videoEl.addEventListener('loadedmetadata', onMeta);
         }
         
-        statusEl.innerText = "播放中: 片段 " + (currentIndex + 1) + " / " + urls.length;
         isTransitioning = false;
-        prepareNextPlayer(currentIndex); // 準備將下一段裝填進休眠的播放器中
+        
+        // 背景靜默預載下一段
+        if (currentIndex + 1 < streamUrls.length) {
+           window.fetchVideoChunkBase64(streamUrls[currentIndex + 1]).then(nextDataUrl => {
+             if (nextDataUrl && nextVid.dataset.chunkIndex != (currentIndex + 1)) {
+                nextVid.src = nextDataUrl;
+                nextVid.dataset.chunkIndex = currentIndex + 1;
+                nextVid.preload = "auto";
+             }
+           });
+        }
       }
 
       btnStart.addEventListener('click', function() {
         btnStart.style.display = 'none';
+        vidA.play().catch(()=>{}); vidA.pause();
+        vidB.play().catch(()=>{}); vidB.pause();
         playVideoChunk(0);
         if (window.sendMetricData) window.sendMetricData('play'); 
       });
@@ -844,23 +777,7 @@
         playVideoChunk(parseInt(this.value, 10));
       });
 
-      statusEl.innerText = '正在載入高清串流...';
-      
-      // 🚀 網頁一載入，立刻啟動第一支影片的抓取
-      fetchVideoChunkBase64(streamUrls[0]).then(dataUrl => {
-         if(dataUrl) {
-            activeVid.src = dataUrl;
-            activeVid.preload = "auto";
-            activeVid.load();
-            statusEl.innerText = '已就緒 (可點擊啟動播放)';
-            prepareNextPlayer(0); 
-            
-            // 🚀 重點中的重點：第一支影片準備好的瞬間，立刻啟動暴風預載引擎！
-            startAggressivePreload(); 
-         } else {
-            statusEl.innerText = '影片載入錯誤';
-         }
-      });
+      statusEl.innerText = '已就緒 (可點擊啟動播放)';
       updateControls();
     }
   
