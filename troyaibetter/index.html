@@ -1049,6 +1049,26 @@ AI Agent 時代的終極差距不是技術，而是說故事的能力。
     .custom-player-container.is-idle { cursor: none; }
     .custom-player-container.is-idle .player-controls,
     .custom-player-container.is-idle #bigPlayBtn { opacity: 0 !important; pointer-events: none; }
+
+    /* 🌟 新增：自訂極簡播放器 UI 樣式 (沉浸式隱藏版) */
+    .custom-player-container { 
+      cursor: default; 
+      -webkit-tap-highlight-color: transparent; /* 消除手機點擊的反白框 */
+    }
+    .custom-player-container.is-idle { cursor: none; }
+    
+    /* 當進入 idle 狀態時，強制把控制列與大按鈕隱藏並關閉點擊事件 */
+    .custom-player-container.is-idle #playerControls,
+    .custom-player-container.is-idle #bigPlayBtn { 
+      opacity: 0 !important; 
+      pointer-events: none !important; 
+    }
+    
+    .player-controls svg { cursor: pointer; transition: 0.2s transform, 0.2s filter; }
+    .player-controls svg:hover { transform: scale(1.15); filter: drop-shadow(0 0 6px rgba(255,255,255,0.6)); }
+    
+    .chunk-dot { width: 6px; height: 6px; border-radius: 50%; background: rgba(255,255,255,0.3); transition: 0.3s; }
+    .chunk-dot.active { background: #3b82f6; box-shadow: 0 0 6px #3b82f6; transform: scale(1.2); }
     
     .player-controls svg { cursor: pointer; transition: 0.2s transform, 0.2s filter; }
     .player-controls svg:hover { transform: scale(1.15); filter: drop-shadow(0 0 6px rgba(255,255,255,0.6)); }
