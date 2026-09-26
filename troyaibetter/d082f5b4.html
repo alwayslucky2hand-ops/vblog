@@ -605,14 +605,6 @@ A: 完全沒問題。AI 工具帶來的紅利在於「認知與技能」的結�
       const vidA = document.getElementById('videoPlayerA');
       const vidB = document.getElementById('videoPlayerB');
       
-      const centerBtn = document.getElementById('center-start-ssg');
-      const bottomCtrl = document.getElementById('bottom-controls-ssg');
-      const btnPlayPause = document.getElementById('btnPlayPause');
-      const iconPlay = document.getElementById('iconPlay');
-      const iconPause = document.getElementById('iconPause');
-      const timeDisplay = document.getElementById('timeDisplay');
-      const btnFullscreen = document.getElementById('btnFullscreen');
-      
       let currentIndex = 0;
       let activeVid = vidA;
       let nextVid = vidB;
@@ -628,13 +620,6 @@ A: 完全沒問題。AI 工具帶來的紅利在於「認知與技能」的結�
       });
       selector.disabled = false;
       
-      function formatTime(seconds) {
-        if (!seconds || isNaN(seconds)) return "00:00";
-        const m = Math.floor(seconds / 60).toString().padStart(2, '0');
-        const s = Math.floor(seconds % 60).toString().padStart(2, '0');
-        return m + ":" + s;
-      }
-
       function updateControls() {
         selector.value = currentIndex;
         btnPrev.disabled = (currentIndex === 0);
@@ -646,9 +631,6 @@ A: 完全沒問題。AI 工具帶來的紅利在於「認知與技能」的結�
       function monitorPlayback(e) {
         const v = e.target;
         if (v !== activeVid) return;
-        
-        if (v.duration) timeDisplay.innerText = formatTime(v.currentTime) + " / " + formatTime(v.duration);
-
         if (!v.duration) return;
         nextVid.volume = activeVid.volume;
         if (v.duration - v.currentTime <= 0.3 && !isTransitioning) {
@@ -673,12 +655,6 @@ A: 完全沒問題。AI 工具帶來的紅利在於「認知與技能」的結�
       vidB.addEventListener('ended', onVideoEnded);
 
       async function playVideoChunk(targetIndex) {
-        // UI 切換
-        if (centerBtn) centerBtn.style.display = 'none';
-        if (bottomCtrl) bottomCtrl.style.display = 'flex';
-        if (iconPlay) iconPlay.style.display = 'none'; 
-        if (iconPause) iconPause.style.display = 'block';
-
         if (targetIndex !== undefined) currentIndex = targetIndex;
         updateControls();
         statusEl.innerText = "雲端擷取中，請稍候...";
@@ -702,7 +678,7 @@ A: 完全沒問題。AI 工具帶來的紅利在於「認知與技能」的結�
         
         activeVid.style.opacity = '1';
         activeVid.style.zIndex = '2';
-        activeVid.controls = false; // 關閉原生控制，使用自訂 UI
+        activeVid.controls = true;
         
         nextVid.style.opacity = '0';
         nextVid.style.zIndex = '1';
@@ -722,7 +698,6 @@ A: 完全沒問題。AI 工具帶來的紅利在於「認知與技能」的結�
               statusEl.innerText = "播放中: 片段 " + (currentIndex + 1) + " / " + urls.length;
             }).catch(e => { 
               statusEl.innerText = "已就緒，請點擊影片播放"; 
-              if (iconPlay) { iconPlay.style.display = 'block'; iconPause.style.display = 'none'; }
             });
           }
         };
@@ -751,60 +726,22 @@ A: 完全沒問題。AI 工具帶來的紅利在於「認知與技能」的結�
         }
       }
 
-      if (btnStart) {
-        btnStart.addEventListener('click', function() {
-          btnStart.style.display = 'none';
-          vidA.play().catch(()=>{}); vidA.pause();
-          vidB.play().catch(()=>{}); vidB.pause();
-          playVideoChunk(0);
-          if (window.sendMetricData) window.sendMetricData('play'); 
-        });
-      }
-
-      if (btnPrev) {
-        btnPrev.addEventListener('click', function() {
-          if (currentIndex > 0) playVideoChunk(currentIndex - 1);
-        });
-      }
-
-      if (btnNext) {
-        btnNext.addEventListener('click', function() {
-          if (currentIndex < urls.length - 1) playVideoChunk(currentIndex + 1);
-        });
-      }
-
-      if (selector) {
-        selector.addEventListener('change', function() {
-          playVideoChunk(parseInt(this.value, 10));
-        });
-      }
-
-      if (btnPlayPause) {
-        btnPlayPause.addEventListener('click', function() {
-          if (activeVid.paused) {
-             activeVid.play();
-             iconPlay.style.display = 'none'; iconPause.style.display = 'block';
-          } else {
-             activeVid.pause();
-             iconPlay.style.display = 'block'; iconPause.style.display = 'none';
-          }
-        });
-      }
-
-      if (btnFullscreen) {
-        btnFullscreen.addEventListener('click', function() {
-          const wrapper = document.getElementById('player-wrapper-ssg');
-          if (!document.fullscreenElement) {
-              if (wrapper.requestFullscreen) wrapper.requestFullscreen();
-              else if (wrapper.webkitRequestFullscreen) wrapper.webkitRequestFullscreen();
-              else if (wrapper.msRequestFullscreen) wrapper.msRequestFullscreen();
-          } else {
-              if (document.exitFullscreen) document.exitFullscreen();
-              else if (document.webkitExitFullscreen) document.webkitExitFullscreen();
-              else if (document.msExitFullscreen) document.msExitFullscreen();
-          }
-        });
-      }
+      btnStart.addEventListener('click', function() {
+        btnStart.style.display = 'none';
+        vidA.play().catch(()=>{}); vidA.pause();
+        vidB.play().catch(()=>{}); vidB.pause();
+        playVideoChunk(0);
+        if (window.sendMetricData) window.sendMetricData('play'); 
+      });
+      btnPrev.addEventListener('click', function() {
+        if (currentIndex > 0) playVideoChunk(currentIndex - 1);
+      });
+      btnNext.addEventListener('click', function() {
+        if (currentIndex < urls.length - 1) playVideoChunk(currentIndex + 1);
+      });
+      selector.addEventListener('change', function() {
+        playVideoChunk(parseInt(this.value, 10));
+      });
 
       statusEl.innerText = '已就緒 (可點擊啟動播放)';
       updateControls();
@@ -838,22 +775,88 @@ A: 完全沒問題。AI 工具帶來的紅利在於「認知與技能」的結�
       }
     });
     
-    async function generateStepEnding() {
-    const title = document.getElementById('finalArticleTitle').value.trim();
-    const email = localStorage.getItem('bvlog_user_email');
-    const endingInput = document.getElementById('finalArticleEnding');
-    endingInput.value = "撰寫中...";
-    try {
-      const cat = document.getElementById('articleCategorySelect').value;
-      const res = await api({ action: "generateArticleStep", step: 4, title: title, email: email, category: cat });
-      if (res.ending === "（無輸出）") {
-         endingInput.value = "[系統提示] 生成被安全機制阻擋，或產出為空。已取消自動儲存。
-請調整提示詞後重試。";
-         showToast("生成失敗，未儲存");
-      } else { endingInput.value = res.ending || ""; saveCurrentStepData('ending'); }
-    } catch (e) { endingInput.value = ""; alert(e.message); }
-  }
-  
+    let authState = "email";
+    window.handleAuthAction = function(logId) {
+      const btn = document.getElementById("btnAuthAction");
+      const msg = document.getElementById("authMsg");
+      const email = document.getElementById("authEmail").value.trim();
+      const GAS_API_URL = "https://script.google.com/macros/s/AKfycbyeqKhWv3TY8bpSdB9ZfWXNkR9yap66PyGxzEJqxpawWn9hZ9chfIuBPJfZHHoP91newQ/exec";
+      
+      if (authState === "email") {
+        if(!email || !email.includes("@")) { msg.innerText = "請輸入正確的 Email 格式"; msg.style.color = "#ef4444"; return; }
+        
+        btn.disabled = true; btn.innerText = "發送中..."; msg.innerText = "";
+        
+        fetch(GAS_API_URL, {
+          method: "POST", headers: { "Content-Type": "text/plain;charset=utf-8" },
+          body: JSON.stringify({ action: "sendOtp", email: email, type: "login" })
+        }).then(r => r.json()).then(res => {
+          if(res.status === "success") {
+            authState = "otp";
+            document.getElementById("otpInputArea").style.display = "flex";
+            document.getElementById("authEmail").disabled = true;
+            btn.innerText = "驗證並解鎖文章";
+            msg.innerText = "驗證碼已發送，請於5分鐘內輸入。"; msg.style.color = "#10b981";
+          } else { msg.innerText = res.message || "發送失敗"; msg.style.color = "#ef4444"; btn.innerText = "發送驗證碼"; }
+        }).catch(e => { msg.innerText = e.message; msg.style.color = "#ef4444"; btn.innerText = "發送驗證碼"; })
+        .finally(() => { btn.disabled = false; });
+        
+      } else if (authState === "otp") {
+        const otp = document.getElementById("authOtp").value.trim();
+        if(!otp) { msg.innerText = "請輸入驗證碼"; msg.style.color = "#ef4444"; return; }
+        
+        btn.disabled = true; btn.innerText = "驗證中..."; msg.innerText = "";
+        
+        fetch(GAS_API_URL, {
+          method: "POST", headers: { "Content-Type": "text/plain;charset=utf-8" },
+          body: JSON.stringify({ action: "verifyArticleAccess", email: email, otp: otp, logId: logId })
+        }).then(r => r.json()).then(res => {
+          if(res.status === "success") {
+             document.getElementById("lockedContentArea").style.display = "none";
+             document.getElementById("unlockedContentArea").style.display = "block";
+             
+             let rawMd = res.data.articleFull.replace(/^#\s+.+\n/, "");
+             document.getElementById("content").innerHTML = marked.parse(rawMd);
+             
+             if (res.data.urls && res.data.urls.length > 0) {
+               const vHtml = `
+    <div style="margin-top: 48px; border-top: 1px solid #e2e8f0; padding-top: 32px;">
+      <h3 style="font-size: 18px; font-weight: 800; margin-bottom: 16px;">專屬影音紀錄</h3>
+      <div style="background: #000; border-radius: 8px; overflow: hidden; margin-bottom: 16px; border: 1px solid #e2e8f0; box-shadow: 0 4px 12px rgba(0,0,0,0.05);">
+        
+        <div id="seamlessVideoContainer" style="position: relative; width: 100%; aspect-ratio: 16/9; background: #000; overflow: hidden;">
+          <video id="videoPlayerA" playsinline style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 2; opacity: 1; transition: opacity 0.2s; background: #000; object-fit: contain;"></video>
+          <video id="videoPlayerB" playsinline style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 1; opacity: 0; transition: opacity 0.2s; background: #000; object-fit: contain;"></video>
+        </div>
+        
+        <div style="display:flex; flex-wrap:wrap; justify-content: space-between; align-items: center; padding: 12px 16px; background: #0f172a; gap: 12px;">
+          <div style="display:flex; align-items:center; gap:8px;">
+            <button id="btnPrevChunk" disabled style="background: #1e293b; color: #f8fafc; border: 1px solid #334155; padding: 6px 12px; border-radius: 4px; font-weight: 700; font-size: 13px; transition: 0.2s; outline: none; cursor: pointer;">上一段</button>
+            <select id="chunkSelector" style="background: #1e293b; color: #f8fafc; border: 1px solid #334155; padding: 6px 8px; border-radius: 4px; font-size: 13px; outline: none; cursor: pointer; max-width: 100px;">
+              <option value="">載入中...</option>
+            </select>
+            <button id="btnNextChunk" disabled style="background: #1e293b; color: #f8fafc; border: 1px solid #334155; padding: 6px 12px; border-radius: 4px; font-weight: 700; font-size: 13px; transition: 0.2s; outline: none; cursor: pointer;">下一段</button>
+          </div>
+          <div style="display:flex; align-items:center; gap:12px;">
+            <span id="videoStatus" style="color: #94a3b8; font-size: 13px;">準備就緒</span>
+            <button id="btnStartStream" style="background: #3175B5; color: #fff; border: none; padding: 6px 16px; border-radius: 4px; font-weight: 700; cursor: pointer; font-size: 13px; transition: background 0.2s;">啟動播放</button>
+          </div>
+        </div>
+      </div>
+    </div>`;
+               document.getElementById("dynamicVideoPlayerArea").innerHTML = vHtml;
+               bindVideoLogic(res.data.urls);
+             }
+          } else {
+            msg.innerText = res.message || "驗證失敗"; msg.style.color = "#ef4444";
+            btn.innerText = "驗證並解鎖文章"; btn.disabled = false;
+          }
+        }).catch(e => {
+          msg.innerText = e.message; msg.style.color = "#ef4444";
+          btn.innerText = "驗證並解鎖文章"; btn.disabled = false;
+        });
+      }
+    };
   </script>
 </body>
 </html>
