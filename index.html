@@ -1858,10 +1858,10 @@
       } else {
         let videoConstraints = {
           facingMode: mobileFacingMode,
-          width: { ideal: 640 },
-          height: { ideal: 360 },
+          width: { ideal: 1280 },  // 🌟 調整為 720p HD 寬度
+          height: { ideal: 720 },  // 🌟 調整為 720p HD 高度
           frameRate: { ideal: cameraFps },
-          backgroundBlur: false // 新增這行：明確向瀏覽器要求關閉背景模糊
+          backgroundBlur: false 
         };
 
         currentStream = await navigator.mediaDevices.getUserMedia({ video: videoConstraints, audio: audioConstraints });
@@ -1918,10 +1918,10 @@
       } else {
         let videoConstraints = {
           facingMode: mobileFacingMode,
-          width: { ideal: 640 },
-          height: { ideal: 360 },
+          width: { ideal: 1280 },  // 🌟 調整為 720p HD 寬度
+          height: { ideal: 720 },  // 🌟 調整為 720p HD 高度
           frameRate: { ideal: cameraFps },
-          backgroundBlur: false // 新增這行：確保切換鏡頭時也不會模糊
+          backgroundBlur: false 
         };
         newStream = await navigator.mediaDevices.getUserMedia({ video: videoConstraints });
       }
@@ -2044,7 +2044,7 @@
 
     const recorderOptions = {
       mimeType: mime,
-      videoBitsPerSecond: 350000
+      videoBitsPerSecond: 1200000 
     };
 
     try {
