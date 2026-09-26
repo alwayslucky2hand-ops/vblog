@@ -820,70 +820,22 @@
       }
     });
     
-    let authState = "email";
-    window.handleAuthAction = function(logId) {
-      const btn = document.getElementById("btnAuthAction");
-      const msg = document.getElementById("authMsg");
-      const email = document.getElementById("authEmail").value.trim();
-      const GAS_API_URL = "https://script.google.com/macros/s/AKfycbzNVJjdnOKJMy9v3A6TURw8p6U7OdUy4fnUZHIcU3dL1t6DSNWBi1oB79wrEWN2XHQiUQ/exec";
-      
-      if (authState === "email") {
-        if(!email || !email.includes("@")) { msg.innerText = "請輸入正確的 Email 格式"; msg.style.color = "#ef4444"; return; }
-        
-        btn.disabled = true; btn.innerText = "發送中..."; msg.innerText = "";
-        
-        fetch(GAS_API_URL, {
-          method: "POST", headers: { "Content-Type": "text/plain;charset=utf-8" },
-          body: JSON.stringify({ action: "sendOtp", email: email, type: "login" })
-        }).then(r => r.json()).then(res => {
-          if(res.status === "success") {
-            authState = "otp";
-            document.getElementById("otpInputArea").style.display = "flex";
-            document.getElementById("authEmail").disabled = true;
-            btn.innerText = "驗證並解鎖文章";
-            msg.innerText = "驗證碼已發送，請於5分鐘內輸入。"; msg.style.color = "#10b981";
-          } else { msg.innerText = res.message || "發送失敗"; msg.style.color = "#ef4444"; btn.innerText = "發送驗證碼"; }
-        }).catch(e => { msg.innerText = e.message; msg.style.color = "#ef4444"; btn.innerText = "發送驗證碼"; })
-        .finally(() => { btn.disabled = false; });
-        
-      } else if (authState === "otp") {
-        const otp = document.getElementById("authOtp").value.trim();
-        if(!otp) { msg.innerText = "請輸入驗證碼"; msg.style.color = "#ef4444"; return; }
-        
-        btn.disabled = true; btn.innerText = "驗證中..."; msg.innerText = "";
-        
-        fetch(GAS_API_URL, {
-          method: "POST", headers: { "Content-Type": "text/plain;charset=utf-8" },
-          body: JSON.stringify({ action: "verifyArticleAccess", email: email, otp: otp, logId: logId })
-        }).then(r => r.json()).then(res => {
-          if(res.status === "success") {
-             document.getElementById("lockedContentArea").style.display = "none";
-             document.getElementById("unlockedContentArea").style.display = "block";
-             
-             let rawMd = res.data.articleFull.replace(/^#\s+.+\n/, "");
-             document.getElementById("content").innerHTML = marked.parse(rawMd);
-             
-             if (res.data.urls && res.data.urls.length > 0) {
-               const vHtml = `
-        <div style="margin-top: 48px; border-top: 1px solid #e2e8f0; padding-top: 32px;">
-          <h3 style="font-size: 18px; font-weight: 800; margin-bottom: 16px;">YouTube 影音紀錄</h3>
-          <div style="background: #000; border-radius: 8px; overflow: hidden; margin-bottom: 16px; border: 1px solid #e2e8f0; box-shadow: 0 4px 12px rgba(0,0,0,0.05);">
-            <iframe src="https://www.youtube.com/embed/GHaQt73otB8" frameborder="0" allowfullscreen style="width: 100%; aspect-ratio: 16/9; display: block;"></iframe>
-          </div>
-        </div>`;
-               document.getElementById("dynamicVideoPlayerArea").innerHTML = vHtml;
-               
-             }
-          } else {
-            msg.innerText = res.message || "驗證失敗"; msg.style.color = "#ef4444";
-            btn.innerText = "驗證並解鎖文章"; btn.disabled = false;
-          }
-        }).catch(e => {
-          msg.innerText = e.message; msg.style.color = "#ef4444";
-          btn.innerText = "驗證並解鎖文章"; btn.disabled = false;
-        });
-      }
-    };
+    async function generateStepEnding() {
+    const title = document.getElementById('finalArticleTitle').value.trim();
+    const email = localStorage.getItem('bvlog_user_email');
+    const endingInput = document.getElementById('finalArticleEnding');
+    endingInput.value = "撰寫中...";
+    try {
+      const cat = document.getElementById('articleCategorySelect').value;
+      const res = await api({ action: "generateArticleStep", step: 4, title: title, email: email, category: cat });
+      if (res.ending === "（無輸出）") {
+         endingInput.value = "[系統提示] 生成被安全機制阻擋，或產出為空。已取消自動儲存。
+請調整提示詞後重試。";
+         showToast("生成失敗，未儲存");
+      } else { endingInput.value = res.ending || ""; saveCurrentStepData('ending'); }
+    } catch (e) { endingInput.value = ""; alert(e.message); }
+  }
+  
   </script>
 </body>
 </html>
