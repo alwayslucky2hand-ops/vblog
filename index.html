@@ -1351,16 +1351,22 @@
         const cleanup = () => {
           if (isCleanedUp) return;
           isCleanedUp = true;
-          if (window[callbackName]) delete window[callbackName];
-          if (script && script.parentNode) {
-            script.parentNode.removeChild(script);
+          
+          window[callbackName] = function() {}; 
+          
+          try {
+            if (script && script.parentNode) {
+              script.parentNode.removeChild(script);
+            }
+          } catch (e) {
+            console.warn("Script node already removed", e);
           }
         };
         
         
         const timeoutId = setTimeout(() => {
           cleanup();
-          reject(new Error("請求超時，影片解析或載入時間較長，請稍後重試。"));
+          reject(new Error("請求超時，檔案過大或網路連線較慢，請稍後重試。"));
         }, 45000); 
         
         window[callbackName] = function(response) {
