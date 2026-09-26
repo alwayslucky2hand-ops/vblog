@@ -888,104 +888,22 @@
       }
     });
     
-    let authState = "email";
-    window.handleAuthAction = function(logId) {
-      const btn = document.getElementById("btnAuthAction");
-      const msg = document.getElementById("authMsg");
-      const email = document.getElementById("authEmail").value.trim();
-      const GAS_API_URL = "https://script.google.com/macros/s/AKfycbzNVJjdnOKJMy9v3A6TURw8p6U7OdUy4fnUZHIcU3dL1t6DSNWBi1oB79wrEWN2XHQiUQ/exec";
-      
-      if (authState === "email") {
-        if(!email || !email.includes("@")) { msg.innerText = "請輸入正確的 Email 格式"; msg.style.color = "#ef4444"; return; }
-        
-        btn.disabled = true; btn.innerText = "發送中..."; msg.innerText = "";
-        
-        fetch(GAS_API_URL, {
-          method: "POST", headers: { "Content-Type": "text/plain;charset=utf-8" },
-          body: JSON.stringify({ action: "sendOtp", email: email, type: "login" })
-        }).then(r => r.json()).then(res => {
-          if(res.status === "success") {
-            authState = "otp";
-            document.getElementById("otpInputArea").style.display = "flex";
-            document.getElementById("authEmail").disabled = true;
-            btn.innerText = "驗證並解鎖文章";
-            msg.innerText = "驗證碼已發送，請於5分鐘內輸入。"; msg.style.color = "#10b981";
-          } else { msg.innerText = res.message || "發送失敗"; msg.style.color = "#ef4444"; btn.innerText = "發送驗證碼"; }
-        }).catch(e => { msg.innerText = e.message; msg.style.color = "#ef4444"; btn.innerText = "發送驗證碼"; })
-        .finally(() => { btn.disabled = false; });
-        
-      } else if (authState === "otp") {
-        const otp = document.getElementById("authOtp").value.trim();
-        if(!otp) { msg.innerText = "請輸入驗證碼"; msg.style.color = "#ef4444"; return; }
-        
-        btn.disabled = true; btn.innerText = "驗證中..."; msg.innerText = "";
-        
-        fetch(GAS_API_URL, {
-          method: "POST", headers: { "Content-Type": "text/plain;charset=utf-8" },
-          body: JSON.stringify({ action: "verifyArticleAccess", email: email, otp: otp, logId: logId })
-        }).then(r => r.json()).then(res => {
-          if(res.status === "success") {
-             document.getElementById("lockedContentArea").style.display = "none";
-             document.getElementById("unlockedContentArea").style.display = "block";
-             
-             let rawMd = res.data.articleFull.replace(/^#\s+.+\n/, "");
-             document.getElementById("content").innerHTML = marked.parse(rawMd);
-             
-             if (res.data.urls && res.data.urls.length > 0) {
-               const vHtml = `
-    <div style="margin-top: 48px; border-top: 1px solid #e2e8f0; padding-top: 32px;">
-      <h3 style="font-size: 18px; font-weight: 800; margin-bottom: 16px;">專屬影音紀錄</h3>
-      <div id="player-wrapper-ssg" style="position: relative; width: 100%; aspect-ratio: 16/9; background: #000; overflow: hidden; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.05);">
-        
-        <video id="videoPlayerA" playsinline style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 2; opacity: 1; transition: opacity 0.2s; background: #000; object-fit: contain;"></video>
-        <video id="videoPlayerB" playsinline style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 1; opacity: 0; transition: opacity 0.2s; background: #000; object-fit: contain;"></video>
-
-        <div id="center-start-ssg" style="position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; z-index: 10; background: rgba(0,0,0,0.5);">
-            <button id="btnStartStream" style="background: rgba(255,255,255,0.15); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); color: white; padding: 16px 32px; border-radius: 40px; display: flex; align-items: center; gap: 12px; font-weight: bold; font-size: 16px; border: 1px solid rgba(255,255,255,0.3); cursor: pointer; transition: all 0.2s;">
-                <svg width="24" height="24" viewBox="0 0 24 24" fill="white"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>
-                啟動聯播
-            </button>
-        </div>
-
-        <div id="bottom-controls-ssg" style="position: absolute; bottom: 0; left: 0; right: 0; padding: 20px 24px; background: linear-gradient(transparent, rgba(0,0,0,0.8)); z-index: 15; display: none; align-items: center; gap: 16px; color: white;">
-            
-            <button id="btnPlayPause" style="background:none; border:none; color:white; cursor:pointer; padding:0; display:flex;">
-                <svg id="iconPlay" style="display:none;" width="20" height="20" viewBox="0 0 24 24" fill="white"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>
-                <svg id="iconPause" width="20" height="20" viewBox="0 0 24 24" fill="white"><rect x="6" y="4" width="4" height="16"></rect><rect x="14" y="4" width="4" height="16"></rect></svg>
-            </button>
-            <span id="timeDisplay" style="font-size: 13px; font-variant-numeric: tabular-nums; opacity: 0.9;">00:00 / 00:00</span>
-            <span id="videoStatus" style="font-size: 13px; color: #94a3b8; margin-left: 8px;">準備就緒</span>
-
-            <div style="flex: 1;"></div>
-
-            <div style="display:flex; gap:8px; align-items:center;">
-                <button id="btnPrevChunk" disabled style="background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); color: white; padding: 4px 10px; border-radius: 4px; font-size: 12px; cursor: pointer; backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px);">上一段</button>
-                <select id="chunkSelector" style="background: rgba(0,0,0,0.6); border: 1px solid rgba(255,255,255,0.2); color: white; padding: 4px 8px; border-radius: 4px; font-size: 12px; outline: none; cursor: pointer; backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px);">
-                    <option value="">載入中...</option>
-                </select>
-                <button id="btnNextChunk" disabled style="background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); color: white; padding: 4px 10px; border-radius: 4px; font-size: 12px; cursor: pointer; backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px);">下一段</button>
-            </div>
-            
-            <button id="btnFullscreen" style="background:none; border:none; color:white; cursor:pointer; padding:0; display:flex; margin-left:8px;">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"></path></svg>
-            </button>
-        </div>
-
-      </div>
-    </div>`;
-               document.getElementById("dynamicVideoPlayerArea").innerHTML = vHtml;
-               bindVideoLogic(res.data.urls);
-             }
-          } else {
-            msg.innerText = res.message || "驗證失敗"; msg.style.color = "#ef4444";
-            btn.innerText = "驗證並解鎖文章"; btn.disabled = false;
-          }
-        }).catch(e => {
-          msg.innerText = e.message; msg.style.color = "#ef4444";
-          btn.innerText = "驗證並解鎖文章"; btn.disabled = false;
-        });
-      }
-    };
+    async function generateStepEnding() {
+    const title = document.getElementById('finalArticleTitle').value.trim();
+    const email = localStorage.getItem('bvlog_user_email');
+    const endingInput = document.getElementById('finalArticleEnding');
+    endingInput.value = "撰寫中...";
+    try {
+      const cat = document.getElementById('articleCategorySelect').value;
+      const res = await api({ action: "generateArticleStep", step: 4, title: title, email: email, category: cat });
+      if (res.ending === "（無輸出）") {
+         endingInput.value = "[系統提示] 生成被安全機制阻擋，或產出為空。已取消自動儲存。
+請調整提示詞後重試。";
+         showToast("生成失敗，未儲存");
+      } else { endingInput.value = res.ending || ""; saveCurrentStepData('ending'); }
+    } catch (e) { endingInput.value = ""; alert(e.message); }
+  }
+  
   </script>
 </body>
 </html>
