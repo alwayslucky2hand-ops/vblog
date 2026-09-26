@@ -614,7 +614,6 @@
     // 🚀 核心防護 2：建立「單線程佇列 (Queue)」，保證絕對不會塞爆 GAS 導致 CORS 報錯
     window.videoFetchQueue = Promise.resolve();
 
-    // 🌟 將上面這區塊替換為：
     function fetchVideoChunkBase64(url) {
       if (window.videoBlobCache[url]) return Promise.resolve(window.videoBlobCache[url]);
       
@@ -622,23 +621,58 @@
         window.videoFetchQueue = window.videoFetchQueue.then(async () => {
           if (window.videoBlobCache[url]) { resolve(window.videoBlobCache[url]); return; }
           try {
-            const response = await fetch(GAS_API_URL, {
-              method: "POST",
-              headers: { "Content-Type": "text/plain" },
-              body: JSON.stringify({ action: "getVideoChunk", url: url })
-            });
-            const res = await response.json();
-            if (res.status === 'success' && res.data) {
-               // 🌟 核心修復：讀取真實影片格式，解決單篇文章預覽時的黑畫面
-               const mime = res.data.mimeType || 'video/webm';
-               const blob = base64ToBlob(res.data.base64, mime);
-               const objectUrl = URL.createObjectURL(blob);
-               window.videoBlobCache[url] = objectUrl;
-               resolve(objectUrl);
-            } else {
-               resolve(null);
-            }
+            await new Promise(r => setTimeout(r, 500));
+            
+            const callbackName = 'jsonp_video_' + Math.round(100000 * Math.random());
+            const requestUrl = GAS_API_URL + "?action=getVideoChunk&url=" + encodeURIComponent(url) + "&callback=" + callbackName;
+            
+            return new Promise((innerResolve) => {
+               const script = document.createElement('script');
+               script.src = requestUrl;
+               
+               // 🌟 核心防護：建立單一清理口
+               let isCleanedUp = false;
+               const cleanup = () => {
+                 if (isCleanedUp) return;
+                 isCleanedUp = true;
+                 if (window[callbackName]) delete window[callbackName];
+                 if (script && script.parentNode) {
+                   script.parentNode.removeChild(script);
+                 }
+               };
+
+               // 🌟 加入 45 秒超時保護機制
+               const timeoutId = setTimeout(() => {
+                 cleanup();
+                 innerResolve(null); // 影片載入失敗，優雅降級回傳 null
+               }, 45000);
+               
+               window[callbackName] = function(res) {
+                 clearTimeout(timeoutId);
+                 cleanup(); // 安全清理
+                 
+                 if (res.status === 'success' && res.data) {
+                    const mime = res.data.mimeType || 'video/webm';
+                    const blob = base64ToBlob(res.data.base64, mime);
+                    const objectUrl = URL.createObjectURL(blob);
+                    window.videoBlobCache[url] = objectUrl;
+                    innerResolve(objectUrl);
+                 } else {
+                    innerResolve(null);
+                 }
+               };
+               
+               script.onerror = function() {
+                 clearTimeout(timeoutId);
+                 cleanup(); // 安全清理
+                 innerResolve(null);
+               };
+               
+               document.body.appendChild(script);
+            }).then(resolve);
+            
           } catch (e) {
+            console.error("影片載入失敗", e);
             resolve(null);
           }
         });
