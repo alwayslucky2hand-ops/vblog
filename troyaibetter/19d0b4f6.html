@@ -4,6 +4,11 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>從VibeCoding邁向Venture Coding：微型創業如何靠SOP與AI擺脫爆肝輪迴，找回伴侶與生活的留白時光｜特洛伊AI賦能師［創業日記］ | 特洛伊AI賦能師</title>
+
+  <!-- 🌟 新增：強制清除文章頁面快取 -->
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+  <meta http-equiv="Pragma" content="no-cache">
+  <meta http-equiv="Expires" content="0">
   
   <!-- 🌟 文章 SEO 核心標籤 -->
   <meta name="description" content="Hello 各位好！這是一篇關於微型創業者在跟 AI 協作的實戰經驗分享。 擺脫每天深夜的手工複製地獄，微型創業者該如何拿回時間主權？ 一人創業與微型創業之所以容易陷入「擺脫校長兼撞鐘」的惡性循環，核心原因在於缺乏可複製的 SOP 與自動化系統，導致老闆深陷決策疲勞並面臨家庭缺席。 透過 Venture Coding（創業式編程），創業者能將核心業務邏輯轉化為精準的需求規格書，引導 AI 建構專屬的創業AI實戰應用（如 Google Apps Script 與 Sheets 的整合）。這套自動化代理人機制，能將重複性行政時間縮減 75% 以上，營運成本從 60% 大幅卡死在 20% 以內，是一人公司在不盲目擴編的前提下，實現業務規模化並找回 work-life balance 的終極解法。 如果你現在正在經營一人公司、微型創業，或是帶領著五人以下的小團隊，那這篇文章或接下來的 Podcast 內容，簡直就是為你量身打造的。 我今天最想跟大家掏心掏肺分享的，就是我為什麼決定徹底擺脫那種虛無飄渺的 Vibe Coding，一路邁向實打實的 Venture Coding。同時，我也要告訴你，微型創業者到底要怎麼透過這套邏輯，真正拿回屬於你自己的 work-life balance。">
@@ -463,7 +468,7 @@ Hello 各位好！這是一篇關於微型創業者在跟 AI 協作的實戰經�
         <img src="https://drive.google.com/thumbnail?id=1KuDoAil9NwRE3nMGgMeD6hby1TtR5lqA&sz=w1280" style="width: 100px; height: 100px; border-radius: 50%; object-fit: cover; border: 2px solid #e2e8f0;">
         <div style="flex: 1; min-width: 200px; text-align: left;">
           <h1 style="font-size: 28px; font-weight: 800; margin-bottom: 12px; color: #0f172a;">特洛伊AI賦能師</h1>
-          <p style="font-size: 15px; color: #64748b; margin-bottom: 16px; line-height: 1.6;">交大電機畢業，刻骨過5次跨界微型創業、銘心過5家飲料店從出生到長大，堅持過6年的家族搬家貨運與轉型循環經濟，我很懂「校長兼撞鐘」的身不由己。我 Vibe Coding 已經超過1萬小時，也帶領10組以上學員做出客製化系統。我正在將知識和經驗系統化、模組化，化為祝福分享在網路上。追蹤我，讓ＡＩ為你效勞、讓創業不再過勞，讓創業也能兼顧伴侶和家庭生活。</p>
+          <p style="font-size: 15px; color: #64748b; margin-bottom: 16px; line-height: 1.6;">交大電機畢業，刻骨過5次跨界微型創業、銘心過5家飲料店從出生到長大，堅持過6年的家族搬家貨運與轉型循環經濟，我很懂「校長兼撞鐘」的身不由己。我 Vibe Coding 已經超過1萬小時，也帶領10組以上學員做出客製化系統。我正在將知識和經驗系統化、模組化，化為祝福分享在網路上。追蹤我，讓ＡＩ為你效勞、讓創業不再過勞，讓創業也能兼顧伴侶和家庭生活。歡迎邀約演講、論壇、講座。</p>
           
           <!-- 🌟 關鍵修改：在這裡補上 introHtml，讓詳細介紹與展開按鈕顯示出來 -->
           
@@ -733,22 +738,24 @@ Hello 各位好！這是一篇關於微型創業者在跟 AI 協作的實戰經�
     // 🚀 核心防護 2：建立「單線程佇列 (Queue)」，保證絕對不會塞爆 GAS 導致 CORS 報錯
     window.videoFetchQueue = Promise.resolve();
 
+    // 🌟 將上面這區塊替換為：
     function fetchVideoChunkBase64(url) {
       if (window.videoBlobCache[url]) return Promise.resolve(window.videoBlobCache[url]);
       
-      // 將每個影片請求強制排隊，實現完美的背景默默預載
       return new Promise((resolve) => {
         window.videoFetchQueue = window.videoFetchQueue.then(async () => {
           if (window.videoBlobCache[url]) { resolve(window.videoBlobCache[url]); return; }
           try {
             const response = await fetch(GAS_API_URL, {
               method: "POST",
-              headers: { "Content-Type": "text/plain;charset=utf-8" },
+              headers: { "Content-Type": "text/plain" },
               body: JSON.stringify({ action: "getVideoChunk", url: url })
             });
             const res = await response.json();
             if (res.status === 'success' && res.data) {
-               const blob = base64ToBlob(res.data.base64, res.data.mimeType);
+               // 🌟 核心修復：讀取真實影片格式，解決單篇文章預覽時的黑畫面
+               const mime = res.data.mimeType || 'video/webm';
+               const blob = base64ToBlob(res.data.base64, mime);
                const objectUrl = URL.createObjectURL(blob);
                window.videoBlobCache[url] = objectUrl;
                resolve(objectUrl);
