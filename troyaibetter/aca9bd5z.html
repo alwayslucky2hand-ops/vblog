@@ -751,17 +751,18 @@ MEDVi 淨利率比正規醫療平台高出 11%，代價是全盤砍掉了法務�
       const vidA = document.getElementById('videoPlayerA');
       const vidB = document.getElementById('videoPlayerB');
       
-      // 🎯 核心防閃爍設定：強制拔除所有 CSS 漸變與背景，由 JS 完全精準控制
+      // 🎯 核心防閃爍設定：固定圖層順序，絕對不交換！
       vidA.style.transition = 'none';
       vidB.style.transition = 'none';
-      vidA.style.backgroundColor = 'transparent';
-      vidB.style.backgroundColor = 'transparent';
+      vidA.style.zIndex = '1';
+      vidB.style.zIndex = '2';
+      vidA.style.opacity = '1';
+      vidB.style.opacity = '0'; // 初始狀態：A 顯示，B 隱藏在上方
       
-      // 核心索引管理
       let currentIndex = 0;      
       let actualPlayingIndex = 0; 
       
-      let activeVid = vidA;
+      let activeVid = vidA; // 第一部一定是從 A 開始
       let nextVid = vidB;
       let streamUrls = urls;
       let isTransitioning = false;
@@ -770,7 +771,6 @@ MEDVi 淨利率比正規醫療平台高出 11%，代價是全盤砍掉了法務�
       
       let internalSwapping = false;
       
-      // 狀態變數
       let idleTimer;
       let isUIAwake = true;
       let currentVolume = 1;
@@ -787,7 +787,7 @@ MEDVi 淨利率比正規醫療平台高出 11%，代價是全盤砍掉了法務�
         chunkDots.appendChild(dot);
       });
 
-      // 2. 核心：單純基於使用者行為的 UI 喚醒與睡眠引擎
+      // 2. UI 喚醒與睡眠引擎
       function wakeUpUI() {
         if (!hasStarted) return;
         isUIAwake = true;
@@ -815,7 +815,7 @@ MEDVi 淨利率比正規醫療平台高出 11%，代價是全盤砍掉了法務�
         sleepUI();
       });
 
-      // 3. UI 狀態更新 (按鈕、點點、音量)
+      // 3. UI 狀態更新
       function updateButtonStates() {
         btnPrev.style.opacity = currentIndex === 0 ? '0.2' : '1';
         btnPrev.style.pointerEvents = currentIndex === 0 ? 'none' : 'auto';
@@ -892,8 +892,8 @@ MEDVi 淨利率比正規醫療平台高出 11%，代價是全盤砍掉了法務�
         progressBar.style.width = percent + '%';
         timeDisplay.innerText = formatTime(v.currentTime);
 
-        // 提早 0.15 秒啟動下一段，完美重疊時間
-        if (v.duration > 0 && v.duration - v.currentTime <= 0.15 && !isTransitioning) {
+        // 提早 0.2 秒啟動下一段
+        if (v.duration > 0 && v.duration - v.currentTime <= 0.2 && !isTransitioning) {
           isTransitioning = true;
           if (currentIndex < urls.length - 1) {
             playVideoChunk(currentIndex + 1);
@@ -919,14 +919,14 @@ MEDVi 淨利率比正規醫療平台高出 11%，代價是全盤砍掉了法務�
       vidA.addEventListener('ended', onVideoEnded);
       vidB.addEventListener('ended', onVideoEnded);
 
-      // 5. 🎯 核心：GPU 幀同步切換引擎
+      // 5. 🎯 核心：GPU 零閃爍固定圖層切換引擎
       async function playVideoChunk(targetIndex) {
         if (targetIndex !== undefined) currentIndex = targetIndex;
         updateButtonStates();
         
         const targetUrl = streamUrls[currentIndex];
         
-        if (nextVid.dataset.chunkIndex != currentIndex) {
+        if (nextVid.dataset.chunkIndex != currentIndex && !isFirstPlay) {
             loading.style.display = 'block';
         }
         
@@ -936,9 +936,13 @@ MEDVi 淨利率比正規醫療平台高出 11%，代價是全盤砍掉了法務�
         
         internalSwapping = true; 
         
-        let oldVid = activeVid;
-        activeVid = nextVid; 
-        nextVid = oldVid;    
+        let oldVid = null;
+        // 如果不是第一次播放，我們才做 A/B 角色互換
+        if (!isFirstPlay) {
+            oldVid = activeVid;
+            activeVid = nextVid; 
+            nextVid = oldVid;    
+        }
         
         if (activeVid.src !== streamUrl) {
           activeVid.src = streamUrl;
@@ -946,18 +950,6 @@ MEDVi 淨利率比正規醫療平台高出 11%，代價是全盤砍掉了法務�
         }
         
         activeVid.volume = isMuted ? 0 : currentVolume;
-
-        // 預備狀態：如果不是第一次播放，新影片乖乖待在底層並隱藏
-        if (isFirstPlay) {
-            oldVid.style.opacity = '0';
-            activeVid.style.zIndex = '3';
-            activeVid.style.opacity = '1';
-        } else {
-            activeVid.style.zIndex = '1';
-            activeVid.style.opacity = '0'; 
-            oldVid.style.zIndex = '2';
-            oldVid.style.opacity = '1';
-        }
         
         const playVideo = () => {
           activeVid.currentTime = 0;
@@ -971,33 +963,28 @@ MEDVi 淨利率比正規醫療平台高出 11%，代價是全盤砍掉了法務�
               syncDotsToActualPlaying();
               
               const checkFrame = () => {
-                 // 確認畫面真的開始動了
+                 // 確保新畫面已經真正運算出來
                  if (activeVid.currentTime > 0.05) {
                     
                     if (isFirstPlay) {
                         isFirstPlay = false;
-                        setTimeout(() => { internalSwapping = false; }, 50);
-                        if (isUIAwake) wakeUpUI(); else sleepUI();
                     } else {
-                        // 🎯 絕讚的三段式無感交接魔法
-                        // 步驟一：讓新影片在底層顯影，迫使 GPU 渲染該圖層
-                        activeVid.style.opacity = '1';
+                        // 🎯 絕讚的不閃爍魔法：完全不碰 z-index！
+                        if (activeVid === vidB) {
+                            vidB.style.opacity = '1'; // B 不透明，蓋住 A
+                        } else {
+                            vidB.style.opacity = '0'; // B 變透明，露出底下的 A
+                        }
                         
-                        // 步驟二：等下一個畫面幀，瞬間把新影片提拔到最上層
-                        requestAnimationFrame(() => {
-                            activeVid.style.zIndex = '3';
-                            oldVid.style.zIndex = '1';
-                            
-                            // 步驟三：再等一個畫面幀，確保新畫面已經蓋穩，才隱藏並關掉舊影片
-                            requestAnimationFrame(() => {
-                                oldVid.style.opacity = '0';
-                                oldVid.pause();
-                                
-                                setTimeout(() => { internalSwapping = false; }, 50);
-                                if (isUIAwake) wakeUpUI(); else sleepUI();
-                            });
-                        });
+                        // 確保無縫音訊：舊影片直接靜音並暫停
+                        if (oldVid) {
+                            oldVid.volume = 0;
+                            oldVid.pause();
+                        }
                     }
+                    
+                    setTimeout(() => { internalSwapping = false; }, 50);
+                    if (isUIAwake) wakeUpUI(); else sleepUI();
                     
                  } else {
                     requestAnimationFrame(checkFrame);
@@ -1055,6 +1042,7 @@ MEDVi 淨利率比正規醫療平台高出 11%，代價是全盤砍掉了法務�
         vidA.volume = currentVolume;
         vidB.volume = currentVolume;
         
+        // 喚醒 iOS 權限
         vidA.play().catch(()=>{}); vidA.pause();
         vidB.play().catch(()=>{}); vidB.pause();
         
@@ -1115,6 +1103,7 @@ MEDVi 淨利率比正規醫療平台高出 11%，代價是全盤砍掉了法務�
       updateButtonStates();
       syncDotsToActualPlaying();
       
+      // 全局預載
       async function startGlobalPreload() {
         for (let i = 0; i < streamUrls.length; i++) {
           const url = streamUrls[i];
@@ -1122,7 +1111,7 @@ MEDVi 淨利率比正規醫療平台高出 11%，代價是全盤砍掉了法務�
             try {
               await window.fetchVideoChunkBase64(url);
             } catch (e) {
-              console.warn("片段 " + i + " 背景預載暫時失敗，稍後會由主程式接手重試");
+              console.warn("片段 " + i + " 背景預載暫時失敗");
             }
           }
         }
