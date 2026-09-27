@@ -759,17 +759,18 @@ Venture：代表著極具實戰感、解決真實商業問題的創業精神。
       const vidA = document.getElementById('videoPlayerA');
       const vidB = document.getElementById('videoPlayerB');
       
+      // 🎯 核心防閃爍設定：固定圖層順序，絕對不交換！
       vidA.style.transition = 'none';
       vidB.style.transition = 'none';
       vidA.style.zIndex = '1';
       vidB.style.zIndex = '2';
       vidA.style.opacity = '1';
-      vidB.style.opacity = '0'; 
+      vidB.style.opacity = '0'; // 初始狀態：A 顯示，B 隱藏在上方
       
       let currentIndex = 0;      
       let actualPlayingIndex = 0; 
       
-      let activeVid = vidA; 
+      let activeVid = vidA; // 第一部一定是從 A 開始
       let nextVid = vidB;
       let streamUrls = urls;
       let isTransitioning = false;
@@ -804,7 +805,7 @@ Venture：代表著極具實戰感、解決真實商業問題的創業精神。
         
         clearTimeout(idleTimer);
         if (!activeVid.paused) {
-          idleTimer = setTimeout(sleepUI, 2500); 
+          idleTimer = setTimeout(sleepUI, 2000); 
         }
       }
 
@@ -899,7 +900,8 @@ Venture：代表著極具實戰感、解決真實商業問題的創業精神。
         progressBar.style.width = percent + '%';
         timeDisplay.innerText = formatTime(v.currentTime);
 
-        if (v.duration > 0 && v.duration - v.currentTime <= 0.15 && !isTransitioning) {
+        // 提早 0.2 秒啟動下一段
+        if (v.duration > 0 && v.duration - v.currentTime <= 0.2 && !isTransitioning) {
           isTransitioning = true;
           if (currentIndex < urls.length - 1) {
             playVideoChunk(currentIndex + 1);
@@ -943,6 +945,7 @@ Venture：代表著極具實戰感、解決真實商業問題的創業精神。
         internalSwapping = true; 
         
         let oldVid = null;
+        // 如果不是第一次播放，我們才做 A/B 角色互換
         if (!isFirstPlay) {
             oldVid = activeVid;
             activeVid = nextVid; 
@@ -955,17 +958,6 @@ Venture：代表著極具實戰感、解決真實商業問題的創業精神。
         }
         
         activeVid.volume = isMuted ? 0 : currentVolume;
-
-        if (isFirstPlay) {
-            oldVid.style.opacity = '0';
-            activeVid.style.zIndex = '3';
-            activeVid.style.opacity = '1';
-        } else {
-            activeVid.style.zIndex = '1';
-            activeVid.style.opacity = '0'; 
-            oldVid.style.zIndex = '2';
-            oldVid.style.opacity = '1';
-        }
         
         const playVideo = () => {
           activeVid.currentTime = 0;
@@ -979,17 +971,20 @@ Venture：代表著極具實戰感、解決真實商業問題的創業精神。
               syncDotsToActualPlaying();
               
               const checkFrame = () => {
+                 // 確保新畫面已經真正運算出來
                  if (activeVid.currentTime > 0.05) {
                     
                     if (isFirstPlay) {
                         isFirstPlay = false;
                     } else {
+                        // 🎯 絕讚的不閃爍魔法：完全不碰 z-index！
                         if (activeVid === vidB) {
-                            vidB.style.opacity = '1'; 
+                            vidB.style.opacity = '1'; // B 不透明，蓋住 A
                         } else {
-                            vidB.style.opacity = '0'; 
+                            vidB.style.opacity = '0'; // B 變透明，露出底下的 A
                         }
                         
+                        // 確保無縫音訊：舊影片直接靜音並暫停
                         if (oldVid) {
                             oldVid.volume = 0;
                             oldVid.pause();
@@ -1055,6 +1050,7 @@ Venture：代表著極具實戰感、解決真實商業問題的創業精神。
         vidA.volume = currentVolume;
         vidB.volume = currentVolume;
         
+        // 喚醒 iOS 權限
         vidA.play().catch(()=>{}); vidA.pause();
         vidB.play().catch(()=>{}); vidB.pause();
         
@@ -1088,41 +1084,23 @@ Venture：代表著極具實戰感、解決真實商業問題的創業精神。
         }
       });
 
-      // 7. 🌟 全螢幕與偽全螢幕智能切換引擎
       btnFullscreen.addEventListener('click', function() {
-        const isPseudo = container.classList.contains('pseudo-fullscreen');
-        const isNative = document.fullscreenElement || document.webkitFullscreenElement || document.msFullscreenElement;
-
-        // 若已在任一全螢幕狀態，執行退出
-        if (isPseudo) {
-            container.classList.remove('pseudo-fullscreen');
-            return;
-        }
-        if (isNative) {
-            if (document.exitFullscreen) document.exitFullscreen();
-            else if (document.webkitExitFullscreen) document.webkitExitFullscreen();
-            else if (document.msExitFullscreen) document.msExitFullscreen();
-            return;
-        }
-
-        // 嘗試進入原生全螢幕
-        if (container.requestFullscreen) {
-            container.requestFullscreen().catch(() => {
-                // 如果瀏覽器阻擋，降級為偽全螢幕
-                container.classList.add('pseudo-fullscreen');
-            });
-        } else if (container.webkitRequestFullscreen) {
-            // Android 與舊版 Safari
+        if (!document.fullscreenElement) {
+          if (container.requestFullscreen) {
+            container.requestFullscreen();
+          } else if (container.webkitRequestFullscreen) {
             container.webkitRequestFullscreen();
-            // iOS Safari 通常對 div 沒反應，用超時檢查來強制啟動偽全螢幕
-            setTimeout(() => {
-                if (!document.webkitFullscreenElement) {
-                    container.classList.add('pseudo-fullscreen');
-                }
-            }, 300);
+          } else if (container.msRequestFullscreen) {
+            container.msRequestFullscreen();
+          }
         } else {
-            // 完全不支援原生全螢幕 (iPhone Safari 首選)
-            container.classList.add('pseudo-fullscreen');
+          if (document.exitFullscreen) {
+            document.exitFullscreen();
+          } else if (document.webkitExitFullscreen) {
+            document.webkitExitFullscreen();
+          } else if (document.msExitFullscreen) {
+            document.msExitFullscreen();
+          }
         }
       });
 
@@ -1251,21 +1229,26 @@ Venture：代表著極具實戰感、解決真實商業問題的創業精神。
     <div style="margin-top: 48px; border-top: 1px solid #e2e8f0; padding-top: 32px;">
       <h3 style="font-size: 18px; font-weight: 800; margin-bottom: 16px;">專屬影音紀錄</h3>
       
+      <!-- 將外層容器作為全螢幕的基準 -->
       <div id="seamlessVideoContainer" class="custom-player-container" style="position: relative; width: 100%; aspect-ratio: 16/9; background: #000; overflow: hidden; border-radius: 8px; border: 1px solid #e2e8f0; box-shadow: 0 4px 12px rgba(0,0,0,0.05);">
         
         <video id="videoPlayerA" playsinline style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 2; opacity: 1; transition: opacity 0.2s; background: #000; object-fit: contain; pointer-events: none;"></video>
         <video id="videoPlayerB" playsinline style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 1; opacity: 0; transition: opacity 0.2s; background: #000; object-fit: contain; pointer-events: none;"></video>
         
+        <!-- 初始中央大播放鍵 -->
         <div id="bigPlayBtn" style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); z-index: 10; cursor: pointer; width: 72px; height: 72px; background: rgba(0,0,0,0.5); border-radius: 50%; display: flex; align-items: center; justify-content: center; backdrop-filter: blur(4px); transition: 0.3s; border: 1px solid rgba(255,255,255,0.2);">
            <svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 24 24" fill="white" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="margin-left: 4px;"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>
         </div>
 
+        <!-- 緩衝載入動畫 -->
         <div id="videoLoading" style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); z-index: 9; display: none;">
             <svg width="40" height="40" viewBox="0 0 38 38" xmlns="http://www.w3.org/2000/svg" stroke="rgba(255,255,255,0.8)"><g fill="none" fill-rule="evenodd"><g transform="translate(1 1)" stroke-width="3"><circle stroke-opacity=".3" cx="18" cy="18" r="18"/><path d="M36 18c0-9.94-8.06-18-18-18"><animateTransform attributeName="transform" type="rotate" from="0 18 18" to="360 18 18" dur="1s" repeatCount="indefinite"/></path></g></g></svg>
         </div>
 
+        <!-- 底部極簡控制列 -->
         <div id="playerControls" class="player-controls" style="position: absolute; bottom: 0; left: 0; width: 100%; z-index: 11; padding: 40px 20px 16px 20px; background: linear-gradient(transparent, rgba(0,0,0,0.7)); display: flex; flex-direction: column; gap: 12px; transition: opacity 0.3s; opacity: 0; pointer-events: none;">
             
+            <!-- 隱形進度條區 (滑鼠好點擊) -->
             <div id="progressHitbox" style="width: 100%; height: 16px; cursor: pointer; position: relative; display: flex; align-items: center;">
                <div style="width: 100%; height: 4px; background: rgba(255,255,255,0.3); border-radius: 2px; position: relative;">
                  <div id="progressBar" style="width: 0%; height: 100%; background: #3b82f6; border-radius: 2px; transition: width 0.1s linear; position: relative;">
@@ -1274,22 +1257,28 @@ Venture：代表著極具實戰感、解決真實商業問題的創業精神。
                </div>
             </div>
 
-            <div class="custom-player-controls-row">
-                <div class="custom-player-left">
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+                <div style="display: flex; align-items: center; gap: 24px;">
+                    <!-- 上一段 -->
                     <svg id="btnPrevIcon" style="opacity:0.4;" xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="19 20 9 12 19 4 19 20"></polygon><line x1="5" y1="19" x2="5" y2="5"></line></svg>
+                    <!-- 播放/暫停 -->
                     <svg id="btnPlayPauseIcon" xmlns="http://www.w3.org/2000/svg" width="26" height="26" viewBox="0 0 24 24" fill="white" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>
+                    <!-- 下一段 -->
                     <svg id="btnNextIcon" style="opacity:0.4;" xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="5 4 15 12 5 20 5 4"></polygon><line x1="19" y1="5" x2="19" y2="19"></line></svg>
                     
                     <span id="timeDisplay" style="color:white; font-size: 13px; font-variant-numeric: tabular-nums; opacity: 0.8; margin-left: -8px;">0:00</span>
                     
+                    <!-- 🌟 新增：音量控制區塊 -->
                     <div class="volume-container" style="display: flex; align-items: center; gap: 10px; margin-left: 8px;">
                         <svg id="btnVolumeIcon" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="white" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon><path d="M15.54 8.46a5 5 0 0 1 0 7.07"></path><path d="M19.07 4.93a10 10 0 0 1 0 14.14"></path></svg>
                         <input type="range" id="volumeSlider" class="volume-slider" min="0" max="1" step="0.05" value="1">
                     </div>
                 </div>
                 
-                <div class="custom-player-right">
+                <div style="display: flex; align-items: center; gap: 20px;">
+                    <!-- 片段指示點 -->
                     <div id="chunkDots" style="display:flex; gap:6px;"></div>
+                    <!-- 全螢幕 -->
                     <svg id="btnFullscreenIcon" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"></path></svg>
                 </div>
             </div>
