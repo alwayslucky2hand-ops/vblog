@@ -831,7 +831,6 @@
       
       // UI 狀態管理變數
       let idleTimer;
-      let isUIAwake = true;
 
       // 1. 初始化片段指示點
       chunkDots.innerHTML = '';
@@ -841,10 +840,9 @@
         chunkDots.appendChild(dot);
       });
 
-      // 2. 核心：UI 喚醒與睡眠引擎
+      // 2. 核心：單純基於使用者行為的 UI 喚醒與睡眠引擎
       function wakeUpUI() {
         if (!hasStarted) return;
-        isUIAwake = true;
         container.classList.remove('is-idle');
         controls.style.opacity = '1';
         controls.style.pointerEvents = 'auto';
@@ -857,19 +855,18 @@
       }
 
       function sleepUI() {
-        // 只有在播放中才允許隱藏 UI (暫停時 UI 必須保持顯示)
+        // 只有在播放中才允許隱藏 UI (影片暫停時 UI 必須保持顯示讓使用者點擊)
         if (!activeVid.paused && hasStarted) {
-          isUIAwake = false;
           container.classList.add('is-idle');
         }
       }
 
-      // 綁定互動事件 (電腦版滑鼠、手機版觸控)
+      // 🎯 核心修改 1：UI 喚醒只綁定於真實的使用者互動
       container.addEventListener('mousemove', wakeUpUI);
       container.addEventListener('touchstart', wakeUpUI, {passive: true});
       container.addEventListener('mouseleave', () => {
         clearTimeout(idleTimer);
-        sleepUI(); // 滑鼠一離開立刻隱藏
+        sleepUI(); // 滑鼠一離開立刻隱藏，不須等兩秒
       });
 
       // 3. UI 狀態更新
@@ -895,11 +892,13 @@
         if (activeVid.paused) {
           btnPlayPause.innerHTML = '<polygon points="5 3 19 12 5 21 5 3"></polygon>';
           btnPlayPause.setAttribute('fill', 'white');
-          wakeUpUI(); // 暫停時強制喚醒 UI 且不倒數
+          wakeUpUI(); // 暫停時，為了讓使用者有畫面操作，強制喚醒 UI
         } else {
           btnPlayPause.innerHTML = '<rect x="6" y="4" width="4" height="16"></rect><rect x="14" y="4" width="4" height="16"></rect>';
           btnPlayPause.setAttribute('fill', 'none');
-          wakeUpUI(); // 播放時喚醒，並重新開始 2 秒倒數
+          
+          // 🎯 核心修改 2：將播放時的 wakeUpUI() 徹底移除！
+          // 這樣當影片因為切換片段而「自動播放」時，就不會連帶觸發 UI 喚醒。
         }
       }
 
@@ -922,7 +921,7 @@
           if (currentIndex < urls.length - 1) {
             playVideoChunk(currentIndex + 1);
           } else {
-             activeVid.pause();
+             activeVid.pause(); // 全劇終，暫停
              updatePlayPauseIcon();
           }
         }
@@ -981,15 +980,9 @@
           if (playPromise !== undefined) {
             playPromise.then(() => {
               loading.style.display = 'none';
-              
-              // 🌟 關鍵修復：切換片段時，維持原本的 UI 狀態！
-              // 如果使用者手沒動，維持隱藏；如果有動，重置計時器。
-              if (isUIAwake) {
-                wakeUpUI(); 
-              } else {
-                sleepUI();
-              }
-              
+              // 🎯 核心修改 3：完全拔除這裡的判斷邏輯
+              // 當自動切換片段成功播放後，系統「什麼都不做」。
+              // 如果滑鼠原本在外面，UI 就會繼續保持乾淨隱藏的狀態！
             }).catch(e => { 
               loading.style.display = 'none';
               updatePlayPauseIcon();
@@ -1060,12 +1053,13 @@
         wakeUpUI();
       });
 
-      // 點擊畫面也可暫停/播放 (支援手機)
+      // 點擊畫面也可暫停/播放 (支援手機點擊喚醒與暫停)
       container.addEventListener('click', function(e) {
         if (!hasStarted) return;
+        // 如果點在影片本身或容器，切換播放狀態
         if (e.target === container || e.target === vidA || e.target === vidB) {
           togglePlay();
-          wakeUpUI();
+          wakeUpUI(); // 點擊時確實要喚醒
         }
       });
 
@@ -1090,6 +1084,7 @@
         }
       });
 
+      // 全螢幕狀態改變時也要喚醒一下讓使用者確認操作
       document.addEventListener('fullscreenchange', () => {
          wakeUpUI();
       });
