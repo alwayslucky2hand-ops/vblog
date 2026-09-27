@@ -811,26 +811,49 @@
 
     
     window.videoBlobCache = window.videoBlobCache || {};
+    window.videoFetchPromises = window.videoFetchPromises || {}; // 🌟 防護 1：請求防護鎖
 
-    // 真正能繞過 Google Drive CORS 的前端代理抓取器
-    window.fetchVideoChunkBase64 = async function(url) {
+    // 真正能繞過 Google Drive CORS 的前端代理抓取器 (導入三層防護網)
+    window.fetchVideoChunkBase64 = async function(url, retries = 3) {
       if (!url) return null;
       if (url.includes('youtube.com') || url.includes('youtu.be')) return url;
+      
+      // 如果已經下載成功過，直接拿來用
       if (window.videoBlobCache[url]) return window.videoBlobCache[url];
       
-      try {
-        const res = await fetch("https://script.google.com/macros/s/AKfycbyeqKhWv3TY8bpSdB9ZfWXNkR9yap66PyGxzEJqxpawWn9hZ9chfIuBPJfZHHoP91newQ/exec", {
-          method: "POST",
-          body: JSON.stringify({ action: "getVideoChunk", url: url })
-        }).then(r => r.json());
-        
-        if (res && res.data && res.data.base64) {
-           const dataUrl = 'data:' + res.data.mimeType + ';base64,' + res.data.base64;
-           window.videoBlobCache[url] = dataUrl;
-           return dataUrl;
-        }
-        return null;
-      } catch(e) { return null; }
+      // 🌟 防護 1：如果這個片段已經在下載中了，就直接等待它完成，絕對不重複發送請求！
+      if (window.videoFetchPromises[url]) {
+          return await window.videoFetchPromises[url];
+      }
+
+      window.videoFetchPromises[url] = (async () => {
+          for (let i = 0; i <= retries; i++) {
+              try {
+                  const res = await fetch("https://script.google.com/macros/s/AKfycbyeqKhWv3TY8bpSdB9ZfWXNkR9yap66PyGxzEJqxpawWn9hZ9chfIuBPJfZHHoP91newQ/exec", {
+                      method: "POST",
+                      headers: { "Content-Type": "text/plain;charset=utf-8" }, // 🌟 防護 3：明確宣告格式，避免觸發嚴格的 CORS 阻擋
+                      body: JSON.stringify({ action: "getVideoChunk", url: url })
+                  }).then(r => r.json());
+                  
+                  if (res && res.data && res.data.base64) {
+                      const dataUrl = 'data:' + res.data.mimeType + ';base64,' + res.data.base64;
+                      window.videoBlobCache[url] = dataUrl;
+                      return dataUrl;
+                  }
+                  throw new Error("無效的資料");
+              } catch(e) {
+                  // 如果已經重試到最後一次還是失敗，才徹底放棄
+                  if (i === retries) {
+                      delete window.videoFetchPromises[url]; 
+                      return null; 
+                  }
+                  // 🌟 防護 2：遇到 CORS 被擋下時，冷卻 1.5 秒後自動重試
+                  await new Promise(r => setTimeout(r, 1500));
+              }
+          }
+      })();
+
+      return await window.videoFetchPromises[url];
     };
 
     function bindVideoLogic(urls) {
@@ -856,15 +879,19 @@
       const vidA = document.getElementById('videoPlayerA');
       const vidB = document.getElementById('videoPlayerB');
       
-      let currentIndex = 0;
+      // 🎯 核心索引管理
+      let currentIndex = 0;      // 記錄使用者「想看」哪一段
+      let actualPlayingIndex = 0; // 記錄畫面上「真正正在播」哪一段 (解決點點錯亂)
+      
       let activeVid = vidA;
       let nextVid = vidB;
       let streamUrls = urls;
       let isTransitioning = false;
       let hasStarted = false;
-      
-      // 🎯 新增：標記是否為全劇的「第一次點擊播放」，用來處理初始畫面的覆蓋
       let isFirstPlay = true; 
+      
+      // 🎯 幽靈事件鎖：防止自動切換時 UI 閃爍
+      let internalSwapping = false;
       
       // 狀態變數
       let idleTimer;
@@ -872,11 +899,15 @@
       let currentVolume = 1;
       let isMuted = false;
 
-      // 1. 初始化片段指示點
+      // 1. 初始化片段指示點 (並加入點擊切換功能)
       chunkDots.innerHTML = '';
       urls.forEach((_, i) => {
         const dot = document.createElement('div');
         dot.className = 'chunk-dot' + (i === 0 ? ' active' : '');
+        // 點擊點點可以直接跳轉
+        dot.addEventListener('click', () => {
+           if (currentIndex !== i) playVideoChunk(i);
+        });
         chunkDots.appendChild(dot);
       });
 
@@ -908,15 +939,18 @@
         sleepUI();
       });
 
-      // 3. UI 狀態更新 (包含音量)
-      function updateControls() {
+      // 3. UI 狀態更新 (按鈕、點點、音量)
+      function updateButtonStates() {
         btnPrev.style.opacity = currentIndex === 0 ? '0.2' : '1';
         btnPrev.style.pointerEvents = currentIndex === 0 ? 'none' : 'auto';
         btnNext.style.opacity = currentIndex === urls.length - 1 ? '0.2' : '1';
         btnNext.style.pointerEvents = currentIndex === urls.length - 1 ? 'none' : 'auto';
-        
+      }
+
+      // 🎯 確保點點只有在「真正播到該片段」才改變，絕對不發瘋錯亂！
+      function syncDotsToActualPlaying() {
         Array.from(chunkDots.children).forEach((dot, i) => {
-          dot.className = 'chunk-dot' + (i === currentIndex ? ' active' : '');
+          dot.className = 'chunk-dot' + (i === actualPlayingIndex ? ' active' : '');
         });
       }
 
@@ -956,14 +990,21 @@
         return m + ":" + (s < 10 ? "0" : "") + s;
       }
 
+      // 🎯 阻斷閃爍魔法：強制暫停圖示更新功能
+      function forceSetPauseIcon() {
+         btnPlayPause.innerHTML = '<rect x="6" y="4" width="4" height="16"></rect><rect x="14" y="4" width="4" height="16"></rect>';
+         btnPlayPause.setAttribute('fill', 'none');
+      }
+
       function updatePlayPauseIcon() {
+        if (internalSwapping) return; // 🌟 阻斷切換時的幽靈暫停事件，保證 UI 絕對不閃爍！
+        
         if (activeVid.paused) {
           btnPlayPause.innerHTML = '<polygon points="5 3 19 12 5 21 5 3"></polygon>';
           btnPlayPause.setAttribute('fill', 'white');
           wakeUpUI(); 
         } else {
-          btnPlayPause.innerHTML = '<rect x="6" y="4" width="4" height="16"></rect><rect x="14" y="4" width="4" height="16"></rect>';
-          btnPlayPause.setAttribute('fill', 'none');
+          forceSetPauseIcon();
         }
       }
 
@@ -977,8 +1018,8 @@
         progressBar.style.width = percent + '%';
         timeDisplay.innerText = formatTime(v.currentTime);
 
-        // 🎯 為了做到完美銜接不重疊音頻，我們把提前觸發縮短到 0.1 秒
-        if (v.duration - v.currentTime <= 0.1 && !isTransitioning) {
+        // 無縫切換判斷 (提早 0.3 秒啟動下一段，靠著幀同步來掩蓋)
+        if (v.duration > 0 && v.duration - v.currentTime <= 0.3 && !isTransitioning) {
           isTransitioning = true;
           if (currentIndex < urls.length - 1) {
             playVideoChunk(currentIndex + 1);
@@ -1004,13 +1045,28 @@
       vidA.addEventListener('ended', onVideoEnded);
       vidB.addEventListener('ended', onVideoEnded);
 
-      // 5. 核心：極致無縫零黑屏引擎 (Double-buffer rendering)
+      // 🎯 強制背景預載函式 (解決卡頓)
+      function aggressivePreloadNext() {
+        if (currentIndex + 1 < streamUrls.length) {
+           const nextIdx = currentIndex + 1;
+           window.fetchVideoChunkBase64(streamUrls[nextIdx]).then(nextDataUrl => {
+             if (nextDataUrl && nextVid.dataset.chunkIndex != nextIdx) {
+                nextVid.src = nextDataUrl;
+                nextVid.dataset.chunkIndex = nextIdx;
+                nextVid.preload = "auto";
+                nextVid.load(); // 強制記憶體提早載入
+             }
+           });
+        }
+      }
+
+      // 5. 核心：極致無縫零黑屏引擎
       async function playVideoChunk(targetIndex) {
         if (targetIndex !== undefined) currentIndex = targetIndex;
-        updateControls();
+        updateButtonStates();
         
         const targetUrl = streamUrls[currentIndex];
-        // 如果還沒載入，才顯示 loading
+        
         if (nextVid.dataset.chunkIndex != currentIndex) {
             loading.style.display = 'block';
         }
@@ -1019,7 +1075,9 @@
         if (currentIndex !== targetIndex) return; 
         if (!streamUrl) { loading.style.display = 'none'; isTransitioning = false; return; }
         
-        // 🎯 嚴格的身份交換：即將播放的新影片上位變成 activeVid，舊影片退居 oldVid
+        // 🌟 啟動內部切換鎖：這段期間所有的 play/pause 原生事件都不會影響 UI
+        internalSwapping = true; 
+        
         let oldVid = activeVid;
         activeVid = nextVid; 
         nextVid = oldVid;    
@@ -1029,15 +1087,13 @@
           activeVid.load();
         }
         
-        // 🎯 魔法 1：新影片準備在「底層」(z-index: 1)
         activeVid.style.zIndex = '1';
         activeVid.style.opacity = '1';
         activeVid.volume = isMuted ? 0 : currentVolume;
 
-        // 🎯 魔法 2：確保舊影片還撐在畫面上 (除了第一次播放時舊影片是空的)
         if (isFirstPlay) {
             oldVid.style.opacity = '0';
-            activeVid.style.zIndex = '2'; // 第一次直接上最前線
+            activeVid.style.zIndex = '2';
             isFirstPlay = false;
         } else {
             oldVid.style.zIndex = '2';
@@ -1050,30 +1106,35 @@
           if (playPromise !== undefined) {
             playPromise.then(() => {
               loading.style.display = 'none';
+              forceSetPauseIcon(); // 確保圖示是暫停
               
-              // 🎯 魔法 3：精準幀同步 (Frame-Sync)
+              // 🌟 影片確實播出後，我們才去改變點點的位置！
+              actualPlayingIndex = currentIndex;
+              syncDotsToActualPlaying();
+              
               const checkFrame = () => {
-                 // 當新影片的時間確實往前走了，代表顯示卡已經把第一張新畫面畫出來了
-                 if (activeVid.currentTime > 0) {
+                 if (activeVid.currentTime > 0.05) {
                     
-                    // 此時瞬間抽掉舊影片，讓底下的新影片無縫見客！
                     activeVid.style.zIndex = '2';
                     oldVid.style.zIndex = '1';
                     oldVid.style.opacity = '0';
-                    oldVid.pause(); 
+                    oldVid.pause(); // 這裡不會閃爍，因為 internalSwapping=true
                     
-                    // 維持原本的 UI 隱藏狀態
+                    // 解開內部切換鎖
+                    setTimeout(() => { internalSwapping = false; }, 50);
+                    
                     if (isUIAwake) wakeUpUI(); 
                     else sleepUI();
                     
                  } else {
-                    requestAnimationFrame(checkFrame); // 下一幀再檢查
+                    requestAnimationFrame(checkFrame);
                  }
               };
               requestAnimationFrame(checkFrame);
               
             }).catch(e => { 
               loading.style.display = 'none';
+              internalSwapping = false;
               updatePlayPauseIcon();
             });
           }
@@ -1091,17 +1152,8 @@
         
         isTransitioning = false;
         
-        // 背景靜默預載下一段
-        if (currentIndex + 1 < streamUrls.length) {
-           window.fetchVideoChunkBase64(streamUrls[currentIndex + 1]).then(nextDataUrl => {
-             // 此處的 nextVid 就是剛剛退居二線的 oldVid，拿來當下一次的預載容器
-             if (nextDataUrl && nextVid.dataset.chunkIndex != (currentIndex + 1)) {
-                nextVid.src = nextDataUrl;
-                nextVid.dataset.chunkIndex = currentIndex + 1;
-                nextVid.preload = "auto";
-             }
-           });
-        }
+        // 執行強效背景預載
+        aggressivePreloadNext();
       }
 
       // 6. 綁定控制按鈕事件
@@ -1116,6 +1168,9 @@
       bigPlayBtn.addEventListener('click', function() {
         bigPlayBtn.style.display = 'none'; 
         hasStarted = true;
+        
+        // 🎯 點擊播放的瞬間，立刻將左下角的按鈕切換為「暫停鍵」
+        forceSetPauseIcon();
         
         vidA.volume = currentVolume;
         vidB.volume = currentVolume;
@@ -1178,7 +1233,9 @@
          wakeUpUI();
       });
 
-      updateControls();
+      // 初始畫面設定
+      updateButtonStates();
+      syncDotsToActualPlaying();
     }
   
     
