@@ -354,6 +354,33 @@
                     <svg id="btnNextIcon" style="opacity:0.4;" xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="5 4 15 12 5 20 5 4"></polygon><line x1="19" y1="5" x2="19" y2="19"></line></svg>
                     
                     <span id="timeDisplay" style="color:white; font-size: 13px; font-variant-numeric: tabular-nums; opacity: 0.8; margin-left: -8px;">0:00</span>
+                    
+                    <!-- 🌟 新增：音量控制區塊 -->
+                    <div class="volume-container" style="display: flex; align-items: center; gap: 10px; margin-left: 8px;">
+                        <svg id="btnVolumeIcon" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="white" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon><path d="M15.54 8.46a5 5 0 0 1 0 7.07"></path><path d="M19.07 4.93a10 10 0 0 1 0 14.14"></path></svg>
+                        <input type="range" id="volumeSlider" class="volume-slider" min="0" max="1" step="0.05" value="1">
+                    </div>
+                </div>
+                
+                <div style="display: flex; align-items: center; gap: 20px;">
+                    <!-- 片段指示點 -->
+                    <div id="chunkDots" style="display:flex; gap:6px;"></div>
+                    <!-- 全螢幕 -->
+                    <svg id="btnFullscreenIcon" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"></path></svg>
+                </div>
+            </div>
+        </div>
+
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+                <div style="display: flex; align-items: center; gap: 24px;">
+                    <!-- 上一段 -->
+                    <svg id="btnPrevIcon" style="opacity:0.4;" xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="19 20 9 12 19 4 19 20"></polygon><line x1="5" y1="19" x2="5" y2="5"></line></svg>
+                    <!-- 播放/暫停 -->
+                    <svg id="btnPlayPauseIcon" xmlns="http://www.w3.org/2000/svg" width="26" height="26" viewBox="0 0 24 24" fill="white" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>
+                    <!-- 下一段 -->
+                    <svg id="btnNextIcon" style="opacity:0.4;" xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="5 4 15 12 5 20 5 4"></polygon><line x1="19" y1="5" x2="19" y2="19"></line></svg>
+                    
+                    <span id="timeDisplay" style="color:white; font-size: 13px; font-variant-numeric: tabular-nums; opacity: 0.8; margin-left: -8px;">0:00</span>
                 </div>
                 
                 <div style="display: flex; align-items: center; gap: 20px;">
@@ -516,6 +543,37 @@
     
     .chunk-dot { width: 6px; height: 6px; border-radius: 50%; background: rgba(255,255,255,0.3); transition: 0.3s; }
     .chunk-dot.active { background: #3b82f6; box-shadow: 0 0 6px #3b82f6; transform: scale(1.2); }
+
+    /* 🌟 新增：極簡音量拉條專屬樣式 */
+    .volume-slider { 
+      -webkit-appearance: none; 
+      background: transparent; 
+      cursor: pointer; 
+      outline: none; 
+      width: 60px;
+      transition: width 0.2s ease, opacity 0.2s;
+    }
+    .volume-slider::-webkit-slider-runnable-track { 
+      width: 100%; 
+      height: 4px; 
+      background: rgba(255,255,255,0.3); 
+      border-radius: 2px; 
+    }
+    .volume-slider::-webkit-slider-thumb { 
+      -webkit-appearance: none; 
+      height: 10px; 
+      width: 10px; 
+      border-radius: 50%; 
+      background: #ffffff; 
+      margin-top: -3px; 
+      box-shadow: 0 0 4px rgba(0,0,0,0.5); 
+      transition: transform 0.1s; 
+    }
+    .volume-slider::-webkit-slider-thumb:hover { 
+      transform: scale(1.3); 
+    }
+    /* 讓音量區塊在滑鼠滑過時，拉條會有延伸展開的質感體驗 (可選) */
+    .volume-container:hover .volume-slider { width: 80px; }
     
     /* 🎯 核心修復：電腦版寬度延展至 80vw、拉滿 90% 高度 */
     .ai-chat-window { 
@@ -696,6 +754,9 @@
       const btnFullscreen = document.getElementById('btnFullscreenIcon');
       const chunkDots = document.getElementById('chunkDots');
       
+      const btnVolume = document.getElementById('btnVolumeIcon');
+      const volumeSlider = document.getElementById('volumeSlider');
+      
       const vidA = document.getElementById('videoPlayerA');
       const vidB = document.getElementById('videoPlayerB');
       
@@ -706,8 +767,14 @@
       let isTransitioning = false;
       let hasStarted = false;
       
-      // UI 狀態管理變數
+      // 🎯 新增：標記是否為全劇的「第一次點擊播放」，用來處理初始畫面的覆蓋
+      let isFirstPlay = true; 
+      
+      // 狀態變數
       let idleTimer;
+      let isUIAwake = true;
+      let currentVolume = 1;
+      let isMuted = false;
 
       // 1. 初始化片段指示點
       chunkDots.innerHTML = '';
@@ -720,33 +787,32 @@
       // 2. 核心：單純基於使用者行為的 UI 喚醒與睡眠引擎
       function wakeUpUI() {
         if (!hasStarted) return;
+        isUIAwake = true;
         container.classList.remove('is-idle');
         controls.style.opacity = '1';
         controls.style.pointerEvents = 'auto';
         
         clearTimeout(idleTimer);
-        // 只有在影片播放中，才啟動 2 秒後自動隱藏
         if (!activeVid.paused) {
           idleTimer = setTimeout(sleepUI, 2000); 
         }
       }
 
       function sleepUI() {
-        // 只有在播放中才允許隱藏 UI (影片暫停時 UI 必須保持顯示讓使用者點擊)
         if (!activeVid.paused && hasStarted) {
+          isUIAwake = false;
           container.classList.add('is-idle');
         }
       }
 
-      // 🎯 核心修改 1：UI 喚醒只綁定於真實的使用者互動
       container.addEventListener('mousemove', wakeUpUI);
       container.addEventListener('touchstart', wakeUpUI, {passive: true});
       container.addEventListener('mouseleave', () => {
         clearTimeout(idleTimer);
-        sleepUI(); // 滑鼠一離開立刻隱藏，不須等兩秒
+        sleepUI();
       });
 
-      // 3. UI 狀態更新
+      // 3. UI 狀態更新 (包含音量)
       function updateControls() {
         btnPrev.style.opacity = currentIndex === 0 ? '0.2' : '1';
         btnPrev.style.pointerEvents = currentIndex === 0 ? 'none' : 'auto';
@@ -757,6 +823,35 @@
           dot.className = 'chunk-dot' + (i === currentIndex ? ' active' : '');
         });
       }
+
+      function updateVolumeUI() {
+        const vol = isMuted ? 0 : currentVolume;
+        vidA.volume = vol;
+        vidB.volume = vol;
+        volumeSlider.value = vol;
+        
+        if (vol === 0) { 
+          btnVolume.innerHTML = '<polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon><line x1="23" y1="9" x2="17" y2="15"></line><line x1="17" y1="9" x2="23" y2="15"></line>';
+        } else if (vol < 0.5) { 
+          btnVolume.innerHTML = '<polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon><path d="M15.54 8.46a5 5 0 0 1 0 7.07"></path>';
+        } else { 
+          btnVolume.innerHTML = '<polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon><path d="M15.54 8.46a5 5 0 0 1 0 7.07"></path><path d="M19.07 4.93a10 10 0 0 1 0 14.14"></path>';
+        }
+      }
+
+      btnVolume.addEventListener('click', (e) => {
+        isMuted = !isMuted;
+        if (!isMuted && currentVolume === 0) currentVolume = 1; 
+        updateVolumeUI();
+        wakeUpUI();
+      });
+
+      volumeSlider.addEventListener('input', (e) => {
+        currentVolume = parseFloat(e.target.value);
+        isMuted = currentVolume === 0;
+        updateVolumeUI();
+        wakeUpUI();
+      });
 
       function formatTime(sec) {
         if (isNaN(sec)) return "0:00";
@@ -769,13 +864,10 @@
         if (activeVid.paused) {
           btnPlayPause.innerHTML = '<polygon points="5 3 19 12 5 21 5 3"></polygon>';
           btnPlayPause.setAttribute('fill', 'white');
-          wakeUpUI(); // 暫停時，為了讓使用者有畫面操作，強制喚醒 UI
+          wakeUpUI(); 
         } else {
           btnPlayPause.innerHTML = '<rect x="6" y="4" width="4" height="16"></rect><rect x="14" y="4" width="4" height="16"></rect>';
           btnPlayPause.setAttribute('fill', 'none');
-          
-          // 🎯 核心修改 2：將播放時的 wakeUpUI() 徹底移除！
-          // 這樣當影片因為切換片段而「自動播放」時，就不會連帶觸發 UI 喚醒。
         }
       }
 
@@ -785,20 +877,17 @@
         if (v !== activeVid) return;
         if (!v.duration) return;
         
-        nextVid.volume = activeVid.volume;
-        
-        // 更新進度條
         const percent = (v.currentTime / v.duration) * 100;
         progressBar.style.width = percent + '%';
         timeDisplay.innerText = formatTime(v.currentTime);
 
-        // 無縫切換判斷
-        if (v.duration - v.currentTime <= 0.3 && !isTransitioning) {
+        // 🎯 為了做到完美銜接不重疊音頻，我們把提前觸發縮短到 0.1 秒
+        if (v.duration - v.currentTime <= 0.1 && !isTransitioning) {
           isTransitioning = true;
           if (currentIndex < urls.length - 1) {
             playVideoChunk(currentIndex + 1);
           } else {
-             activeVid.pause(); // 全劇終，暫停
+             activeVid.pause(); 
              updatePlayPauseIcon();
           }
         }
@@ -819,47 +908,74 @@
       vidA.addEventListener('ended', onVideoEnded);
       vidB.addEventListener('ended', onVideoEnded);
 
-      // 5. 核心播放邏輯
+      // 5. 核心：極致無縫零黑屏引擎 (Double-buffer rendering)
       async function playVideoChunk(targetIndex) {
         if (targetIndex !== undefined) currentIndex = targetIndex;
         updateControls();
-        loading.style.display = 'block';
         
         const targetUrl = streamUrls[currentIndex];
-        const streamUrl = await window.fetchVideoChunkBase64(targetUrl);
+        // 如果還沒載入，才顯示 loading
+        if (nextVid.dataset.chunkIndex != currentIndex) {
+            loading.style.display = 'block';
+        }
         
+        const streamUrl = await window.fetchVideoChunkBase64(targetUrl);
         if (currentIndex !== targetIndex) return; 
         if (!streamUrl) { loading.style.display = 'none'; isTransitioning = false; return; }
         
-        let videoEl = activeVid;
-        if (nextVid.dataset.chunkIndex == currentIndex && nextVid.src) {
-            const temp = activeVid;
-            activeVid = nextVid;
-            nextVid = temp;
-            videoEl = activeVid;
+        // 🎯 嚴格的身份交換：即將播放的新影片上位變成 activeVid，舊影片退居 oldVid
+        let oldVid = activeVid;
+        activeVid = nextVid; 
+        nextVid = oldVid;    
+        
+        if (activeVid.src !== streamUrl) {
+          activeVid.src = streamUrl;
+          activeVid.load();
         }
         
+        // 🎯 魔法 1：新影片準備在「底層」(z-index: 1)
+        activeVid.style.zIndex = '1';
         activeVid.style.opacity = '1';
-        activeVid.style.zIndex = '2';
-        
-        nextVid.style.opacity = '0';
-        nextVid.style.zIndex = '1';
-        nextVid.pause();
-        
-        if (videoEl.src !== streamUrl) {
-          videoEl.src = streamUrl;
-          videoEl.load();
+        activeVid.volume = isMuted ? 0 : currentVolume;
+
+        // 🎯 魔法 2：確保舊影片還撐在畫面上 (除了第一次播放時舊影片是空的)
+        if (isFirstPlay) {
+            oldVid.style.opacity = '0';
+            activeVid.style.zIndex = '2'; // 第一次直接上最前線
+            isFirstPlay = false;
+        } else {
+            oldVid.style.zIndex = '2';
+            oldVid.style.opacity = '1';
         }
         
         const playVideo = () => {
-          videoEl.currentTime = 0;
-          const playPromise = videoEl.play();
+          activeVid.currentTime = 0;
+          const playPromise = activeVid.play();
           if (playPromise !== undefined) {
             playPromise.then(() => {
               loading.style.display = 'none';
-              // 🎯 核心修改 3：完全拔除這裡的判斷邏輯
-              // 當自動切換片段成功播放後，系統「什麼都不做」。
-              // 如果滑鼠原本在外面，UI 就會繼續保持乾淨隱藏的狀態！
+              
+              // 🎯 魔法 3：精準幀同步 (Frame-Sync)
+              const checkFrame = () => {
+                 // 當新影片的時間確實往前走了，代表顯示卡已經把第一張新畫面畫出來了
+                 if (activeVid.currentTime > 0) {
+                    
+                    // 此時瞬間抽掉舊影片，讓底下的新影片無縫見客！
+                    activeVid.style.zIndex = '2';
+                    oldVid.style.zIndex = '1';
+                    oldVid.style.opacity = '0';
+                    oldVid.pause(); 
+                    
+                    // 維持原本的 UI 隱藏狀態
+                    if (isUIAwake) wakeUpUI(); 
+                    else sleepUI();
+                    
+                 } else {
+                    requestAnimationFrame(checkFrame); // 下一幀再檢查
+                 }
+              };
+              requestAnimationFrame(checkFrame);
+              
             }).catch(e => { 
               loading.style.display = 'none';
               updatePlayPauseIcon();
@@ -867,14 +983,14 @@
           }
         };
 
-        if (videoEl.readyState >= 1) {
+        if (activeVid.readyState >= 3) {
           playVideo();
         } else {
-          const onMeta = function() {
+          const onCanPlay = function() {
             playVideo();
-            videoEl.removeEventListener('loadedmetadata', onMeta);
+            activeVid.removeEventListener('canplay', onCanPlay);
           };
-          videoEl.addEventListener('loadedmetadata', onMeta);
+          activeVid.addEventListener('canplay', onCanPlay);
         }
         
         isTransitioning = false;
@@ -882,6 +998,7 @@
         // 背景靜默預載下一段
         if (currentIndex + 1 < streamUrls.length) {
            window.fetchVideoChunkBase64(streamUrls[currentIndex + 1]).then(nextDataUrl => {
+             // 此處的 nextVid 就是剛剛退居二線的 oldVid，拿來當下一次的預載容器
              if (nextDataUrl && nextVid.dataset.chunkIndex != (currentIndex + 1)) {
                 nextVid.src = nextDataUrl;
                 nextVid.dataset.chunkIndex = currentIndex + 1;
@@ -904,6 +1021,9 @@
         bigPlayBtn.style.display = 'none'; 
         hasStarted = true;
         
+        vidA.volume = currentVolume;
+        vidB.volume = currentVolume;
+        
         vidA.play().catch(()=>{}); vidA.pause();
         vidB.play().catch(()=>{}); vidB.pause();
         
@@ -921,7 +1041,6 @@
         if (currentIndex < urls.length - 1) playVideoChunk(currentIndex + 1);
       });
 
-      // 點擊進度條跳轉
       progressHitbox.addEventListener('click', function(e) {
         if (!activeVid.duration) return;
         const rect = progressHitbox.getBoundingClientRect();
@@ -930,13 +1049,11 @@
         wakeUpUI();
       });
 
-      // 點擊畫面也可暫停/播放 (支援手機點擊喚醒與暫停)
       container.addEventListener('click', function(e) {
         if (!hasStarted) return;
-        // 如果點在影片本身或容器，切換播放狀態
         if (e.target === container || e.target === vidA || e.target === vidB) {
           togglePlay();
-          wakeUpUI(); // 點擊時確實要喚醒
+          wakeUpUI();
         }
       });
 
@@ -961,7 +1078,6 @@
         }
       });
 
-      // 全螢幕狀態改變時也要喚醒一下讓使用者確認操作
       document.addEventListener('fullscreenchange', () => {
          wakeUpUI();
       });
@@ -1072,6 +1188,33 @@
                  </div>
                </div>
             </div>
+
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+                <div style="display: flex; align-items: center; gap: 24px;">
+                    <!-- 上一段 -->
+                    <svg id="btnPrevIcon" style="opacity:0.4;" xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="19 20 9 12 19 4 19 20"></polygon><line x1="5" y1="19" x2="5" y2="5"></line></svg>
+                    <!-- 播放/暫停 -->
+                    <svg id="btnPlayPauseIcon" xmlns="http://www.w3.org/2000/svg" width="26" height="26" viewBox="0 0 24 24" fill="white" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>
+                    <!-- 下一段 -->
+                    <svg id="btnNextIcon" style="opacity:0.4;" xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="5 4 15 12 5 20 5 4"></polygon><line x1="19" y1="5" x2="19" y2="19"></line></svg>
+                    
+                    <span id="timeDisplay" style="color:white; font-size: 13px; font-variant-numeric: tabular-nums; opacity: 0.8; margin-left: -8px;">0:00</span>
+                    
+                    <!-- 🌟 新增：音量控制區塊 -->
+                    <div class="volume-container" style="display: flex; align-items: center; gap: 10px; margin-left: 8px;">
+                        <svg id="btnVolumeIcon" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="white" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon><path d="M15.54 8.46a5 5 0 0 1 0 7.07"></path><path d="M19.07 4.93a10 10 0 0 1 0 14.14"></path></svg>
+                        <input type="range" id="volumeSlider" class="volume-slider" min="0" max="1" step="0.05" value="1">
+                    </div>
+                </div>
+                
+                <div style="display: flex; align-items: center; gap: 20px;">
+                    <!-- 片段指示點 -->
+                    <div id="chunkDots" style="display:flex; gap:6px;"></div>
+                    <!-- 全螢幕 -->
+                    <svg id="btnFullscreenIcon" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"></path></svg>
+                </div>
+            </div>
+        </div>
 
             <div style="display: flex; justify-content: space-between; align-items: center;">
                 <div style="display: flex; align-items: center; gap: 24px;">
