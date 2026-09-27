@@ -755,9 +755,15 @@
       const vidA = document.getElementById('videoPlayerA');
       const vidB = document.getElementById('videoPlayerB');
       
-      // 🎯 核心索引管理
-      let currentIndex = 0;      // 記錄使用者「想看」哪一段
-      let actualPlayingIndex = 0; // 記錄畫面上「真正正在播」哪一段 (解決點點錯亂)
+      // 🎯 核心防閃爍設定：強制拔除所有 CSS 漸變與背景，由 JS 完全精準控制
+      vidA.style.transition = 'none';
+      vidB.style.transition = 'none';
+      vidA.style.backgroundColor = 'transparent';
+      vidB.style.backgroundColor = 'transparent';
+      
+      // 核心索引管理
+      let currentIndex = 0;      
+      let actualPlayingIndex = 0; 
       
       let activeVid = vidA;
       let nextVid = vidB;
@@ -766,7 +772,6 @@
       let hasStarted = false;
       let isFirstPlay = true; 
       
-      // 🎯 幽靈事件鎖：防止自動切換時 UI 閃爍
       let internalSwapping = false;
       
       // 狀態變數
@@ -775,12 +780,11 @@
       let currentVolume = 1;
       let isMuted = false;
 
-      // 1. 初始化片段指示點 (並加入點擊切換功能)
+      // 1. 初始化片段指示點
       chunkDots.innerHTML = '';
       urls.forEach((_, i) => {
         const dot = document.createElement('div');
         dot.className = 'chunk-dot' + (i === 0 ? ' active' : '');
-        // 點擊點點可以直接跳轉
         dot.addEventListener('click', () => {
            if (currentIndex !== i) playVideoChunk(i);
         });
@@ -823,7 +827,6 @@
         btnNext.style.pointerEvents = currentIndex === urls.length - 1 ? 'none' : 'auto';
       }
 
-      // 🎯 確保點點只有在「真正播到該片段」才改變，絕對不發瘋錯亂！
       function syncDotsToActualPlaying() {
         Array.from(chunkDots.children).forEach((dot, i) => {
           dot.className = 'chunk-dot' + (i === actualPlayingIndex ? ' active' : '');
@@ -866,14 +869,13 @@
         return m + ":" + (s < 10 ? "0" : "") + s;
       }
 
-      // 🎯 阻斷閃爍魔法：強制暫停圖示更新功能
       function forceSetPauseIcon() {
          btnPlayPause.innerHTML = '<rect x="6" y="4" width="4" height="16"></rect><rect x="14" y="4" width="4" height="16"></rect>';
          btnPlayPause.setAttribute('fill', 'none');
       }
 
       function updatePlayPauseIcon() {
-        if (internalSwapping) return; // 🌟 阻斷切換時的幽靈暫停事件，保證 UI 絕對不閃爍！
+        if (internalSwapping) return; 
         
         if (activeVid.paused) {
           btnPlayPause.innerHTML = '<polygon points="5 3 19 12 5 21 5 3"></polygon>';
@@ -894,8 +896,8 @@
         progressBar.style.width = percent + '%';
         timeDisplay.innerText = formatTime(v.currentTime);
 
-        // 無縫切換判斷 (提早 0.3 秒啟動下一段，靠著幀同步來掩蓋)
-        if (v.duration > 0 && v.duration - v.currentTime <= 0.3 && !isTransitioning) {
+        // 提早 0.15 秒啟動下一段，完美重疊時間
+        if (v.duration > 0 && v.duration - v.currentTime <= 0.15 && !isTransitioning) {
           isTransitioning = true;
           if (currentIndex < urls.length - 1) {
             playVideoChunk(currentIndex + 1);
@@ -921,22 +923,7 @@
       vidA.addEventListener('ended', onVideoEnded);
       vidB.addEventListener('ended', onVideoEnded);
 
-      // 🎯 強制背景預載函式 (解決卡頓)
-      function aggressivePreloadNext() {
-        if (currentIndex + 1 < streamUrls.length) {
-           const nextIdx = currentIndex + 1;
-           window.fetchVideoChunkBase64(streamUrls[nextIdx]).then(nextDataUrl => {
-             if (nextDataUrl && nextVid.dataset.chunkIndex != nextIdx) {
-                nextVid.src = nextDataUrl;
-                nextVid.dataset.chunkIndex = nextIdx;
-                nextVid.preload = "auto";
-                nextVid.load(); // 強制記憶體提早載入
-             }
-           });
-        }
-      }
-
-      // 5. 核心：極致無縫零黑屏引擎
+      // 5. 🎯 核心：GPU 幀同步切換引擎
       async function playVideoChunk(targetIndex) {
         if (targetIndex !== undefined) currentIndex = targetIndex;
         updateButtonStates();
@@ -951,7 +938,6 @@
         if (currentIndex !== targetIndex) return; 
         if (!streamUrl) { loading.style.display = 'none'; isTransitioning = false; return; }
         
-        // 🌟 啟動內部切換鎖：這段期間所有的 play/pause 原生事件都不會影響 UI
         internalSwapping = true; 
         
         let oldVid = activeVid;
@@ -963,15 +949,16 @@
           activeVid.load();
         }
         
-        activeVid.style.zIndex = '1';
-        activeVid.style.opacity = '1';
         activeVid.volume = isMuted ? 0 : currentVolume;
 
+        // 預備狀態：如果不是第一次播放，新影片乖乖待在底層並隱藏
         if (isFirstPlay) {
             oldVid.style.opacity = '0';
-            activeVid.style.zIndex = '2';
-            isFirstPlay = false;
+            activeVid.style.zIndex = '3';
+            activeVid.style.opacity = '1';
         } else {
+            activeVid.style.zIndex = '1';
+            activeVid.style.opacity = '0'; 
             oldVid.style.zIndex = '2';
             oldVid.style.opacity = '1';
         }
@@ -982,25 +969,39 @@
           if (playPromise !== undefined) {
             playPromise.then(() => {
               loading.style.display = 'none';
-              forceSetPauseIcon(); // 確保圖示是暫停
+              forceSetPauseIcon(); 
               
-              // 🌟 影片確實播出後，我們才去改變點點的位置！
               actualPlayingIndex = currentIndex;
               syncDotsToActualPlaying();
               
               const checkFrame = () => {
+                 // 確認畫面真的開始動了
                  if (activeVid.currentTime > 0.05) {
                     
-                    activeVid.style.zIndex = '2';
-                    oldVid.style.zIndex = '1';
-                    oldVid.style.opacity = '0';
-                    oldVid.pause(); // 這裡不會閃爍，因為 internalSwapping=true
-                    
-                    // 解開內部切換鎖
-                    setTimeout(() => { internalSwapping = false; }, 50);
-                    
-                    if (isUIAwake) wakeUpUI(); 
-                    else sleepUI();
+                    if (isFirstPlay) {
+                        isFirstPlay = false;
+                        setTimeout(() => { internalSwapping = false; }, 50);
+                        if (isUIAwake) wakeUpUI(); else sleepUI();
+                    } else {
+                        // 🎯 絕讚的三段式無感交接魔法
+                        // 步驟一：讓新影片在底層顯影，迫使 GPU 渲染該圖層
+                        activeVid.style.opacity = '1';
+                        
+                        // 步驟二：等下一個畫面幀，瞬間把新影片提拔到最上層
+                        requestAnimationFrame(() => {
+                            activeVid.style.zIndex = '3';
+                            oldVid.style.zIndex = '1';
+                            
+                            // 步驟三：再等一個畫面幀，確保新畫面已經蓋穩，才隱藏並關掉舊影片
+                            requestAnimationFrame(() => {
+                                oldVid.style.opacity = '0';
+                                oldVid.pause();
+                                
+                                setTimeout(() => { internalSwapping = false; }, 50);
+                                if (isUIAwake) wakeUpUI(); else sleepUI();
+                            });
+                        });
+                    }
                     
                  } else {
                     requestAnimationFrame(checkFrame);
@@ -1028,8 +1029,16 @@
         
         isTransitioning = false;
         
-        // 執行強效背景預載
-        aggressivePreloadNext();
+        if (currentIndex + 1 < streamUrls.length) {
+           const nextIdx = currentIndex + 1;
+           window.fetchVideoChunkBase64(streamUrls[nextIdx]).then(nextDataUrl => {
+             if (nextDataUrl && nextVid.dataset.chunkIndex != nextIdx) {
+                nextVid.src = nextDataUrl;
+                nextVid.dataset.chunkIndex = nextIdx;
+                nextVid.preload = "auto";
+             }
+           });
+        }
       }
 
       // 6. 綁定控制按鈕事件
@@ -1045,7 +1054,6 @@
         bigPlayBtn.style.display = 'none'; 
         hasStarted = true;
         
-        // 🎯 點擊播放的瞬間，立刻將左下角的按鈕切換為「暫停鍵」
         forceSetPauseIcon();
         
         vidA.volume = currentVolume;
@@ -1084,7 +1092,6 @@
         }
       });
 
-      // 7. 完美全螢幕綁定
       btnFullscreen.addEventListener('click', function() {
         if (!document.fullscreenElement) {
           if (container.requestFullscreen) {
@@ -1109,9 +1116,22 @@
          wakeUpUI();
       });
 
-      // 初始畫面設定
       updateButtonStates();
       syncDotsToActualPlaying();
+      
+      async function startGlobalPreload() {
+        for (let i = 0; i < streamUrls.length; i++) {
+          const url = streamUrls[i];
+          if (!window.videoBlobCache[url]) {
+            try {
+              await window.fetchVideoChunkBase64(url);
+            } catch (e) {
+              console.warn("片段 " + i + " 背景預載暫時失敗，稍後會由主程式接手重試");
+            }
+          }
+        }
+      }
+      startGlobalPreload();
     }
   
     
