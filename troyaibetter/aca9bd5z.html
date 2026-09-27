@@ -80,6 +80,33 @@
       box-shadow: 0 4px 12px rgba(0,0,0,0.06);
       pointer-events: none; 
     }
+
+    /* 🌟 新增：手機響應式播放器控制列與 iOS 全螢幕修復 */
+    .controls-main-row { width: 100%; }
+    
+    /* 蘋果 iOS 專用滿版全螢幕替補方案 */
+    .ios-fullscreen {
+      position: fixed !important;
+      top: 0 !important;
+      left: 0 !important;
+      width: 100vw !important;
+      height: 100dvh !important;
+      z-index: 999999 !important;
+      border-radius: 0 !important;
+      margin: 0 !important;
+      background: #000 !important;
+    }
+    
+    /* 手機直式響應式調整 */
+    @media (max-width: 600px) {
+      .player-controls { padding: 30px 12px 12px 12px !important; }
+      .controls-left { gap: 12px !important; }
+      .controls-right { gap: 12px !important; }
+      .volume-slider { display: none !important; } /* 手機端節省空間隱藏拉條，保留圖示 */
+      #timeDisplay { font-size: 11px !important; margin-left: 0 !important; }
+      .chunk-dot { width: 5px; height: 5px; } /* 點點稍微縮小 */
+    }
+
   </style>
 </head>
 <body>
@@ -1076,28 +1103,40 @@ MEDVi 淨利率比正規醫療平台高出 11%，代價是全盤砍掉了法務�
         }
       });
 
+      // 7. 完美智慧全螢幕綁定 (支援 iOS 替補方案)
       btnFullscreen.addEventListener('click', function() {
-        if (!document.fullscreenElement) {
-          if (container.requestFullscreen) {
-            container.requestFullscreen();
-          } else if (container.webkitRequestFullscreen) {
-            container.webkitRequestFullscreen();
-          } else if (container.msRequestFullscreen) {
-            container.msRequestFullscreen();
+        // 偵測裝置是否支援原生的元素全螢幕 API
+        const canNativeFullscreen = container.requestFullscreen || container.webkitRequestFullscreen || container.msRequestFullscreen;
+        
+        if (canNativeFullscreen) {
+          // Android、電腦版等支援原生全螢幕的裝置
+          if (!document.fullscreenElement && !document.webkitFullscreenElement) {
+            if (container.requestFullscreen) {
+              container.requestFullscreen();
+            } else if (container.webkitRequestFullscreen) {
+              container.webkitRequestFullscreen();
+            } else if (container.msRequestFullscreen) {
+              container.msRequestFullscreen();
+            }
+          } else {
+            if (document.exitFullscreen) {
+              document.exitFullscreen();
+            } else if (document.webkitExitFullscreen) {
+              document.webkitExitFullscreen();
+            } else if (document.msExitFullscreen) {
+              document.msExitFullscreen();
+            }
           }
         } else {
-          if (document.exitFullscreen) {
-            document.exitFullscreen();
-          } else if (document.webkitExitFullscreen) {
-            document.webkitExitFullscreen();
-          } else if (document.msExitFullscreen) {
-            document.msExitFullscreen();
+          // 🌟 針對 iOS iPhone 的完美替補方案：CSS 強制滿版全螢幕
+          container.classList.toggle('ios-fullscreen');
+          if (container.classList.contains('ios-fullscreen')) {
+            document.body.style.overflow = 'hidden'; // 鎖住背後網頁，防止背景滑動
+          } else {
+            document.body.style.overflow = ''; // 恢復網頁滑動
           }
         }
-      });
-
-      document.addEventListener('fullscreenchange', () => {
-         wakeUpUI();
+        wakeUpUI(); // 點擊後確保 UI 喚醒讓使用者確認狀態
       });
 
       updateButtonStates();
