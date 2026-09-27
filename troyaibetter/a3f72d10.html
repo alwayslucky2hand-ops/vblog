@@ -80,6 +80,33 @@
       box-shadow: 0 4px 12px rgba(0,0,0,0.06);
       pointer-events: none; 
     }
+
+    /* 🌟 新增：手機響應式播放器控制列與 iOS 全螢幕修復 */
+    .controls-main-row { width: 100%; }
+    
+    /* 蘋果 iOS 專用滿版全螢幕替補方案 */
+    .ios-fullscreen {
+      position: fixed !important;
+      top: 0 !important;
+      left: 0 !important;
+      width: 100vw !important;
+      height: 100dvh !important;
+      z-index: 999999 !important;
+      border-radius: 0 !important;
+      margin: 0 !important;
+      background: #000 !important;
+    }
+    
+    /* 手機直式響應式調整 */
+    @media (max-width: 600px) {
+      .player-controls { padding: 30px 12px 12px 12px !important; }
+      .controls-left { gap: 12px !important; }
+      .controls-right { gap: 12px !important; }
+      .volume-slider { display: none !important; } /* 手機端節省空間隱藏拉條，保留圖示 */
+      #timeDisplay { font-size: 11px !important; margin-left: 0 !important; }
+      .chunk-dot { width: 5px; height: 5px; } /* 點點稍微縮小 */
+    }
+
   </style>
 </head>
 <body>
@@ -968,28 +995,40 @@ AI Agent 時代的終極差距不是技術，而是說故事的能力。
         }
       });
 
+      // 7. 完美智慧全螢幕綁定 (支援 iOS 替補方案)
       btnFullscreen.addEventListener('click', function() {
-        if (!document.fullscreenElement) {
-          if (container.requestFullscreen) {
-            container.requestFullscreen();
-          } else if (container.webkitRequestFullscreen) {
-            container.webkitRequestFullscreen();
-          } else if (container.msRequestFullscreen) {
-            container.msRequestFullscreen();
+        // 偵測裝置是否支援原生的元素全螢幕 API
+        const canNativeFullscreen = container.requestFullscreen || container.webkitRequestFullscreen || container.msRequestFullscreen;
+        
+        if (canNativeFullscreen) {
+          // Android、電腦版等支援原生全螢幕的裝置
+          if (!document.fullscreenElement && !document.webkitFullscreenElement) {
+            if (container.requestFullscreen) {
+              container.requestFullscreen();
+            } else if (container.webkitRequestFullscreen) {
+              container.webkitRequestFullscreen();
+            } else if (container.msRequestFullscreen) {
+              container.msRequestFullscreen();
+            }
+          } else {
+            if (document.exitFullscreen) {
+              document.exitFullscreen();
+            } else if (document.webkitExitFullscreen) {
+              document.webkitExitFullscreen();
+            } else if (document.msExitFullscreen) {
+              document.msExitFullscreen();
+            }
           }
         } else {
-          if (document.exitFullscreen) {
-            document.exitFullscreen();
-          } else if (document.webkitExitFullscreen) {
-            document.webkitExitFullscreen();
-          } else if (document.msExitFullscreen) {
-            document.msExitFullscreen();
+          // 🌟 針對 iOS iPhone 的完美替補方案：CSS 強制滿版全螢幕
+          container.classList.toggle('ios-fullscreen');
+          if (container.classList.contains('ios-fullscreen')) {
+            document.body.style.overflow = 'hidden'; // 鎖住背後網頁，防止背景滑動
+          } else {
+            document.body.style.overflow = ''; // 恢復網頁滑動
           }
         }
-      });
-
-      document.addEventListener('fullscreenchange', () => {
-         wakeUpUI();
+        wakeUpUI(); // 點擊後確保 UI 喚醒讓使用者確認狀態
       });
 
       updateButtonStates();
@@ -1084,32 +1123,6 @@ AI Agent 時代的終極差距不是技術，而是說故事的能力。
              
              if (res.data.urls && res.data.urls.length > 0) {
                const vHtml = `
-
-    <style>
-      /* 🌟 手機版 UIUX 極致響應式優化與偽全螢幕支援 */
-      .custom-player-controls-row { display: flex; justify-content: space-between; align-items: center; }
-      .custom-player-left { display: flex; align-items: center; gap: 24px; }
-      .custom-player-right { display: flex; align-items: center; gap: 20px; }
-      
-      /* 偽全螢幕樣式：當系統不支援原生全螢幕時的完美替代方案 */
-      .pseudo-fullscreen { 
-        position: fixed !important; top: 0 !important; left: 0 !important; 
-        width: 100vw !important; height: 100vh !important; 
-        z-index: 999999 !important; border-radius: 0 !important; 
-        max-width: none !important; margin: 0 !important;
-      }
-      
-      @media (max-width: 600px) {
-        .custom-player-left { gap: 12px; }
-        .custom-player-right { gap: 10px; }
-        /* 💡 核心優化：手機版隱藏音量條(改用實體按鍵)，釋放大量空間 */
-        .volume-container { display: none !important; } 
-        #playerControls { padding: 30px 12px 12px 12px !important; }
-        #timeDisplay { margin-left: 0 !important; font-size: 12px !important; }
-        .chunk-dot { width: 5px !important; height: 5px !important; }
-      }
-    </style>
-
     <div style="margin-top: 48px; border-top: 1px solid #e2e8f0; padding-top: 32px;">
       <h3 style="font-size: 18px; font-weight: 800; margin-bottom: 16px;">專屬影音紀錄</h3>
       
@@ -1141,8 +1154,9 @@ AI Agent 時代的終極差距不是技術，而是說故事的能力。
                </div>
             </div>
 
-            <div style="display: flex; justify-content: space-between; align-items: center;">
-                <div style="display: flex; align-items: center; gap: 24px;">
+            <!-- 🌟 套用響應式 Class：controls-main-row, controls-left, controls-right -->
+            <div class="controls-main-row" style="display: flex; justify-content: space-between; align-items: center;">
+                <div class="controls-left" style="display: flex; align-items: center; gap: 24px;">
                     <!-- 上一段 -->
                     <svg id="btnPrevIcon" style="opacity:0.4;" xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="19 20 9 12 19 4 19 20"></polygon><line x1="5" y1="19" x2="5" y2="5"></line></svg>
                     <!-- 播放/暫停 -->
@@ -1152,14 +1166,14 @@ AI Agent 時代的終極差距不是技術，而是說故事的能力。
                     
                     <span id="timeDisplay" style="color:white; font-size: 13px; font-variant-numeric: tabular-nums; opacity: 0.8; margin-left: -8px;">0:00</span>
                     
-                    <!-- 🌟 新增：音量控制區塊 -->
+                    <!-- 音量控制區塊 -->
                     <div class="volume-container" style="display: flex; align-items: center; gap: 10px; margin-left: 8px;">
                         <svg id="btnVolumeIcon" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="white" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon><path d="M15.54 8.46a5 5 0 0 1 0 7.07"></path><path d="M19.07 4.93a10 10 0 0 1 0 14.14"></path></svg>
                         <input type="range" id="volumeSlider" class="volume-slider" min="0" max="1" step="0.05" value="1">
                     </div>
                 </div>
                 
-                <div style="display: flex; align-items: center; gap: 20px;">
+                <div class="controls-right" style="display: flex; align-items: center; gap: 20px;">
                     <!-- 片段指示點 -->
                     <div id="chunkDots" style="display:flex; gap:6px;"></div>
                     <!-- 全螢幕 -->
