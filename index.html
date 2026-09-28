@@ -992,7 +992,7 @@
   function escapeHtml(str) { return window.escapeHtml(str); }
 
   
-  const GAS_WEB_URL = "https://script.google.com/macros/s/AKfycbzNVJjdnOKJMy9v3A6TURw8p6U7OdUy4fnUZHIcU3dL1t6DSNWBi1oB79wrEWN2XHQiUQ/exec";
+  const GAS_WEB_URL = "https://script.google.com/macros/s/AKfycbxJ_OQkf3bgc7R4hoJPkWeByTD5Jomc1uBp9etLPcTAFJn9c9NjFCGWBCSvX8q2DCs/exec";
   const GAS_URL = GAS_WEB_URL;
 
   let currentStream = null;
@@ -1317,6 +1317,7 @@
 
   
   async function api(payload, retries = 2) {
+    
     if (typeof google !== 'undefined' && google.script && google.script.run) {
       return new Promise((resolve, reject) => {
         google.script.run
@@ -1328,65 +1329,34 @@
           .withFailureHandler(err => reject(err))
           .handleClientRequest(payload);
       });
-    } else {
-      return new Promise((resolve, reject) => {
-        const callbackName = 'jsonp_callback_' + Math.round(100000 * Math.random());
-        const urlParams = new URLSearchParams();
-        urlParams.append('callback', callbackName);
-        
-        for (const key in payload) {
-           if (typeof payload[key] === 'object') {
-              urlParams.append(key, JSON.stringify(payload[key]));
-           } else {
-              urlParams.append(key, payload[key]);
-           }
-        }
-        
-        const requestUrl = GAS_WEB_URL + '?' + urlParams.toString();
-        const script = document.createElement('script');
-        script.src = requestUrl;
-        
-        
-        let isCleanedUp = false;
-        const cleanup = () => {
-          if (isCleanedUp) return;
-          isCleanedUp = true;
+    } 
+    
+    else {
+      for (let i = 0; i <= retries; i++) {
+        try {
           
-          window[callbackName] = function() {}; 
+          const response = await fetch(GAS_WEB_URL, {
+            method: 'POST',
+            headers: { 
+              'Content-Type': 'text/plain;charset=utf-8' 
+            },
+            body: JSON.stringify(payload)
+          });
           
-          try {
-            if (script && script.parentNode) {
-              script.parentNode.removeChild(script);
-            }
-          } catch (e) {
-            console.warn("Script node already removed", e);
-          }
-        };
-        
-        
-        const timeoutId = setTimeout(() => {
-          cleanup();
-          reject(new Error("請求超時，檔案過大或網路連線較慢，請稍後重試。"));
-        }, 45000); 
-        
-        window[callbackName] = function(response) {
-          clearTimeout(timeoutId);
-          cleanup(); 
-          if (response.status === 'success') {
-            resolve(response.data);
+          const res = await response.json();
+          if (res.status === 'success') {
+            return res.data;
           } else {
-            reject(new Error(response.message || "伺服器發生未知錯誤"));
+            throw new Error(res.message || "伺服器發生未知錯誤");
           }
-        };
-        
-        script.onerror = function() {
-          clearTimeout(timeoutId);
-          cleanup(); 
-          reject(new Error("無法載入腳本，請確認網路狀態或 GAS 權限"));
-        };
-        
-        document.body.appendChild(script);
-      });
+        } catch (e) {
+          if (i === retries) {
+            throw new Error("無法連線到伺服器，請確認 GAS 權限為「所有人」且網址正確 (" + e.message + ")");
+          }
+          
+          await new Promise(r => setTimeout(r, 1000));
+        }
+      }
     }
   }
 
