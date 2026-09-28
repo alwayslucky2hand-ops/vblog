@@ -1043,69 +1043,6 @@ AI Agent 時代的終極差距不是技術，而是說故事的能力。
     .ai-chat-btn:hover { transform: scale(1.05); box-shadow: 0 12px 28px rgba(0,0,0,0.2); }
     
     .ai-chat-badge { position: absolute; top: -2px; right: -2px; background: #ef4444; color: white; font-size: 13px; font-weight: 800; width: 22px; height: 22px; border-radius: 50%; display: flex; align-items: center; justify-content: center; border: 2px solid #fff; box-sizing: content-box; animation: badgePulse 2s infinite; transition: opacity 0.3s ease; pointer-events: none; }
-
-    /* 🌟 新增：自訂極簡播放器 UI 樣式 */
-    .custom-player-container { cursor: default; }
-    .custom-player-container.is-idle { cursor: none; }
-    .custom-player-container.is-idle .player-controls,
-    .custom-player-container.is-idle #bigPlayBtn { opacity: 0 !important; pointer-events: none; }
-
-    /* 🌟 新增：自訂極簡播放器 UI 樣式 (沉浸式隱藏版) */
-    .custom-player-container { 
-      cursor: default; 
-      -webkit-tap-highlight-color: transparent; /* 消除手機點擊的反白框 */
-    }
-    .custom-player-container.is-idle { cursor: none; }
-    
-    /* 當進入 idle 狀態時，強制把控制列與大按鈕隱藏並關閉點擊事件 */
-    .custom-player-container.is-idle #playerControls,
-    .custom-player-container.is-idle #bigPlayBtn { 
-      opacity: 0 !important; 
-      pointer-events: none !important; 
-    }
-    
-    .player-controls svg { cursor: pointer; transition: 0.2s transform, 0.2s filter; }
-    .player-controls svg:hover { transform: scale(1.15); filter: drop-shadow(0 0 6px rgba(255,255,255,0.6)); }
-    
-    .chunk-dot { width: 6px; height: 6px; border-radius: 50%; background: rgba(255,255,255,0.3); transition: 0.3s; }
-    .chunk-dot.active { background: #3b82f6; box-shadow: 0 0 6px #3b82f6; transform: scale(1.2); }
-    
-    .player-controls svg { cursor: pointer; transition: 0.2s transform, 0.2s filter; }
-    .player-controls svg:hover { transform: scale(1.15); filter: drop-shadow(0 0 6px rgba(255,255,255,0.6)); }
-    
-    .chunk-dot { width: 6px; height: 6px; border-radius: 50%; background: rgba(255,255,255,0.3); transition: 0.3s; }
-    .chunk-dot.active { background: #3b82f6; box-shadow: 0 0 6px #3b82f6; transform: scale(1.2); }
-
-    /* 🌟 新增：極簡音量拉條專屬樣式 */
-    .volume-slider { 
-      -webkit-appearance: none; 
-      background: transparent; 
-      cursor: pointer; 
-      outline: none; 
-      width: 60px;
-      transition: width 0.2s ease, opacity 0.2s;
-    }
-    .volume-slider::-webkit-slider-runnable-track { 
-      width: 100%; 
-      height: 4px; 
-      background: rgba(255,255,255,0.3); 
-      border-radius: 2px; 
-    }
-    .volume-slider::-webkit-slider-thumb { 
-      -webkit-appearance: none; 
-      height: 10px; 
-      width: 10px; 
-      border-radius: 50%; 
-      background: #ffffff; 
-      margin-top: -3px; 
-      box-shadow: 0 0 4px rgba(0,0,0,0.5); 
-      transition: transform 0.1s; 
-    }
-    .volume-slider::-webkit-slider-thumb:hover { 
-      transform: scale(1.3); 
-    }
-    /* 讓音量區塊在滑鼠滑過時，拉條會有延伸展開的質感體驗 (可選) */
-    .volume-container:hover .volume-slider { width: 80px; }
     
     /* 🎯 核心修復：電腦版寬度延展至 80vw、拉滿 90% 高度 */
     .ai-chat-window { 
@@ -1155,8 +1092,6 @@ AI Agent 時代的終極差距不是技術，而是說故事的能力。
       }
       .ai-chat-btn { width: 56px; height: 56px; }
     }
-
-
   </style>
   <div class="ai-chat-widget" id="aiChatWidget">
     <div id="aiChatWindow" class="ai-chat-window">
