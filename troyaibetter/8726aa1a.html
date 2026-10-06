@@ -388,30 +388,12 @@
 讓ＡＩ為你效勞，讓工作不再過勞。
 我是特洛伊，一起用ＡＩ守住光陰。</div></noscript>
       
-    <div style="margin-top: 48px; border-top: 1px solid #e2e8f0; padding-top: 32px;">
-      <h3 style="font-size: 18px; font-weight: 800; margin-bottom: 16px;">專屬影音紀錄</h3>
-      <div style="background: #000; border-radius: 8px; overflow: hidden; margin-bottom: 16px; border: 1px solid #e2e8f0; box-shadow: 0 4px 12px rgba(0,0,0,0.05);">
-        
-        <div id="seamlessVideoContainer" style="position: relative; width: 100%; aspect-ratio: 16/9; background: #000; overflow: hidden;">
-          <video id="videoPlayerA" playsinline style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 2; opacity: 1; transition: opacity 0.2s; background: #000; object-fit: contain;"></video>
-          <video id="videoPlayerB" playsinline style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 1; opacity: 0; transition: opacity 0.2s; background: #000; object-fit: contain;"></video>
-        </div>
-        
-        <div style="display:flex; flex-wrap:wrap; justify-content: space-between; align-items: center; padding: 12px 16px; background: #0f172a; gap: 12px;">
-          <div style="display:flex; align-items:center; gap:8px;">
-            <button id="btnPrevChunk" disabled style="background: #1e293b; color: #f8fafc; border: 1px solid #334155; padding: 6px 12px; border-radius: 4px; font-weight: 700; font-size: 13px; transition: 0.2s; outline: none; cursor: pointer;">上一段</button>
-            <select id="chunkSelector" style="background: #1e293b; color: #f8fafc; border: 1px solid #334155; padding: 6px 8px; border-radius: 4px; font-size: 13px; outline: none; cursor: pointer; max-width: 100px;">
-              <option value="">載入中...</option>
-            </select>
-            <button id="btnNextChunk" disabled style="background: #1e293b; color: #f8fafc; border: 1px solid #334155; padding: 6px 12px; border-radius: 4px; font-weight: 700; font-size: 13px; transition: 0.2s; outline: none; cursor: pointer;">下一段</button>
-          </div>
-          <div style="display:flex; align-items:center; gap:12px;">
-            <span id="videoStatus" style="color: #94a3b8; font-size: 13px;">準備就緒</span>
-            <button id="btnStartStream" style="background: #3175B5; color: #fff; border: none; padding: 6px 16px; border-radius: 4px; font-weight: 700; cursor: pointer; font-size: 13px; transition: background 0.2s;">啟動播放</button>
+        <div style="margin-top: 48px; border-top: 1px solid #e2e8f0; padding-top: 32px;">
+          <h3 style="font-size: 18px; font-weight: 800; margin-bottom: 16px;">YouTube 影音紀錄</h3>
+          <div style="background: #000; border-radius: 8px; overflow: hidden; margin-bottom: 16px; border: 1px solid #e2e8f0; box-shadow: 0 4px 12px rgba(0,0,0,0.05);">
+            <iframe src="https://www.youtube.com/embed/Qp1gl7xDKMU" frameborder="0" allowfullscreen style="width: 100%; aspect-ratio: 16/9; display: block;"></iframe>
           </div>
         </div>
-      </div>
-    </div>
     
       </main>
     </article>
@@ -847,7 +829,7 @@
         document.getElementById("content").innerHTML = marked.parse(rawMd);
       }
       
-      bindVideoLogic(["https://drive.google.com/file/d/1nG9WPIdOEfPaJLsTT-cJJHCEihwh1yWo/view?usp=drivesdk","https://drive.google.com/file/d/1bGShMsiydhrUXkSCyuAIHB5RRmXTYerc/view?usp=drivesdk","https://drive.google.com/file/d/1u5a5jH3y5J1K-bgIVNpIhbw6Ic3Yip3k/view?usp=drivesdk","https://drive.google.com/file/d/1CMs1DRPHbODIDLfkZuzhQltkG6ARJS7A/view?usp=drivesdk","https://drive.google.com/file/d/1Id1dueA8IuJ_CZQQ-8lofPjvBhWT8B2k/view?usp=drivesdk","https://drive.google.com/file/d/11lGQUJWCHjGBr3s3-_He-whfZUq7eXtr/view?usp=drivesdk","https://drive.google.com/file/d/1iQm5BAjKjIoN66vlohznGXd46aGMMpCp/view?usp=drivesdk","https://drive.google.com/file/d/1gx3d2P4RwPQGw0mA001Pi-vQ6H3nAMF_/view?usp=drivesdk","https://drive.google.com/file/d/1kEo0LBNsafcoFfs8rhzrwvvc5d56OHbS/view?usp=drivesdk","https://drive.google.com/file/d/1urAF0QI802a4LxNzFz13i0jD-nhKbuN5/view?usp=drivesdk","https://drive.google.com/file/d/1d9Ah9pVoKo0cIHTEusFJnhgLlqfCwM_D/view?usp=drivesdk","https://drive.google.com/file/d/102ArzSdWo7u-ptB_FJz3HtFBH0ieOKpy/view?usp=drivesdk","https://drive.google.com/file/d/1qKMGys5HakTkCuYF8bqH6p-2slZaFMw3/view?usp=drivesdk","https://drive.google.com/file/d/1zpSnkNy-p5qBU-4pLwbK2DzYS-qgFVmy/view?usp=drivesdk","https://drive.google.com/file/d/1GmaXMCdNHPw_7OV3h11tyGvjVbAR70Iz/view?usp=drivesdk","https://drive.google.com/file/d/19xO4tvZxfShf7zV8h4Lx7TbEceQYQX7P/view?usp=drivesdk","https://drive.google.com/file/d/1lZD2lY1FBrg1HVI11BpdtSbrugv3bpwx/view?usp=drivesdk","https://drive.google.com/file/d/1VvGYUQWaxe5ZZNTKoXgTKL8-n3LJEYng/view?usp=drivesdk","https://drive.google.com/file/d/1y5JWzvMa8mg1fehDJvNKRtnnLcE3gT1-/view?usp=drivesdk","https://drive.google.com/file/d/1C-6U3oPAZd-Y1Qa5a2BhDNf6YPNnTaWd/view?usp=drivesdk","https://drive.google.com/file/d/1mMPzBlyAETW_c4-GKgCHG82sidi01RsG/view?usp=drivesdk","https://drive.google.com/file/d/105O9RHMaQUIMyazZKkyWIVaAkuhRoLHr/view?usp=drivesdk","https://drive.google.com/file/d/1dT1nWOiDSPAStdLxYmcu7sIEHlK9sW_P/view?usp=drivesdk","https://drive.google.com/file/d/1SeGgaN65YLaP5vxim6MMyflK1o_yCqob/view?usp=drivesdk","https://drive.google.com/file/d/13tKrVVbJTsO5hDFHrZplw_lCOpM-FMHW/view?usp=drivesdk","https://drive.google.com/file/d/1iXNX0yrJU2xmWKAVVwQ6iksZP5HiR1ex/view?usp=drivesdk","https://drive.google.com/file/d/1QBArAh6cLfQM1KfF-XgqCHiKClpYth0n/view?usp=drivesdk","https://drive.google.com/file/d/1As_pmaf_mJ52u-fXhSkpr_vFZ3MpSpG6/view?usp=drivesdk","https://drive.google.com/file/d/1jWSas4T5yzJw2aKO8MwB5tZsDTMWbxNN/view?usp=drivesdk"]);
+      
       
       const wrapper = document.getElementById("salonIntroWrapper");
       const btn = document.getElementById("expandIntroBtn");
@@ -911,9 +893,9 @@
             document.getElementById("content").innerHTML = marked.parse(rawMd);
             
             if (res.data.urls && res.data.urls.length > 0) {
-              const vHtml = "\n    <div style=\"margin-top: 48px; border-top: 1px solid #e2e8f0; padding-top: 32px;\">\n      <h3 style=\"font-size: 18px; font-weight: 800; margin-bottom: 16px;\">專屬影音紀錄</h3>\n      <div style=\"background: #000; border-radius: 8px; overflow: hidden; margin-bottom: 16px; border: 1px solid #e2e8f0; box-shadow: 0 4px 12px rgba(0,0,0,0.05);\">\n        \n        <div id=\"seamlessVideoContainer\" style=\"position: relative; width: 100%; aspect-ratio: 16/9; background: #000; overflow: hidden;\">\n          <video id=\"videoPlayerA\" playsinline style=\"position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 2; opacity: 1; transition: opacity 0.2s; background: #000; object-fit: contain;\"></video>\n          <video id=\"videoPlayerB\" playsinline style=\"position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 1; opacity: 0; transition: opacity 0.2s; background: #000; object-fit: contain;\"></video>\n        </div>\n        \n        <div style=\"display:flex; flex-wrap:wrap; justify-content: space-between; align-items: center; padding: 12px 16px; background: #0f172a; gap: 12px;\">\n          <div style=\"display:flex; align-items:center; gap:8px;\">\n            <button id=\"btnPrevChunk\" disabled style=\"background: #1e293b; color: #f8fafc; border: 1px solid #334155; padding: 6px 12px; border-radius: 4px; font-weight: 700; font-size: 13px; transition: 0.2s; outline: none; cursor: pointer;\">上一段</button>\n            <select id=\"chunkSelector\" style=\"background: #1e293b; color: #f8fafc; border: 1px solid #334155; padding: 6px 8px; border-radius: 4px; font-size: 13px; outline: none; cursor: pointer; max-width: 100px;\">\n              <option value=\"\">載入中...</option>\n            </select>\n            <button id=\"btnNextChunk\" disabled style=\"background: #1e293b; color: #f8fafc; border: 1px solid #334155; padding: 6px 12px; border-radius: 4px; font-weight: 700; font-size: 13px; transition: 0.2s; outline: none; cursor: pointer;\">下一段</button>\n          </div>\n          <div style=\"display:flex; align-items:center; gap:12px;\">\n            <span id=\"videoStatus\" style=\"color: #94a3b8; font-size: 13px;\">準備就緒</span>\n            <button id=\"btnStartStream\" style=\"background: #3175B5; color: #fff; border: none; padding: 6px 16px; border-radius: 4px; font-weight: 700; cursor: pointer; font-size: 13px; transition: background 0.2s;\">啟動播放</button>\n          </div>\n        </div>\n      </div>\n    </div>";
+              const vHtml = "\n        <div style=\"margin-top: 48px; border-top: 1px solid #e2e8f0; padding-top: 32px;\">\n          <h3 style=\"font-size: 18px; font-weight: 800; margin-bottom: 16px;\">YouTube 影音紀錄</h3>\n          <div style=\"background: #000; border-radius: 8px; overflow: hidden; margin-bottom: 16px; border: 1px solid #e2e8f0; box-shadow: 0 4px 12px rgba(0,0,0,0.05);\">\n            <iframe src=\"https://www.youtube.com/embed/Qp1gl7xDKMU\" frameborder=\"0\" allowfullscreen style=\"width: 100%; aspect-ratio: 16/9; display: block;\"></iframe>\n          </div>\n        </div>";
               document.getElementById("dynamicVideoPlayerArea").innerHTML = vHtml;
-              bindVideoLogic(res.data.urls);
+              
             }
           } else {
             msg.innerText = res.message || "驗證失敗"; msg.style.color = "#ef4444";
