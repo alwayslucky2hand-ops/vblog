@@ -1,0 +1,930 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>寫給還在為資工系自卑的小老闆：當 Google 把工程師技能下放，你只需要會說白話文｜特洛伊AI賦能師［AI實戰］ | 特洛伊AI賦能師 - 微型創業AI賦能實戰</title>
+
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+  <meta http-equiv="Pragma" content="no-cache">
+  <meta http-equiv="Expires" content="0">
+  
+  <meta name="description" content="過去半年到一年的軟體開發週期，現在只需要 48 小時。這不是天方夜譚，而是當 Google 將工程師技能「特供化」後，所有微型創業者都該掌握的生存特權。 我曾是搬家工人，也當過專案經理，深刻體會軟體商不懂一線痛點的開發災難。透過 AI 代理人協作，我將百萬級別的開發案縮短至百小時內完成，用實戰證明：定義問題的「品味」，才是數位轉型最核心的資產。 如果你是一個微型創業者，你可能常被「數位轉型」這四個字壓得喘不過氣。 每當你想優化排單系統、建立客戶管理流程，或是想讓生意自動化， 迎面而來的總是不懂業務邏輯的軟體商。 他們報價五十萬、一百萬，開發期拉長到半年甚至一年。 最痛苦的是，當系統終於上線，你卻發現工程師做出來的東西，完全不符合第一線的汗水與邏輯。 你必須花費無數心力去調整格式、去迎合那些生硬的代碼， 最後，系統成了累贅，而你依然困在數位化的牢籠裡。 這種焦慮感，源自於一種長期的迷思： 「我不懂寫程式，所以我沒辦法掌控數位化。」 但 Google I/O 大會與最新的趨勢報告已經明確宣告，這種時代即將終結。 當 Gemini 這種高級 AI 代理被深度整合進搜尋與工作空間， 那些原本昂貴的、需要資工系背景才能調用的技術，現在已經被簡化成「白話文」就能驅動的特攻部隊。 未來的職場與創業圈，最具議價能力的不再是寫代碼的人， 而是能夠精準定義問題、設定驗收標準的 AI PM。 回想我過去在搬家公司排單、在手搖飲店調飲、在零售現場點貨的經歷。 我發現，真正懂業務痛點的小老闆，才是最有資格擔任「數位指揮官」的人。 你不需要學 Python，不需要懂 Java。 你只需要會說白話文，會用邏輯去拆解你的工作流程。 我親手帶領學員，利用 AI 代理人進行「腦袋梳理」。 讓 AI 扮演犀利的記者反問你業務細節，將你的碎念轉化為產品規格書，再交由 AI 工程師生成指令。 過去要花一百萬、等上一年的系統，現在透過高性能溝通， 可能在 48 小時到 100 小時內，就能在你的手機與電腦中落地運行。 這是一場屬於微型創業者的地位躍遷。 當你不再為「不懂技術」感到自卑， 你的一線實戰經驗，就是驅動 AI 軍團最強大的燃料。 別再讓那些昂貴且緩慢的開發流程限制你的想像力。 現在，你一個人，就是一整間由 Google 特工組成的軟體公司。">
+  <meta name="author" content="特洛伊AI賦能師">
+  <meta name="robots" content="index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1">
+  <meta name="google-site-verification" content="aKNbLICoqI8XH1erGWtQEL-2XQqV3pBbkkscoThxqMQ" />
+  <link rel="canonical" href="https://alwayslucky2hand-ops.github.io/vblog/troyaibetter/8726aa1a.html">
+
+  <meta property="og:locale" content="zh_TW">
+  <meta property="og:type" content="article">
+  <meta property="og:title" content="寫給還在為資工系自卑的小老闆：當 Google 把工程師技能下放，你只需要會說白話文｜特洛伊AI賦能師［AI實戰］">
+  <meta property="og:description" content="過去半年到一年的軟體開發週期，現在只需要 48 小時。這不是天方夜譚，而是當 Google 將工程師技能「特供化」後，所有微型創業者都該掌握的生存特權。 我曾是搬家工人，也當過專案經理，深刻體會軟體商不懂一線痛點的開發災難。透過 AI 代理人協作，我將百萬級別的開發案縮短至百小時內完成，用實戰證明：定義問題的「品味」，才是數位轉型最核心的資產。 如果你是一個微型創業者，你可能常被「數位轉型」這四個字壓得喘不過氣。 每當你想優化排單系統、建立客戶管理流程，或是想讓生意自動化， 迎面而來的總是不懂業務邏輯的軟體商。 他們報價五十萬、一百萬，開發期拉長到半年甚至一年。 最痛苦的是，當系統終於上線，你卻發現工程師做出來的東西，完全不符合第一線的汗水與邏輯。 你必須花費無數心力去調整格式、去迎合那些生硬的代碼， 最後，系統成了累贅，而你依然困在數位化的牢籠裡。 這種焦慮感，源自於一種長期的迷思： 「我不懂寫程式，所以我沒辦法掌控數位化。」 但 Google I/O 大會與最新的趨勢報告已經明確宣告，這種時代即將終結。 當 Gemini 這種高級 AI 代理被深度整合進搜尋與工作空間， 那些原本昂貴的、需要資工系背景才能調用的技術，現在已經被簡化成「白話文」就能驅動的特攻部隊。 未來的職場與創業圈，最具議價能力的不再是寫代碼的人， 而是能夠精準定義問題、設定驗收標準的 AI PM。 回想我過去在搬家公司排單、在手搖飲店調飲、在零售現場點貨的經歷。 我發現，真正懂業務痛點的小老闆，才是最有資格擔任「數位指揮官」的人。 你不需要學 Python，不需要懂 Java。 你只需要會說白話文，會用邏輯去拆解你的工作流程。 我親手帶領學員，利用 AI 代理人進行「腦袋梳理」。 讓 AI 扮演犀利的記者反問你業務細節，將你的碎念轉化為產品規格書，再交由 AI 工程師生成指令。 過去要花一百萬、等上一年的系統，現在透過高性能溝通， 可能在 48 小時到 100 小時內，就能在你的手機與電腦中落地運行。 這是一場屬於微型創業者的地位躍遷。 當你不再為「不懂技術」感到自卑， 你的一線實戰經驗，就是驅動 AI 軍團最強大的燃料。 別再讓那些昂貴且緩慢的開發流程限制你的想像力。 現在，你一個人，就是一整間由 Google 特工組成的軟體公司。">
+  <meta property="og:image" content="https://drive.google.com/thumbnail?id=1KuDoAil9NwRE3nMGgMeD6hby1TtR5lqA&sz=w1280">
+  <meta property="og:url" content="https://alwayslucky2hand-ops.github.io/vblog/troyaibetter/8726aa1a.html">
+  <meta property="article:published_time" content="2026-10-06T11:31:07.000Z">
+  <meta property="article:modified_time" content="2026-10-06T11:31:07.000Z">
+  <meta property="article:author" content="https://alwayslucky2hand-ops.github.io/vblog/troyaibetter/">
+  <meta property="article:section" content="AI實戰">
+
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="寫給還在為資工系自卑的小老闆：當 Google 把工程師技能下放，你只需要會說白話文｜特洛伊AI賦能師［AI實戰］">
+  <meta name="twitter:description" content="過去半年到一年的軟體開發週期，現在只需要 48 小時。這不是天方夜譚，而是當 Google 將工程師技能「特供化」後，所有微型創業者都該掌握的生存特權。 我曾是搬家工人，也當過專案經理，深刻體會軟體商不懂一線痛點的開發災難。透過 AI 代理人協作，我將百萬級別的開發案縮短至百小時內完成，用實戰證明：定義問題的「品味」，才是數位轉型最核心的資產。 如果你是一個微型創業者，你可能常被「數位轉型」這四個字壓得喘不過氣。 每當你想優化排單系統、建立客戶管理流程，或是想讓生意自動化， 迎面而來的總是不懂業務邏輯的軟體商。 他們報價五十萬、一百萬，開發期拉長到半年甚至一年。 最痛苦的是，當系統終於上線，你卻發現工程師做出來的東西，完全不符合第一線的汗水與邏輯。 你必須花費無數心力去調整格式、去迎合那些生硬的代碼， 最後，系統成了累贅，而你依然困在數位化的牢籠裡。 這種焦慮感，源自於一種長期的迷思： 「我不懂寫程式，所以我沒辦法掌控數位化。」 但 Google I/O 大會與最新的趨勢報告已經明確宣告，這種時代即將終結。 當 Gemini 這種高級 AI 代理被深度整合進搜尋與工作空間， 那些原本昂貴的、需要資工系背景才能調用的技術，現在已經被簡化成「白話文」就能驅動的特攻部隊。 未來的職場與創業圈，最具議價能力的不再是寫代碼的人， 而是能夠精準定義問題、設定驗收標準的 AI PM。 回想我過去在搬家公司排單、在手搖飲店調飲、在零售現場點貨的經歷。 我發現，真正懂業務痛點的小老闆，才是最有資格擔任「數位指揮官」的人。 你不需要學 Python，不需要懂 Java。 你只需要會說白話文，會用邏輯去拆解你的工作流程。 我親手帶領學員，利用 AI 代理人進行「腦袋梳理」。 讓 AI 扮演犀利的記者反問你業務細節，將你的碎念轉化為產品規格書，再交由 AI 工程師生成指令。 過去要花一百萬、等上一年的系統，現在透過高性能溝通， 可能在 48 小時到 100 小時內，就能在你的手機與電腦中落地運行。 這是一場屬於微型創業者的地位躍遷。 當你不再為「不懂技術」感到自卑， 你的一線實戰經驗，就是驅動 AI 軍團最強大的燃料。 別再讓那些昂貴且緩慢的開發流程限制你的想像力。 現在，你一個人，就是一整間由 Google 特工組成的軟體公司。">
+  <meta name="twitter:image" content="https://drive.google.com/thumbnail?id=1KuDoAil9NwRE3nMGgMeD6hby1TtR5lqA&sz=w1280">
+
+  <script type="application/ld+json">
+  {
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "Person",
+      "@id": "https://alwayslucky2hand-ops.github.io/vblog/troyaibetter/#author",
+      "name": "特洛伊AI賦能師",
+      "jobTitle": "微型創業 AI賦能 架構師 / AI講師",
+      "description": "國立陽明交通大學電機背景，專注於微型創業 AI 數位應用 與 AI自動化系統、Vibe Coding 與 Venture Coding 實戰教學。",
+      "image": "https://drive.google.com/thumbnail?id=1KuDoAil9NwRE3nMGgMeD6hby1TtR5lqA&sz=w1280",
+      "url": "https://alwayslucky2hand-ops.github.io/vblog/troyaibetter/",
+      "alumniOf": {
+        "@type": "EducationalOrganization",
+        "name": "國立陽明交通大學"
+      },
+      "knowsAbout": [
+        "AI學習",
+        "微型創業AI賦能",
+        "Vibe Coding",
+        "Venture Coding",
+        "Google Apps Script 自動化",
+        "AI智能客服系統",
+        "一人公司"
+      ],
+      "sameAs": [
+        "https://www.facebook.com/share/1MGVhZxwUz/?mibextid=wwXIfr",
+        "https://youtube.com/playlist?list=PLvqFgrghkpF7iM1PVJ_Iq46YItvqwX9VV&si=FLhCK7a9v7hh7vzg",
+        "https://rubybranddesign-cloud.github.io/e-line-card-share/troyAIempower/"
+      ]
+    },
+    {
+      "@type": "Organization",
+      "@id": "https://alwayslucky2hand-ops.github.io/vblog/troyaibetter/#organization",
+      "name": "特洛伊AI賦能師 賦能工作室",
+      "url": "https://alwayslucky2hand-ops.github.io/vblog/troyaibetter/",
+      "logo": "https://drive.google.com/thumbnail?id=1KuDoAil9NwRE3nMGgMeD6hby1TtR5lqA&sz=w1280"
+    },
+    {
+      "@type": "BreadcrumbList",
+      "@id": "https://alwayslucky2hand-ops.github.io/vblog/troyaibetter/8726aa1a.html#breadcrumb",
+      "itemListElement": [
+        {
+          "@type": "ListItem",
+          "position": 1,
+          "name": "首頁沙龍",
+          "item": "https://alwayslucky2hand-ops.github.io/vblog/troyaibetter/"
+        },
+        {
+          "@type": "ListItem",
+          "position": 2,
+          "name": "AI實戰",
+          "item": "https://alwayslucky2hand-ops.github.io/vblog/troyaibetter/"
+        },
+        {
+          "@type": "ListItem",
+          "position": 3,
+          "name": "寫給還在為資工系自卑的小老闆：當 Google 把工程師技能下放，你只需要會說白話文｜特洛伊AI賦能師［AI實戰］",
+          "item": "https://alwayslucky2hand-ops.github.io/vblog/troyaibetter/8726aa1a.html"
+        }
+      ]
+    },
+    {
+      "@type": "BlogPosting",
+      "@id": "https://alwayslucky2hand-ops.github.io/vblog/troyaibetter/8726aa1a.html#article",
+      "mainEntityOfPage": "https://alwayslucky2hand-ops.github.io/vblog/troyaibetter/8726aa1a.html",
+      "isPartOf": {
+        "@type": "Blog",
+        "name": "特洛伊AI賦能師 專欄沙龍",
+        "url": "https://alwayslucky2hand-ops.github.io/vblog/troyaibetter/"
+      },
+      "headline": "寫給還在為資工系自卑的小老闆：當 Google 把工程師技能下放，你只需要會說白話文｜特洛伊AI賦能師［AI實戰］",
+      "description": "過去半年到一年的軟體開發週期，現在只需要 48 小時。這不是天方夜譚，而是當 Google 將工程師技能「特供化」後，所有微型創業者都該掌握的生存特權。 我曾是搬家工人，也當過專案經理，深刻體會軟體商不懂一線痛點的開發災難。透過 AI 代理人協作，我將百萬級別的開發案縮短至百小時內完成，用實戰證明：定義問題的「品味」，才是數位轉型最核心的資產。 如果你是一個微型創業者，你可能常被「數位轉型」這四個字壓得喘不過氣。 每當你想優化排單系統、建立客戶管理流程，或是想讓生意自動化， 迎面而來的總是不懂業務邏輯的軟體商。 他們報價五十萬、一百萬，開發期拉長到半年甚至一年。 最痛苦的是，當系統終於上線，你卻發現工程師做出來的東西，完全不符合第一線的汗水與邏輯。 你必須花費無數心力去調整格式、去迎合那些生硬的代碼， 最後，系統成了累贅，而你依然困在數位化的牢籠裡。 這種焦慮感，源自於一種長期的迷思： 「我不懂寫程式，所以我沒辦法掌控數位化。」 但 Google I/O 大會與最新的趨勢報告已經明確宣告，這種時代即將終結。 當 Gemini 這種高級 AI 代理被深度整合進搜尋與工作空間， 那些原本昂貴的、需要資工系背景才能調用的技術，現在已經被簡化成「白話文」就能驅動的特攻部隊。 未來的職場與創業圈，最具議價能力的不再是寫代碼的人， 而是能夠精準定義問題、設定驗收標準的 AI PM。 回想我過去在搬家公司排單、在手搖飲店調飲、在零售現場點貨的經歷。 我發現，真正懂業務痛點的小老闆，才是最有資格擔任「數位指揮官」的人。 你不需要學 Python，不需要懂 Java。 你只需要會說白話文，會用邏輯去拆解你的工作流程。 我親手帶領學員，利用 AI 代理人進行「腦袋梳理」。 讓 AI 扮演犀利的記者反問你業務細節，將你的碎念轉化為產品規格書，再交由 AI 工程師生成指令。 過去要花一百萬、等上一年的系統，現在透過高性能溝通， 可能在 48 小時到 100 小時內，就能在你的手機與電腦中落地運行。 這是一場屬於微型創業者的地位躍遷。 當你不再為「不懂技術」感到自卑， 你的一線實戰經驗，就是驅動 AI 軍團最強大的燃料。 別再讓那些昂貴且緩慢的開發流程限制你的想像力。 現在，你一個人，就是一整間由 Google 特工組成的軟體公司。",
+      "image": [
+        "https://drive.google.com/thumbnail?id=1KuDoAil9NwRE3nMGgMeD6hby1TtR5lqA&sz=w1280"
+      ],
+      "datePublished": "2026-10-06T11:31:07.000Z",
+      "dateModified": "2026-10-06T11:31:07.000Z",
+      "author": {
+        "@id": "https://alwayslucky2hand-ops.github.io/vblog/troyaibetter/#author"
+      },
+      "publisher": {
+        "@id": "https://alwayslucky2hand-ops.github.io/vblog/troyaibetter/#organization"
+      },
+      "keywords": [
+        "AI學習",
+        "AI老師",
+        "AI賦能",
+        "微型創業",
+        "Vibe Coding",
+        "自動化系統",
+        "小店經營",
+        "一人公司"
+      ],
+      "about": [
+        {
+          "@type": "Thing",
+          "name": "AI學習"
+        },
+        {
+          "@type": "Thing",
+          "name": "微型創業"
+        },
+        {
+          "@type": "Thing",
+          "name": "Vibe Coding"
+        },
+        {
+          "@type": "Thing",
+          "name": "AI賦能"
+        }
+      ],
+      "articleBody": "# 寫給還在為資工系自卑的小老闆：當 Google 把工程師技能下放，你只需要會說白話文｜特洛伊AI賦能師［AI實戰］\n\n過去半年到一年的軟體開發週期，現在只需要 48 小時。這不是天方夜譚，而是當 Google 將工程師技能「特供化」後，所有微型創業者都該掌握的生存特權。\n\n我曾是搬家工人，也當過專案經理，深刻體會軟體商不懂一線痛點的開發災難。透過 AI 代理人協作，我將百萬級別的開發案縮短至百小時內完成，用實戰證明：定義問題的「品味」，才是數位轉型最核心的資產。\n\n如果你是一個微型創業者，你可能常被「數位轉型」這四個字壓得喘不過氣。\n每當你想優化排單系統、建立客戶管理流程，或是想讓生意自動化，\n迎面而來的總是不懂業務邏輯的軟體商。\n\n他們報價五十萬、一百萬，開發期拉長到半年甚至一年。\n最痛苦的是，當系統終於上線，你卻發現工程師做出來的東西，完全不符合第一線的汗水與邏輯。\n你必須花費無數心力去調整格式、去迎合那些生硬的代碼，\n最後，系統成了累贅，而你依然困在數位化的牢籠裡。\n\n這種焦慮感，源自於一種長期的迷思：\n「我不懂寫程式，所以我沒辦法掌控數位化。」\n\n但 Google I/O 大會與最新的趨勢報告已經明確宣告，這種時代即將終結。\n當 Gemini 這種高級 AI 代理被深度整合進搜尋與工作空間，\n那些原本昂貴的、需要資工系背景才能調用的技術，現在已經被簡化成「白話文」就能驅動的特攻部隊。\n\n未來的職場與創業圈，最具議價能力的不再是寫代碼的人，\n而是能夠精準定義問題、設定驗收標準的 AI PM。\n\n回想我過去在搬家公司排單、在手搖飲店調飲、在零售現場點貨的經歷。\n我發現，真正懂業務痛點的小老闆，才是最有資格擔任「數位指揮官」的人。\n你不需要學 Python，不需要懂 Java。\n你只需要會說白話文，會用邏輯去拆解你的工作流程。\n\n我親手帶領學員，利用 AI 代理人進行「腦袋梳理」。\n讓 AI 扮演犀利的記者反問你業務細節，將你的碎念轉化為產品規格書，再交由 AI 工程師生成指令。\n過去要花一百萬、等上一年的系統，現在透過高性能溝通，\n可能在 48 小時到 100 小時內，就能在你的手機與電腦中落地運行。\n\n這是一場屬於微型創業者的地位躍遷。\n當你不再為「不懂技術」感到自卑，\n你的一線實戰經驗，就是驅動 AI 軍團最強大的燃料。\n\n別再讓那些昂貴且緩慢的開發流程限制你的想像力。\n現在，你一個人，就是一整間由 Google 特工組成的軟體公司。\n\n---\n\n### 數位平民的權力翻轉：當 Google 成了你手中的特工部隊\n\n根據 2026 年 AI 代理趨勢報告與 Google I/O 大會的最新動態，一個歷史性的重塑正在發生。過去，如果你想搭建一套數位系統，你必須仰賴掌握代碼權力的工程師；但現在，這道技術柏林圍牆正在倒塌。Google 將 Gemini Agent 深度整合進 Android 與 Workspace，這意味著技術已經「特工化」且「平民化」。\n\n這是一場產業觀察：未來職場與創業圈最值錢的角色，不再是寫程式的機器勞動力，而是全新誕生的「AI PM」（AI 代理產品經理）。AI 時代正在消滅傳統的代碼工種，轉而賦予那些懂業務邏輯、懂市場痛點的創業者前所未有的議價能力。\n\n誰能定義好任務的邊界，誰能用自然語言向模型下達精準指令，誰就是新時代的超能指揮官。這宣告了一場地位躍遷，你不再需要為了不懂 Python 或 Java 而焦慮。只要掌握系統協調能力，你一個人就是一整間由 Google 特工組成的軟體公司。\n\n---\n\n### 從搬家工人到數位指揮官：軟體商不懂的一線汗水\n\n這是我個人的實戰經驗。在投入 AI 賦能之前，我曾是搬家公司的專案經理，親自下場配送過無數張床墊。當時我們想導入數位貨運系統，找了報價昂貴的軟體商合作。然而，這卻是一場災難的開始。\n\n工程師坐在辦公室開發出的系統，完全脫離現實。現場搬運人員要在忙亂中調整資料格式去迎合系統，而不是系統服務於人。排單不直覺、簽收流程卡頓，我卡在老闆的責備與工程師的死腦筆觸之間，深刻體會到資訊傳輸的落差。那些開發者不在第一線，他們根本不知道搬家工人的手指在流汗時，是無法操作複雜介面的。\n\n這段慘痛經歷讓我明白：外面的系統商報價五十萬、一百萬，開發期拉長到一年，最後做出來的東西卻不落地。這不是專業問題，而是「轉譯」問題。創業者最懂第一線的客戶痛點，這種來自現場的商業常識，才是最巨大的價值。當技術下放到白話文就能調用時，那些自卑於「不懂資工」的小老闆，其實正握著最有威力的武器。\n\n---\n\n### 四十八小時的奇蹟：用 AI 代理人梳理腦袋裡的商業金礦\n\n現在，我不再依賴傳統開發流程。我建立了一套 AI 代理人團隊，每天早上七點，這支由 AI 扮演的犀利記者團隊，會針對《遠見》、《天下》與《商業本質》等深度內容對我進行採訪。這是我目前的實戰做法：我請 AI 模仿沈春華或蔡康永的視角，對我的業務邏輯進行連環追問。\n\n這種「高性能溝通」能強迫我把腦中的 5W2H 完整吐出來。接著，由專門的 AI 代理人將訪談內容轉化為產品規格書，再交由下一個 AI 生成使用者旅程，最後產出精準的提示詞給 AI 工程師執行。\n\n過去需要半年、耗資百萬的系統開發，現在透過這套 AI 代理人協作流程，我帶領學員在 48 到 100 小時內就能完成系統落地。這不是寫代碼的能力，而是「定義問題與驗收結果」的品味。我當過外送員、調飲師、零售商，我深知沒數位化的痛苦。現在，我們終於可以不再看工程師臉色，用最白話的語言，指揮數位軍團解決現實世界的難題。\n\n若你正深陷轉型焦慮，或是想體驗如何用白話文驅動 AI 代理人，歡迎到我的 [VBLOG](https://alwayslucky2hand-ops.github.io/vblog/troyaibetter/)，與我的智能分身進行深度問答，或直接預約十五分鐘的線上免費諮詢。\n\n---\n\n以上內容是我透過AI Agent 對我的採訪，我所輸出的內容。\n\n在技術迭代的洪流中，我們曾以為程式碼是唯一的通行證，卻忘了清晰的思考才是驅動世界的靈魂。當 Google 等科技巨擘將工程技能下放給每一位使用者時，曾經的專業壁壘，正化作通往未來的坦途。\n\n資工系的背景固然珍貴，但身為經營者的你，那份洞察市場痛點、組織邏輯、並將願景轉化為精準指令的白話文能力，才是新時代最強大的武裝。技術不再是阻礙，而是你意志的延伸。\n\n祝福每一位在數位轉型路上曾感到自卑或徬徨的小老闆，都能透過這篇內容找到安放焦慮的支點。請記住，不是你跟不上時代，而是時代終於進化到了能讓你的才華大放異彩的時刻。\n\n如果你也感受到這股科技賦能的力量，邀請你點擊收藏，或是將這份啟發轉發給身邊同樣在創業路上奮鬥的夥伴。\n\n若你渴望將這份體悟轉化為實質的生產力，歡迎點擊連結進入我的 VBLOG。在那裡，你可以與我的智能分身進行深度問答，或是直接預約十五分鐘的線上免費諮詢，讓我們共同探討如何將 AI 植入你的商業邏輯。\n（點擊進入 VBLOG：https://alwayslucky2hand-ops.github.io/vblog/troyaibetter/）\n\n讓ＡＩ為你效勞，讓工作不再過勞。\n我是特洛伊，一起用ＡＩ守住光陰。"
+    }
+  ]
+}
+  </script>
+
+  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+  <style>
+    html, body { max-width: 100%; overflow-x: hidden; }
+    * { box-sizing: border-box; }
+    
+    body { 
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; 
+      background: #ffffff; color: #0f172a; line-height: 1.8; margin: 0; padding: 0; 
+    }
+
+    .container { max-width: 720px; margin: 0 auto; padding: 32px 20px 60px 20px; }
+    .markdown-body { font-size: 17px; line-height: 2.1; color: #1e293b; }
+    .markdown-body h2 { font-size: 24px; margin: 40px 0 16px 0; font-weight: 800; color: #0f172a; }
+    .markdown-body h3 { font-size: 20px; color: #3175B5; margin: 32px 0 16px 0; font-weight: 800; }
+    
+    .markdown-body img { 
+      max-width: 100%; 
+      height: auto; 
+      object-fit: contain; 
+      border-radius: 8px; 
+      display: block; 
+      margin: 32px auto; 
+      box-shadow: 0 4px 12px rgba(0,0,0,0.06); 
+      pointer-events: none; 
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <nav aria-label="麵包屑導覽" style="margin-bottom: 24px; font-size: 14px;">
+      <a href="index.html" style="color:#64748b; text-decoration:none; font-weight:600;">← 返回沙龍</a>
+    </nav>
+
+    <article>
+      <header style="margin-bottom: 32px;">
+        <h1 style="font-size: 32px; font-weight: 800; line-height: 1.3; margin-bottom: 24px; color: #0f172a;">寫給還在為資工系自卑的小老闆：當 Google 把工程師技能下放，你只需要會說白話文｜特洛伊AI賦能師［AI實戰］</h1>
+        <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 16px; border-bottom: 1px solid #e2e8f0; padding-bottom: 24px;">
+          
+          <div style="display: flex; align-items: center; gap: 12px;">
+            <a href="https://alwayslucky2hand-ops.github.io/vblog/troyaibetter/" style="display: flex; align-items: center; gap: 12px; text-decoration: none; color: inherit;">
+              <img src="https://drive.google.com/thumbnail?id=1KuDoAil9NwRE3nMGgMeD6hby1TtR5lqA&sz=w1280" alt="特洛伊AI賦能師" style="width: 48px; height: 48px; border-radius: 50%; object-fit: cover; pointer-events: auto;">
+              <div>
+                <div style="font-weight: 700; font-size: 15px; color: #0f172a;">作者：特洛伊AI賦能師</div>
+                <time datetime="2026-10-06T11:31:07.000Z" style="font-size: 13px; color: #64748b;">2026/10/06 發布</time>
+              </div>
+            </a>
+          </div>
+
+          <div style="padding: 4px 10px; border-radius: 4px; font-size: 13px; font-weight: 700; color: #fff; background: #64748b;">公開</div>
+        </div>
+      </header>
+
+      <main>
+        
+      <div id="content" class="markdown-body"></div>
+      <textarea id="raw-md" style="display:none;"># 寫給還在為資工系自卑的小老闆：當 Google 把工程師技能下放，你只需要會說白話文｜特洛伊AI賦能師［AI實戰］
+
+過去半年到一年的軟體開發週期，現在只需要 48 小時。這不是天方夜譚，而是當 Google 將工程師技能「特供化」後，所有微型創業者都該掌握的生存特權。
+
+我曾是搬家工人，也當過專案經理，深刻體會軟體商不懂一線痛點的開發災難。透過 AI 代理人協作，我將百萬級別的開發案縮短至百小時內完成，用實戰證明：定義問題的「品味」，才是數位轉型最核心的資產。
+
+如果你是一個微型創業者，你可能常被「數位轉型」這四個字壓得喘不過氣。
+每當你想優化排單系統、建立客戶管理流程，或是想讓生意自動化，
+迎面而來的總是不懂業務邏輯的軟體商。
+
+他們報價五十萬、一百萬，開發期拉長到半年甚至一年。
+最痛苦的是，當系統終於上線，你卻發現工程師做出來的東西，完全不符合第一線的汗水與邏輯。
+你必須花費無數心力去調整格式、去迎合那些生硬的代碼，
+最後，系統成了累贅，而你依然困在數位化的牢籠裡。
+
+這種焦慮感，源自於一種長期的迷思：
+「我不懂寫程式，所以我沒辦法掌控數位化。」
+
+但 Google I/O 大會與最新的趨勢報告已經明確宣告，這種時代即將終結。
+當 Gemini 這種高級 AI 代理被深度整合進搜尋與工作空間，
+那些原本昂貴的、需要資工系背景才能調用的技術，現在已經被簡化成「白話文」就能驅動的特攻部隊。
+
+未來的職場與創業圈，最具議價能力的不再是寫代碼的人，
+而是能夠精準定義問題、設定驗收標準的 AI PM。
+
+回想我過去在搬家公司排單、在手搖飲店調飲、在零售現場點貨的經歷。
+我發現，真正懂業務痛點的小老闆，才是最有資格擔任「數位指揮官」的人。
+你不需要學 Python，不需要懂 Java。
+你只需要會說白話文，會用邏輯去拆解你的工作流程。
+
+我親手帶領學員，利用 AI 代理人進行「腦袋梳理」。
+讓 AI 扮演犀利的記者反問你業務細節，將你的碎念轉化為產品規格書，再交由 AI 工程師生成指令。
+過去要花一百萬、等上一年的系統，現在透過高性能溝通，
+可能在 48 小時到 100 小時內，就能在你的手機與電腦中落地運行。
+
+這是一場屬於微型創業者的地位躍遷。
+當你不再為「不懂技術」感到自卑，
+你的一線實戰經驗，就是驅動 AI 軍團最強大的燃料。
+
+別再讓那些昂貴且緩慢的開發流程限制你的想像力。
+現在，你一個人，就是一整間由 Google 特工組成的軟體公司。
+
+---
+
+### 數位平民的權力翻轉：當 Google 成了你手中的特工部隊
+
+根據 2026 年 AI 代理趨勢報告與 Google I/O 大會的最新動態，一個歷史性的重塑正在發生。過去，如果你想搭建一套數位系統，你必須仰賴掌握代碼權力的工程師；但現在，這道技術柏林圍牆正在倒塌。Google 將 Gemini Agent 深度整合進 Android 與 Workspace，這意味著技術已經「特工化」且「平民化」。
+
+這是一場產業觀察：未來職場與創業圈最值錢的角色，不再是寫程式的機器勞動力，而是全新誕生的「AI PM」（AI 代理產品經理）。AI 時代正在消滅傳統的代碼工種，轉而賦予那些懂業務邏輯、懂市場痛點的創業者前所未有的議價能力。
+
+誰能定義好任務的邊界，誰能用自然語言向模型下達精準指令，誰就是新時代的超能指揮官。這宣告了一場地位躍遷，你不再需要為了不懂 Python 或 Java 而焦慮。只要掌握系統協調能力，你一個人就是一整間由 Google 特工組成的軟體公司。
+
+---
+
+### 從搬家工人到數位指揮官：軟體商不懂的一線汗水
+
+這是我個人的實戰經驗。在投入 AI 賦能之前，我曾是搬家公司的專案經理，親自下場配送過無數張床墊。當時我們想導入數位貨運系統，找了報價昂貴的軟體商合作。然而，這卻是一場災難的開始。
+
+工程師坐在辦公室開發出的系統，完全脫離現實。現場搬運人員要在忙亂中調整資料格式去迎合系統，而不是系統服務於人。排單不直覺、簽收流程卡頓，我卡在老闆的責備與工程師的死腦筆觸之間，深刻體會到資訊傳輸的落差。那些開發者不在第一線，他們根本不知道搬家工人的手指在流汗時，是無法操作複雜介面的。
+
+這段慘痛經歷讓我明白：外面的系統商報價五十萬、一百萬，開發期拉長到一年，最後做出來的東西卻不落地。這不是專業問題，而是「轉譯」問題。創業者最懂第一線的客戶痛點，這種來自現場的商業常識，才是最巨大的價值。當技術下放到白話文就能調用時，那些自卑於「不懂資工」的小老闆，其實正握著最有威力的武器。
+
+---
+
+### 四十八小時的奇蹟：用 AI 代理人梳理腦袋裡的商業金礦
+
+現在，我不再依賴傳統開發流程。我建立了一套 AI 代理人團隊，每天早上七點，這支由 AI 扮演的犀利記者團隊，會針對《遠見》、《天下》與《商業本質》等深度內容對我進行採訪。這是我目前的實戰做法：我請 AI 模仿沈春華或蔡康永的視角，對我的業務邏輯進行連環追問。
+
+這種「高性能溝通」能強迫我把腦中的 5W2H 完整吐出來。接著，由專門的 AI 代理人將訪談內容轉化為產品規格書，再交由下一個 AI 生成使用者旅程，最後產出精準的提示詞給 AI 工程師執行。
+
+過去需要半年、耗資百萬的系統開發，現在透過這套 AI 代理人協作流程，我帶領學員在 48 到 100 小時內就能完成系統落地。這不是寫代碼的能力，而是「定義問題與驗收結果」的品味。我當過外送員、調飲師、零售商，我深知沒數位化的痛苦。現在，我們終於可以不再看工程師臉色，用最白話的語言，指揮數位軍團解決現實世界的難題。
+
+若你正深陷轉型焦慮，或是想體驗如何用白話文驅動 AI 代理人，歡迎到我的 [VBLOG](https://alwayslucky2hand-ops.github.io/vblog/troyaibetter/)，與我的智能分身進行深度問答，或直接預約十五分鐘的線上免費諮詢。
+
+---
+
+以上內容是我透過AI Agent 對我的採訪，我所輸出的內容。
+
+在技術迭代的洪流中，我們曾以為程式碼是唯一的通行證，卻忘了清晰的思考才是驅動世界的靈魂。當 Google 等科技巨擘將工程技能下放給每一位使用者時，曾經的專業壁壘，正化作通往未來的坦途。
+
+資工系的背景固然珍貴，但身為經營者的你，那份洞察市場痛點、組織邏輯、並將願景轉化為精準指令的白話文能力，才是新時代最強大的武裝。技術不再是阻礙，而是你意志的延伸。
+
+祝福每一位在數位轉型路上曾感到自卑或徬徨的小老闆，都能透過這篇內容找到安放焦慮的支點。請記住，不是你跟不上時代，而是時代終於進化到了能讓你的才華大放異彩的時刻。
+
+如果你也感受到這股科技賦能的力量，邀請你點擊收藏，或是將這份啟發轉發給身邊同樣在創業路上奮鬥的夥伴。
+
+若你渴望將這份體悟轉化為實質的生產力，歡迎點擊連結進入我的 VBLOG。在那裡，你可以與我的智能分身進行深度問答，或是直接預約十五分鐘的線上免費諮詢，讓我們共同探討如何將 AI 植入你的商業邏輯。
+（點擊進入 VBLOG：https://alwayslucky2hand-ops.github.io/vblog/troyaibetter/）
+
+讓ＡＩ為你效勞，讓工作不再過勞。
+我是特洛伊，一起用ＡＩ守住光陰。</textarea>
+      <noscript><div style="white-space: pre-wrap; line-height: 1.8; color: #1e293b;"># 寫給還在為資工系自卑的小老闆：當 Google 把工程師技能下放，你只需要會說白話文｜特洛伊AI賦能師［AI實戰］
+
+過去半年到一年的軟體開發週期，現在只需要 48 小時。這不是天方夜譚，而是當 Google 將工程師技能「特供化」後，所有微型創業者都該掌握的生存特權。
+
+我曾是搬家工人，也當過專案經理，深刻體會軟體商不懂一線痛點的開發災難。透過 AI 代理人協作，我將百萬級別的開發案縮短至百小時內完成，用實戰證明：定義問題的「品味」，才是數位轉型最核心的資產。
+
+如果你是一個微型創業者，你可能常被「數位轉型」這四個字壓得喘不過氣。
+每當你想優化排單系統、建立客戶管理流程，或是想讓生意自動化，
+迎面而來的總是不懂業務邏輯的軟體商。
+
+他們報價五十萬、一百萬，開發期拉長到半年甚至一年。
+最痛苦的是，當系統終於上線，你卻發現工程師做出來的東西，完全不符合第一線的汗水與邏輯。
+你必須花費無數心力去調整格式、去迎合那些生硬的代碼，
+最後，系統成了累贅，而你依然困在數位化的牢籠裡。
+
+這種焦慮感，源自於一種長期的迷思：
+「我不懂寫程式，所以我沒辦法掌控數位化。」
+
+但 Google I/O 大會與最新的趨勢報告已經明確宣告，這種時代即將終結。
+當 Gemini 這種高級 AI 代理被深度整合進搜尋與工作空間，
+那些原本昂貴的、需要資工系背景才能調用的技術，現在已經被簡化成「白話文」就能驅動的特攻部隊。
+
+未來的職場與創業圈，最具議價能力的不再是寫代碼的人，
+而是能夠精準定義問題、設定驗收標準的 AI PM。
+
+回想我過去在搬家公司排單、在手搖飲店調飲、在零售現場點貨的經歷。
+我發現，真正懂業務痛點的小老闆，才是最有資格擔任「數位指揮官」的人。
+你不需要學 Python，不需要懂 Java。
+你只需要會說白話文，會用邏輯去拆解你的工作流程。
+
+我親手帶領學員，利用 AI 代理人進行「腦袋梳理」。
+讓 AI 扮演犀利的記者反問你業務細節，將你的碎念轉化為產品規格書，再交由 AI 工程師生成指令。
+過去要花一百萬、等上一年的系統，現在透過高性能溝通，
+可能在 48 小時到 100 小時內，就能在你的手機與電腦中落地運行。
+
+這是一場屬於微型創業者的地位躍遷。
+當你不再為「不懂技術」感到自卑，
+你的一線實戰經驗，就是驅動 AI 軍團最強大的燃料。
+
+別再讓那些昂貴且緩慢的開發流程限制你的想像力。
+現在，你一個人，就是一整間由 Google 特工組成的軟體公司。
+
+---
+
+### 數位平民的權力翻轉：當 Google 成了你手中的特工部隊
+
+根據 2026 年 AI 代理趨勢報告與 Google I/O 大會的最新動態，一個歷史性的重塑正在發生。過去，如果你想搭建一套數位系統，你必須仰賴掌握代碼權力的工程師；但現在，這道技術柏林圍牆正在倒塌。Google 將 Gemini Agent 深度整合進 Android 與 Workspace，這意味著技術已經「特工化」且「平民化」。
+
+這是一場產業觀察：未來職場與創業圈最值錢的角色，不再是寫程式的機器勞動力，而是全新誕生的「AI PM」（AI 代理產品經理）。AI 時代正在消滅傳統的代碼工種，轉而賦予那些懂業務邏輯、懂市場痛點的創業者前所未有的議價能力。
+
+誰能定義好任務的邊界，誰能用自然語言向模型下達精準指令，誰就是新時代的超能指揮官。這宣告了一場地位躍遷，你不再需要為了不懂 Python 或 Java 而焦慮。只要掌握系統協調能力，你一個人就是一整間由 Google 特工組成的軟體公司。
+
+---
+
+### 從搬家工人到數位指揮官：軟體商不懂的一線汗水
+
+這是我個人的實戰經驗。在投入 AI 賦能之前，我曾是搬家公司的專案經理，親自下場配送過無數張床墊。當時我們想導入數位貨運系統，找了報價昂貴的軟體商合作。然而，這卻是一場災難的開始。
+
+工程師坐在辦公室開發出的系統，完全脫離現實。現場搬運人員要在忙亂中調整資料格式去迎合系統，而不是系統服務於人。排單不直覺、簽收流程卡頓，我卡在老闆的責備與工程師的死腦筆觸之間，深刻體會到資訊傳輸的落差。那些開發者不在第一線，他們根本不知道搬家工人的手指在流汗時，是無法操作複雜介面的。
+
+這段慘痛經歷讓我明白：外面的系統商報價五十萬、一百萬，開發期拉長到一年，最後做出來的東西卻不落地。這不是專業問題，而是「轉譯」問題。創業者最懂第一線的客戶痛點，這種來自現場的商業常識，才是最巨大的價值。當技術下放到白話文就能調用時，那些自卑於「不懂資工」的小老闆，其實正握著最有威力的武器。
+
+---
+
+### 四十八小時的奇蹟：用 AI 代理人梳理腦袋裡的商業金礦
+
+現在，我不再依賴傳統開發流程。我建立了一套 AI 代理人團隊，每天早上七點，這支由 AI 扮演的犀利記者團隊，會針對《遠見》、《天下》與《商業本質》等深度內容對我進行採訪。這是我目前的實戰做法：我請 AI 模仿沈春華或蔡康永的視角，對我的業務邏輯進行連環追問。
+
+這種「高性能溝通」能強迫我把腦中的 5W2H 完整吐出來。接著，由專門的 AI 代理人將訪談內容轉化為產品規格書，再交由下一個 AI 生成使用者旅程，最後產出精準的提示詞給 AI 工程師執行。
+
+過去需要半年、耗資百萬的系統開發，現在透過這套 AI 代理人協作流程，我帶領學員在 48 到 100 小時內就能完成系統落地。這不是寫代碼的能力，而是「定義問題與驗收結果」的品味。我當過外送員、調飲師、零售商，我深知沒數位化的痛苦。現在，我們終於可以不再看工程師臉色，用最白話的語言，指揮數位軍團解決現實世界的難題。
+
+若你正深陷轉型焦慮，或是想體驗如何用白話文驅動 AI 代理人，歡迎到我的 [VBLOG](https://alwayslucky2hand-ops.github.io/vblog/troyaibetter/)，與我的智能分身進行深度問答，或直接預約十五分鐘的線上免費諮詢。
+
+---
+
+以上內容是我透過AI Agent 對我的採訪，我所輸出的內容。
+
+在技術迭代的洪流中，我們曾以為程式碼是唯一的通行證，卻忘了清晰的思考才是驅動世界的靈魂。當 Google 等科技巨擘將工程技能下放給每一位使用者時，曾經的專業壁壘，正化作通往未來的坦途。
+
+資工系的背景固然珍貴，但身為經營者的你，那份洞察市場痛點、組織邏輯、並將願景轉化為精準指令的白話文能力，才是新時代最強大的武裝。技術不再是阻礙，而是你意志的延伸。
+
+祝福每一位在數位轉型路上曾感到自卑或徬徨的小老闆，都能透過這篇內容找到安放焦慮的支點。請記住，不是你跟不上時代，而是時代終於進化到了能讓你的才華大放異彩的時刻。
+
+如果你也感受到這股科技賦能的力量，邀請你點擊收藏，或是將這份啟發轉發給身邊同樣在創業路上奮鬥的夥伴。
+
+若你渴望將這份體悟轉化為實質的生產力，歡迎點擊連結進入我的 VBLOG。在那裡，你可以與我的智能分身進行深度問答，或是直接預約十五分鐘的線上免費諮詢，讓我們共同探討如何將 AI 植入你的商業邏輯。
+（點擊進入 VBLOG：https://alwayslucky2hand-ops.github.io/vblog/troyaibetter/）
+
+讓ＡＩ為你效勞，讓工作不再過勞。
+我是特洛伊，一起用ＡＩ守住光陰。</div></noscript>
+      
+    <div style="margin-top: 48px; border-top: 1px solid #e2e8f0; padding-top: 32px;">
+      <h3 style="font-size: 18px; font-weight: 800; margin-bottom: 16px;">專屬影音紀錄</h3>
+      <div style="background: #000; border-radius: 8px; overflow: hidden; margin-bottom: 16px; border: 1px solid #e2e8f0; box-shadow: 0 4px 12px rgba(0,0,0,0.05);">
+        
+        <div id="seamlessVideoContainer" style="position: relative; width: 100%; aspect-ratio: 16/9; background: #000; overflow: hidden;">
+          <video id="videoPlayerA" playsinline style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 2; opacity: 1; transition: opacity 0.2s; background: #000; object-fit: contain;"></video>
+          <video id="videoPlayerB" playsinline style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 1; opacity: 0; transition: opacity 0.2s; background: #000; object-fit: contain;"></video>
+        </div>
+        
+        <div style="display:flex; flex-wrap:wrap; justify-content: space-between; align-items: center; padding: 12px 16px; background: #0f172a; gap: 12px;">
+          <div style="display:flex; align-items:center; gap:8px;">
+            <button id="btnPrevChunk" disabled style="background: #1e293b; color: #f8fafc; border: 1px solid #334155; padding: 6px 12px; border-radius: 4px; font-weight: 700; font-size: 13px; transition: 0.2s; outline: none; cursor: pointer;">上一段</button>
+            <select id="chunkSelector" style="background: #1e293b; color: #f8fafc; border: 1px solid #334155; padding: 6px 8px; border-radius: 4px; font-size: 13px; outline: none; cursor: pointer; max-width: 100px;">
+              <option value="">載入中...</option>
+            </select>
+            <button id="btnNextChunk" disabled style="background: #1e293b; color: #f8fafc; border: 1px solid #334155; padding: 6px 12px; border-radius: 4px; font-weight: 700; font-size: 13px; transition: 0.2s; outline: none; cursor: pointer;">下一段</button>
+          </div>
+          <div style="display:flex; align-items:center; gap:12px;">
+            <span id="videoStatus" style="color: #94a3b8; font-size: 13px;">準備就緒</span>
+            <button id="btnStartStream" style="background: #3175B5; color: #fff; border: none; padding: 6px 16px; border-radius: 4px; font-weight: 700; cursor: pointer; font-size: 13px; transition: background 0.2s;">啟動播放</button>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+      </main>
+    </article>
+
+    
+    <footer style="margin-top: 60px; margin-bottom: 40px; background: #ffffff; border-radius: 12px; padding: 40px; border: 1px solid #e2e8f0;">
+      <div style="display: flex; gap: 32px; align-items: flex-start; flex-wrap: wrap;">
+        <img src="https://drive.google.com/thumbnail?id=1KuDoAil9NwRE3nMGgMeD6hby1TtR5lqA&sz=w1280" loading="lazy" alt="特洛伊AI賦能師" style="width: 100px; height: 100px; border-radius: 50%; object-fit: cover; border: 2px solid #e2e8f0;">
+        <div style="flex: 1; min-width: 200px; text-align: left;">
+          <h2 style="font-size: 24px; font-weight: 800; margin-bottom: 12px; color: #0f172a;">特洛伊AI賦能師</h2>
+          <p style="font-size: 15px; color: #64748b; margin-bottom: 16px; line-height: 1.6;">交大電機畢業，刻骨過5次跨界微型創業、銘心過5家飲料店從出生到長大，堅持過6年的家族搬家貨運與轉型循環經濟，我很懂「校長兼撞鐘」的身不由己。我 Vibe Coding 已經超過1萬小時，也帶領10組以上學員做出客製化系統。我正在將知識和經驗系統化、模組化，化為祝福分享在網路上。追蹤我，讓ＡＩ為你效勞、讓創業不再過勞，讓創業也能兼顧伴侶和家庭生活。歡迎邀約演講、論壇、講座。</p>
+          
+      <div class="intro-container" style="position: relative; margin-bottom: 24px;">
+        <div id="salonIntroWrapper" style="max-height: 100px; overflow: hidden; position: relative; transition: max-height 0.3s ease;">
+          <p class="intro" style="white-space: pre-wrap; font-size: 15px; color: #0f172a; line-height: 1.8;">各位讀者們好，你閱讀一篇文章，就是我傳遞祝福的一小步，而我相信這每一步，都在幫助人類學習與AI的協作，我始終相信，AI的出現不是為了取代人類，而是妥善運用，可以讓人類活得更像人。為了讓這份祝福，可以更被妥善的運用，我將我VBLOG的知識內容，分類為公開文章、會員限定。
+
+［ 1. 公開文章 ］：
+這裡記錄我的所見所聞、所思所想，帶著祝福的心意，分享創業與AI實戰應用。幫助我們一起同頻共振，一同解放工時。
+
+［ 2. 會員限定 ］（尚未開張）：
+這裡將紀錄我所錄製的線上課程，有我現在最夯的官方LINE智能客服班，以及Venture Coding 客製化系統班。直接透過實作教學，帶你一步步做出自己「解放工時」的WebAPP，瀏覽器打開，隨時登入即可觀看試用。
+
+=====
+
+【 關於訂閱制權益 】
+目前我將我的訂閱機制分成：一般會員、享學會員。
+
+［一般會員］：免費。
+
+- 〔公開文章無限暢閱〕：
+只要有文章發布，
+就會在Email收到我們的最新文章電子報。 
+可觀看我的特洛伊主題文章。
+
+- 〔 學員的老闆智能AI 〕：
+我的智能客服班學員來自各產業，
+想問什麼產業專業，搜尋點入文章，
+24H就有他們的專業分身可以問唷！
+
+- 〔特洛伊AI分身無限暢聊〕：
+我將我的近百篇創業xAI實戰發表或隱藏文章轉為知識庫，
+點擊右下方的訊息小按鈕，
+詢問AI應用與VibeCoding問題時，
+我的分身就會調閱我的知識庫回覆。
+
+=====
+
+［享學會員］：$298/月 或 $2980/年。
+需要Email驗證解鎖，可享無時空限制、不限次數閱讀觀賞「會員限定」文章。
+
+- 〔 線上實戰教學課程 〕：
+只要有網路和電腦/行動裝置，
+就能開啟我的線上課程，持續的學習。
+
+- 〔 學員實用WebAPP試用 〕：
+你的需求，世界上的某一類人可能也有，
+我們將學員作品透過錄影與介紹上架，
+提供給特洛伊讀者免付費試用。
+
+======
+
+願這些文字和影音，都能轉化為我們在 AI 浪潮下，不被吞噬，反而能站穩活出生命光彩的祝福。
+感謝各位，我是特洛伊，一起用 AI 守護光陰。
+
+-----
+
+若要完整認識特洛伊AI賦能師，請在文章搜尋欄位搜尋：
+
+讓系統為你效勞，讓創業不再過勞：一個交大電機男孩的8年飲料夢、貨車後斗的眼淚，與AI時代的生命救贖｜特洛伊AI賦能師［創業日記］
+
+----</p>
+          <div id="introGradient" style="position: absolute; bottom: 0; left: 0; right: 0; height: 40px; background: linear-gradient(transparent, #ffffff);"></div>
+        </div>
+        <button id="expandIntroBtn" style="background: none; border: none; color: #3175B5; font-size: 14px; font-weight: 700; cursor: pointer; margin-top: 8px; display: flex; align-items: center; gap: 4px; padding: 0;">閱讀完整介紹</button>
+      </div>
+    
+          <div class="social-links" style="display:flex; gap:12px; margin-top:16px; flex-wrap:wrap;"><a href="mailto:biz.growthx.ai@gmail.com" target="_blank" style="color:#64748b;" title="Email"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="20" height="16" x="2" y="4" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg></a><a href="https://www.facebook.com/share/1MGVhZxwUz/?mibextid=wwXIfr" target="_blank" style="color:#64748b;" title="Facebook"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"/></svg></a><a href="https://www.instagram.com/troy.growthx.ai?stkn=cm9mbzQxZjZ0aGZw&utm_source=qr" target="_blank" style="color:#64748b;" title="Instagram"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="20" height="20" x="2" y="2" rx="5" ry="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><line x1="17.5" x2="17.51" y1="6.5" y2="6.5"/></svg></a><a href="https://youtube.com/playlist?list=PLvqFgrghkpF7iM1PVJ_Iq46YItvqwX9VV&si=FLhCK7a9v7hh7vzg" target="_blank" style="color:#64748b;" title="YouTube"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2.5 17a24.12 24.12 0 0 1 0-10 2 2 0 0 1 1.4-1.4 49.56 49.56 0 0 1 16.2 0A2 2 0 0 1 21.5 7a24.12 24.12 0 0 1 0 10 2 2 0 0 1-1.4 1.4 49.55 49.55 0 0 1-16.2 0A2 2 0 0 1 2.5 17"/><path d="m10 15 5-3-5-3z"/></svg></a><a href="https://youtube.com/playlist?list=PLvqFgrghkpF5biyiMn3vjgpWPJyVgjEIH&si=4b5K0LnfmmmeIoVO" target="_blank" style="color:#64748b;" title="Podcast"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 14h3a2 2 0 0 1 2 2v3a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-7a9 9 0 0 1 18 0v7a2 2 0 0 1-2 2h-1a2 2 0 0 1-2-2v-3a2 2 0 0 1 2-2h3"/></svg></a><a href="https://rubybranddesign-cloud.github.io/e-line-card-share/troyAIempower/" target="_blank" style="color:#64748b;" title="Official Website"><svg xmlns="http://www.w3.org/2000/svg" style="width:20px;height:20px;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20"/><path d="M2 12h20"/></svg></a></div>
+        </div>
+      </div>
+      
+    <section class="membership-form-box" data-nosnippet="true" style="display:block !important; visibility:visible !important; margin-top: 24px; padding: 24px; border: 1px solid #e2e8f0; border-radius: 8px; background: #f8fafc; text-align: left;">
+      <h3 style="font-size: 18px; font-weight: 800; margin-bottom: 12px; display: flex; align-items: center; gap: 8px; color: #0f172a;">
+        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="20" height="16" x="2" y="4" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg>
+        申請加入會員 / 訂閱方案
+      </h3>
+      <p style="font-size: 14px; color: #475569; margin-bottom: 20px; line-height: 1.6;">
+        請選擇您的訂閱方案與填寫資料：
+      </p>
+      <form style="display: flex; flex-direction: column; gap: 12px; visibility:visible !important;" onsubmit="event.preventDefault(); window.submitSubForm(this, 'home', 'alwayslucky2hand@gmail.com');">
+        <select required style="padding: 12px; border: 1px solid #e2e8f0; border-radius: 4px; width: 100%; font-family: inherit; font-size: 14px; background: #fff; color: #0f172a; font-weight: 700;">
+          <option value="一般會員(免費)">一般會員 (免費)</option>
+          <option value="享學會員(月繳NT$298)">享學會員 (月繳NT$298)</option>
+          <option value="享學會員(年繳NT$2980)">享學會員 (年繳NT$2980)</option>
+        </select>
+        <input type="email" placeholder="您的 Email (必填)" required style="padding: 12px; border: 1px solid #e2e8f0; border-radius: 4px; width: 100%; box-sizing: border-box; font-family: inherit; font-size: 14px; background: #fff;">
+        <div style="display: flex; gap: 12px; flex-wrap: wrap;">
+          <input type="text" placeholder="姓名 / 暱稱 (必填)" required style="padding: 12px; border: 1px solid #e2e8f0; border-radius: 4px; flex: 1; min-width: 120px; font-family: inherit; font-size: 14px; background: #fff;">
+          <input type="text" placeholder="出生年月日 (必填)" onfocus="(this.type='date')" onblur="(this.value==''?this.type='text':this.type='date')" required style="padding: 12px; border: 1px solid #e2e8f0; border-radius: 4px; flex: 1; min-width: 120px; font-family: inherit; font-size: 14px; background: #fff;">
+        </div>
+        <button type="submit" style="margin-top: 8px; padding: 12px; background: #0f172a; color: #fff; border: none; border-radius: 4px; font-weight: 700; cursor: pointer; font-size: 14px; transition: background 0.2s;">送出申請並前往付款</button>
+      </form>
+    </section>
+  
+    </footer>
+  
+
+    <nav style="text-align: right; margin-top: -16px;">
+      <a href="index.html" style="color:#64748b; text-decoration:none; font-weight:600; display:inline-block;">← 返回沙龍</a>
+    </nav>
+  </div>
+  
+  
+  <style>
+    .ai-chat-widget { position: fixed; bottom: 24px; right: 24px; z-index: 9999; font-family: -apple-system, BlinkMacSystemFont, sans-serif; }
+    
+    .ai-chat-btn { width: 64px; height: 64px; border-radius: 50%; background: #0f172a; color: #fff; display: flex; align-items: center; justify-content: center; box-shadow: 0 8px 24px rgba(0,0,0,0.15); cursor: pointer; transition: transform 0.2s, box-shadow 0.2s, background 0.2s; border: none; position: relative; outline: none; }
+    .ai-chat-btn:hover { transform: scale(1.05); box-shadow: 0 12px 28px rgba(0,0,0,0.2); }
+    
+    .ai-chat-badge { position: absolute; top: -2px; right: -2px; background: #ef4444; color: white; font-size: 13px; font-weight: 800; width: 22px; height: 22px; border-radius: 50%; display: flex; align-items: center; justify-content: center; border: 2px solid #fff; box-sizing: content-box; animation: badgePulse 2s infinite; transition: opacity 0.3s ease; pointer-events: none; }
+    
+    /* 🎯 核心修復：電腦版寬度延展至 80vw、拉滿 90% 高度 */
+    .ai-chat-window { 
+      position: fixed; 
+      bottom: 100px; 
+      right: 24px; 
+      height: 90vh; /* 畫面拉到整個上下畫面的 90% */
+      width: 50vw; /* 電腦版改為延展至網頁 80% 寬度 */
+      min-width: 380px; 
+      max-height: calc(100vh - 120px);
+      max-width: calc(100vw - 48px); /* 螢幕過窄時防護 */
+      background: #fff; 
+      border-radius: 16px; 
+      box-shadow: 0 12px 48px rgba(0,0,0,0.2); 
+      overflow: hidden; 
+      display: none; 
+      flex-direction: column; 
+      border: 1px solid #e2e8f0; 
+      transform-origin: bottom right; 
+      animation: chatPop 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); 
+      z-index: 9999;
+    }
+    
+    .ai-chat-iframe { width: 100%; height: 100%; border: none; display: block; background: #fff; }
+    
+    /* 圖示旋轉變形動畫 (Morphing) */
+    .icon-msg { transition: opacity 0.2s ease, transform 0.3s ease; position: absolute; }
+    .icon-close { transition: opacity 0.2s ease, transform 0.3s ease; position: absolute; opacity: 0; transform: scale(0.5) rotate(-90deg); }
+    
+    .ai-chat-widget.is-open .icon-msg { opacity: 0; transform: scale(0.5) rotate(90deg); }
+    .ai-chat-widget.is-open .icon-close { opacity: 1; transform: scale(1) rotate(0deg); }
+    
+    @keyframes chatPop { 0% { opacity: 0; transform: scale(0.8); } 100% { opacity: 1; transform: scale(1); } }
+    @keyframes badgePulse { 0% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7); } 70% { box-shadow: 0 0 0 10px rgba(239, 68, 68, 0); } 100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); } }
+    
+    /* 📱 手機版：調整按鈕位置不擁擠，視窗絕對保證 9:16 且不裁切 */
+    @media (max-width: 768px) {
+      .ai-chat-widget { bottom: 32px; right: 24px; } /* 按鈕推高、往左移 */
+      .ai-chat-window { 
+        bottom: 100px; /* 視窗底部配合按鈕拉高 */
+        right: 24px; /* 視窗右側配合按鈕往左移 */
+        height: calc(100dvh - 120px); 
+        width: auto; 
+        aspect-ratio: 9 / 16; /* 手機版維持完美 9:16 直式比例 */
+        max-width: calc(100vw - 48px); 
+        min-width: 0; 
+      }
+      .ai-chat-btn { width: 56px; height: 56px; }
+    }
+  </style>
+  <div class="ai-chat-widget" id="aiChatWidget">
+    <div id="aiChatWindow" class="ai-chat-window">
+      <iframe src="https://alwayslucky2hand-ops.github.io/troyqa/" class="ai-chat-iframe" scrolling="yes"></iframe>
+    </div>
+    <button class="ai-chat-btn" onclick="toggleAiChat()">
+      <svg class="icon-msg" xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M7.9 20A9 9 0 1 0 4 16.1L2 22Z"/></svg>
+      <svg class="icon-close" xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" x2="6" y1="6" y2="18"/><line x1="6" x2="18" y1="6" y2="18"/></svg>
+      <div id="aiChatBadge" class="ai-chat-badge">1</div>
+    </button>
+  </div>
+  <script>
+    function toggleAiChat() {
+      const widget = document.getElementById('aiChatWidget');
+      const chatWin = document.getElementById('aiChatWindow');
+      const badge = document.getElementById('aiChatBadge');
+      
+      if (widget.classList.contains('is-open')) {
+        widget.classList.remove('is-open');
+        chatWin.style.display = 'none';
+      } else {
+        widget.classList.add('is-open');
+        chatWin.style.display = 'flex';
+        if(badge) badge.style.opacity = '0';
+      }
+    }
+  </script>
+  
+
+  <script>
+    window.submitSubForm = function(form, logId, authorEmail) {
+      const plan = form.querySelector('select') ? form.querySelector('select').value : "一般會員(免費)";
+      const email = form.querySelector('input[type="email"]').value;
+      const inputs = form.querySelectorAll('input[type="text"]');
+      const name = inputs[0] ? inputs[0].value : "";
+      const birth = inputs[1] ? inputs[1].value : "";
+      const btn = form.querySelector('button[type="submit"]');
+      const oldText = btn.innerHTML;
+      
+      btn.innerHTML = "處理中..."; btn.disabled = true;
+
+      fetch("https://script.google.com/macros/s/AKfycbyeqKhWv3TY8bpSdB9ZfWXNkR9yap66PyGxzEJqxpawWn9hZ9chfIuBPJfZHHoP91newQ/exec", {
+        method: "POST",
+        body: JSON.stringify({ action: "submitSubscription", logId: logId, authorEmail: authorEmail, plan: plan, subscriberEmail: email, subscriberName: name, subscriberBirth: birth })
+      }).then(r => r.json()).then(res => {
+        const resData = res.data || res;
+        if (resData.payuniForm) {
+          const pForm = document.createElement('form');
+          pForm.method = 'POST'; pForm.action = resData.payuniForm.actionUrl; pForm.style.display = 'none';
+          Object.keys(resData.payuniForm.params).forEach(key => {
+            const hiddenField = document.createElement('input');
+            hiddenField.type = 'hidden'; hiddenField.name = key; hiddenField.value = resData.payuniForm.params[key];
+            pForm.appendChild(hiddenField);
+          });
+          document.body.appendChild(pForm);
+          pForm.submit();
+        } else {
+          alert("免費會員申請成功！");
+          form.reset();
+        }
+      }).catch(e => alert("送出失敗，請稍後再試")).finally(() => {
+        btn.innerHTML = oldText; btn.disabled = false;
+      });
+    };
+
+    window.sendMetricData = function(metricType) {
+      fetch("https://script.google.com/macros/s/AKfycbyeqKhWv3TY8bpSdB9ZfWXNkR9yap66PyGxzEJqxpawWn9hZ9chfIuBPJfZHHoP91newQ/exec", {
+        method: "POST",
+        mode: "no-cors",
+        headers: { "Content-Type": "text/plain;charset=utf-8" },
+        body: JSON.stringify({ action: "incrementMetric", logId: "8726aa1a", metricType: metricType })
+      }).catch(e => {}); 
+    };
+
+    setTimeout(() => window.sendMetricData('view'), 1500);
+
+    let readSent = false;
+    window.addEventListener('scroll', () => {
+      if (!readSent && (window.innerHeight + window.scrollY) >= document.body.offsetHeight - 300) {
+        window.sendMetricData('read');
+        readSent = true;
+      }
+    });
+
+    
+    window.videoBlobCache = window.videoBlobCache || {};
+
+    window.fetchVideoChunkBase64 = async function(url) {
+      if (!url) return null;
+      if (url.includes('youtube.com') || url.includes('youtu.be')) return url;
+      if (window.videoBlobCache[url]) return window.videoBlobCache[url];
+      
+      try {
+        const res = await fetch("https://script.google.com/macros/s/AKfycbyeqKhWv3TY8bpSdB9ZfWXNkR9yap66PyGxzEJqxpawWn9hZ9chfIuBPJfZHHoP91newQ/exec", {
+          method: "POST",
+          body: JSON.stringify({ action: "getVideoChunk", url: url })
+        }).then(r => r.json());
+        
+        if (res && res.data && res.data.base64) {
+          const dataUrl = 'data:' + res.data.mimeType + ';base64,' + res.data.base64;
+          window.videoBlobCache[url] = dataUrl;
+          return dataUrl;
+        }
+        return null;
+      } catch(e) { return null; }
+    };
+
+    function bindVideoLogic(urls) {
+      if (!urls || urls.length === 0) return;
+      const statusEl = document.getElementById('videoStatus');
+      const btnStart = document.getElementById('btnStartStream');
+      const btnPrev = document.getElementById('btnPrevChunk');
+      const btnNext = document.getElementById('btnNextChunk');
+      const selector = document.getElementById('chunkSelector');
+      
+      const vidA = document.getElementById('videoPlayerA');
+      const vidB = document.getElementById('videoPlayerB');
+      
+      let currentIndex = 0;
+      let activeVid = vidA;
+      let nextVid = vidB;
+      let streamUrls = urls;
+      let isTransitioning = false;
+      
+      selector.innerHTML = '';
+      urls.forEach((url, i) => {
+        const opt = document.createElement('option');
+        opt.value = i;
+        opt.innerText = '片段 ' + (i + 1);
+        selector.appendChild(opt);
+      });
+      selector.disabled = false;
+      
+      function updateControls() {
+        selector.value = currentIndex;
+        btnPrev.disabled = (currentIndex === 0);
+        btnNext.disabled = (currentIndex === urls.length - 1);
+        btnPrev.style.opacity = btnPrev.disabled ? '0.4' : '1';
+        btnNext.style.opacity = btnNext.disabled ? '0.4' : '1';
+      }
+
+      function monitorPlayback(e) {
+        const v = e.target;
+        if (v !== activeVid) return;
+        if (!v.duration) return;
+        nextVid.volume = activeVid.volume;
+        if (v.duration - v.currentTime <= 0.3 && !isTransitioning) {
+          isTransitioning = true;
+          if (currentIndex < urls.length - 1) {
+            playVideoChunk(currentIndex + 1);
+          } else {
+            statusEl.innerText = '全片播放完畢';
+          }
+        }
+      }
+      vidA.addEventListener('timeupdate', monitorPlayback);
+      vidB.addEventListener('timeupdate', monitorPlayback);
+
+      const onVideoEnded = (e) => {
+        if (e.target !== activeVid) return;
+        if (!isTransitioning && currentIndex < urls.length - 1) {
+          playVideoChunk(currentIndex + 1);
+        }
+      };
+      vidA.addEventListener('ended', onVideoEnded);
+      vidB.addEventListener('ended', onVideoEnded);
+
+      async function playVideoChunk(targetIndex) {
+        if (targetIndex !== undefined) currentIndex = targetIndex;
+        updateControls();
+        statusEl.innerText = "雲端擷取中，請稍候...";
+        
+        const targetUrl = streamUrls[currentIndex];
+        const streamUrl = await window.fetchVideoChunkBase64(targetUrl);
+        
+        if (currentIndex !== targetIndex) return;
+        if (!streamUrl) {
+          statusEl.innerText = "載入失敗";
+          isTransitioning = false; return;
+        }
+        
+        let videoEl = activeVid;
+        if (nextVid.dataset.chunkIndex == currentIndex && nextVid.src) {
+            const temp = activeVid;
+            activeVid = nextVid;
+            nextVid = temp;
+            videoEl = activeVid;
+        }
+        
+        activeVid.style.opacity = '1';
+        activeVid.style.zIndex = '2';
+        activeVid.controls = true;
+        
+        nextVid.style.opacity = '0';
+        nextVid.style.zIndex = '1';
+        nextVid.controls = false;
+        nextVid.pause();
+        
+        if (videoEl.src !== streamUrl) {
+          videoEl.src = streamUrl;
+          videoEl.load();
+        }
+        
+        const playVideo = () => {
+          videoEl.currentTime = 0;
+          const playPromise = videoEl.play();
+          if (playPromise !== undefined) {
+            playPromise.then(() => {
+              statusEl.innerText = "播放中: 片段 " + (currentIndex + 1) + " / " + urls.length;
+            }).catch(e => { 
+              statusEl.innerText = "已就緒，請點擊影片播放"; 
+            });
+          }
+        };
+
+        if (videoEl.readyState >= 1) {
+          playVideo();
+        } else {
+          const onMeta = function() {
+            playVideo();
+            videoEl.removeEventListener('loadedmetadata', onMeta);
+          };
+          videoEl.addEventListener('loadedmetadata', onMeta);
+        }
+        
+        isTransitioning = false;
+        
+        if (currentIndex + 1 < streamUrls.length) {
+          window.fetchVideoChunkBase64(streamUrls[currentIndex + 1]).then(nextDataUrl => {
+            if (nextDataUrl && nextVid.dataset.chunkIndex != (currentIndex + 1)) {
+                nextVid.src = nextDataUrl;
+                nextVid.dataset.chunkIndex = currentIndex + 1;
+                nextVid.preload = "auto";
+            }
+          });
+        }
+      }
+
+      btnStart.addEventListener('click', function() {
+        btnStart.style.display = 'none';
+        vidA.play().catch(()=>{}); vidA.pause();
+        vidB.play().catch(()=>{}); vidB.pause();
+        playVideoChunk(0);
+        if (window.sendMetricData) window.sendMetricData('play'); 
+      });
+      btnPrev.addEventListener('click', function() {
+        if (currentIndex > 0) playVideoChunk(currentIndex - 1);
+      });
+      btnNext.addEventListener('click', function() {
+        if (currentIndex < urls.length - 1) playVideoChunk(currentIndex + 1);
+      });
+      selector.addEventListener('change', function() {
+        playVideoChunk(parseInt(this.value, 10));
+      });
+
+      statusEl.innerText = '已就緒 (可點擊啟動播放)';
+      updateControls();
+    }
+  
+    
+    document.addEventListener("DOMContentLoaded", function() {
+      let rawMdEl = document.getElementById("raw-md");
+      if (rawMdEl && rawMdEl.value) {
+        let rawMd = rawMdEl.value.replace(/^#\s+.+\n/, '');
+        document.getElementById("content").innerHTML = marked.parse(rawMd);
+      }
+      
+      bindVideoLogic(["https://drive.google.com/file/d/1nG9WPIdOEfPaJLsTT-cJJHCEihwh1yWo/view?usp=drivesdk","https://drive.google.com/file/d/1bGShMsiydhrUXkSCyuAIHB5RRmXTYerc/view?usp=drivesdk","https://drive.google.com/file/d/1u5a5jH3y5J1K-bgIVNpIhbw6Ic3Yip3k/view?usp=drivesdk","https://drive.google.com/file/d/1CMs1DRPHbODIDLfkZuzhQltkG6ARJS7A/view?usp=drivesdk","https://drive.google.com/file/d/1Id1dueA8IuJ_CZQQ-8lofPjvBhWT8B2k/view?usp=drivesdk","https://drive.google.com/file/d/11lGQUJWCHjGBr3s3-_He-whfZUq7eXtr/view?usp=drivesdk","https://drive.google.com/file/d/1iQm5BAjKjIoN66vlohznGXd46aGMMpCp/view?usp=drivesdk","https://drive.google.com/file/d/1gx3d2P4RwPQGw0mA001Pi-vQ6H3nAMF_/view?usp=drivesdk","https://drive.google.com/file/d/1kEo0LBNsafcoFfs8rhzrwvvc5d56OHbS/view?usp=drivesdk","https://drive.google.com/file/d/1urAF0QI802a4LxNzFz13i0jD-nhKbuN5/view?usp=drivesdk","https://drive.google.com/file/d/1d9Ah9pVoKo0cIHTEusFJnhgLlqfCwM_D/view?usp=drivesdk","https://drive.google.com/file/d/102ArzSdWo7u-ptB_FJz3HtFBH0ieOKpy/view?usp=drivesdk","https://drive.google.com/file/d/1qKMGys5HakTkCuYF8bqH6p-2slZaFMw3/view?usp=drivesdk","https://drive.google.com/file/d/1zpSnkNy-p5qBU-4pLwbK2DzYS-qgFVmy/view?usp=drivesdk","https://drive.google.com/file/d/1GmaXMCdNHPw_7OV3h11tyGvjVbAR70Iz/view?usp=drivesdk","https://drive.google.com/file/d/19xO4tvZxfShf7zV8h4Lx7TbEceQYQX7P/view?usp=drivesdk","https://drive.google.com/file/d/1lZD2lY1FBrg1HVI11BpdtSbrugv3bpwx/view?usp=drivesdk","https://drive.google.com/file/d/1VvGYUQWaxe5ZZNTKoXgTKL8-n3LJEYng/view?usp=drivesdk","https://drive.google.com/file/d/1y5JWzvMa8mg1fehDJvNKRtnnLcE3gT1-/view?usp=drivesdk","https://drive.google.com/file/d/1C-6U3oPAZd-Y1Qa5a2BhDNf6YPNnTaWd/view?usp=drivesdk","https://drive.google.com/file/d/1mMPzBlyAETW_c4-GKgCHG82sidi01RsG/view?usp=drivesdk","https://drive.google.com/file/d/105O9RHMaQUIMyazZKkyWIVaAkuhRoLHr/view?usp=drivesdk","https://drive.google.com/file/d/1dT1nWOiDSPAStdLxYmcu7sIEHlK9sW_P/view?usp=drivesdk","https://drive.google.com/file/d/1SeGgaN65YLaP5vxim6MMyflK1o_yCqob/view?usp=drivesdk","https://drive.google.com/file/d/13tKrVVbJTsO5hDFHrZplw_lCOpM-FMHW/view?usp=drivesdk","https://drive.google.com/file/d/1iXNX0yrJU2xmWKAVVwQ6iksZP5HiR1ex/view?usp=drivesdk","https://drive.google.com/file/d/1QBArAh6cLfQM1KfF-XgqCHiKClpYth0n/view?usp=drivesdk","https://drive.google.com/file/d/1As_pmaf_mJ52u-fXhSkpr_vFZ3MpSpG6/view?usp=drivesdk","https://drive.google.com/file/d/1jWSas4T5yzJw2aKO8MwB5tZsDTMWbxNN/view?usp=drivesdk"]);
+      
+      const wrapper = document.getElementById("salonIntroWrapper");
+      const btn = document.getElementById("expandIntroBtn");
+      const gradient = document.getElementById("introGradient");
+      if(wrapper && btn && gradient) {
+        if(wrapper.scrollHeight <= 100) {
+          btn.style.display = "none"; gradient.style.display = "none";
+        } else {
+          btn.addEventListener("click", function() {
+            if(wrapper.style.maxHeight === "100px") {
+              wrapper.style.maxHeight = wrapper.scrollHeight + "px"; gradient.style.display = "none"; btn.innerHTML = "收起介紹";
+            } else {
+              wrapper.style.maxHeight = "100px"; gradient.style.display = "block"; btn.innerHTML = "閱讀完整介紹";
+            }
+          });
+        }
+      }
+    });
+    
+    let authState = "email";
+    window.handleAuthAction = function(logId) {
+      const btn = document.getElementById("btnAuthAction");
+      const msg = document.getElementById("authMsg");
+      const email = document.getElementById("authEmail").value.trim();
+      const GAS_API_URL = "https://script.google.com/macros/s/AKfycbzNVJjdnOKJMy9v3A6TURw8p6U7OdUy4fnUZHIcU3dL1t6DSNWBi1oB79wrEWN2XHQiUQ/exec";
+      
+      if (authState === "email") {
+        if(!email || !email.includes("@")) { msg.innerText = "請輸入正確的 Email 格式"; msg.style.color = "#ef4444"; return; }
+        
+        btn.disabled = true; btn.innerText = "發送中..."; msg.innerText = "";
+        
+        fetch(GAS_API_URL, {
+          method: "POST", headers: { "Content-Type": "text/plain;charset=utf-8" },
+          body: JSON.stringify({ action: "sendOtp", email: email, type: "login" })
+        }).then(r => r.json()).then(res => {
+          if(res.status === "success") {
+            authState = "otp";
+            document.getElementById("otpInputArea").style.display = "flex";
+            document.getElementById("authEmail").disabled = true;
+            btn.innerText = "驗證並解鎖文章";
+            msg.innerText = "驗證碼已發送，請於5分鐘內輸入。"; msg.style.color = "#10b981";
+          } else { msg.innerText = res.message || "發送失敗"; msg.style.color = "#ef4444"; btn.innerText = "發送驗證碼"; }
+        }).catch(e => { msg.innerText = e.message; msg.style.color = "#ef4444"; btn.innerText = "發送驗證碼"; })
+        .finally(() => { btn.disabled = false; });
+        
+      } else if (authState === "otp") {
+        const otp = document.getElementById("authOtp").value.trim();
+        if(!otp) { msg.innerText = "請輸入驗證碼"; msg.style.color = "#ef4444"; return; }
+        
+        btn.disabled = true; btn.innerText = "驗證中..."; msg.innerText = "";
+        
+        fetch(GAS_API_URL, {
+          method: "POST", headers: { "Content-Type": "text/plain;charset=utf-8" },
+          body: JSON.stringify({ action: "verifyArticleAccess", email: email, otp: otp, logId: logId })
+        }).then(r => r.json()).then(res => {
+          if(res.status === "success") {
+            document.getElementById("lockedContentArea").style.display = "none";
+            document.getElementById("unlockedContentArea").style.display = "block";
+            
+            let rawMd = res.data.articleFull.replace(/^#\s+.+\n/, "");
+            document.getElementById("content").innerHTML = marked.parse(rawMd);
+            
+            if (res.data.urls && res.data.urls.length > 0) {
+              const vHtml = "\n    <div style=\"margin-top: 48px; border-top: 1px solid #e2e8f0; padding-top: 32px;\">\n      <h3 style=\"font-size: 18px; font-weight: 800; margin-bottom: 16px;\">專屬影音紀錄</h3>\n      <div style=\"background: #000; border-radius: 8px; overflow: hidden; margin-bottom: 16px; border: 1px solid #e2e8f0; box-shadow: 0 4px 12px rgba(0,0,0,0.05);\">\n        \n        <div id=\"seamlessVideoContainer\" style=\"position: relative; width: 100%; aspect-ratio: 16/9; background: #000; overflow: hidden;\">\n          <video id=\"videoPlayerA\" playsinline style=\"position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 2; opacity: 1; transition: opacity 0.2s; background: #000; object-fit: contain;\"></video>\n          <video id=\"videoPlayerB\" playsinline style=\"position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 1; opacity: 0; transition: opacity 0.2s; background: #000; object-fit: contain;\"></video>\n        </div>\n        \n        <div style=\"display:flex; flex-wrap:wrap; justify-content: space-between; align-items: center; padding: 12px 16px; background: #0f172a; gap: 12px;\">\n          <div style=\"display:flex; align-items:center; gap:8px;\">\n            <button id=\"btnPrevChunk\" disabled style=\"background: #1e293b; color: #f8fafc; border: 1px solid #334155; padding: 6px 12px; border-radius: 4px; font-weight: 700; font-size: 13px; transition: 0.2s; outline: none; cursor: pointer;\">上一段</button>\n            <select id=\"chunkSelector\" style=\"background: #1e293b; color: #f8fafc; border: 1px solid #334155; padding: 6px 8px; border-radius: 4px; font-size: 13px; outline: none; cursor: pointer; max-width: 100px;\">\n              <option value=\"\">載入中...</option>\n            </select>\n            <button id=\"btnNextChunk\" disabled style=\"background: #1e293b; color: #f8fafc; border: 1px solid #334155; padding: 6px 12px; border-radius: 4px; font-weight: 700; font-size: 13px; transition: 0.2s; outline: none; cursor: pointer;\">下一段</button>\n          </div>\n          <div style=\"display:flex; align-items:center; gap:12px;\">\n            <span id=\"videoStatus\" style=\"color: #94a3b8; font-size: 13px;\">準備就緒</span>\n            <button id=\"btnStartStream\" style=\"background: #3175B5; color: #fff; border: none; padding: 6px 16px; border-radius: 4px; font-weight: 700; cursor: pointer; font-size: 13px; transition: background 0.2s;\">啟動播放</button>\n          </div>\n        </div>\n      </div>\n    </div>";
+              document.getElementById("dynamicVideoPlayerArea").innerHTML = vHtml;
+              bindVideoLogic(res.data.urls);
+            }
+          } else {
+            msg.innerText = res.message || "驗證失敗"; msg.style.color = "#ef4444";
+            btn.innerText = "驗證並解鎖文章"; btn.disabled = false;
+          }
+        }).catch(e => {
+          msg.innerText = e.message; msg.style.color = "#ef4444";
+          btn.innerText = "驗證並解鎖文章"; btn.disabled = false;
+        });
+      }
+    };
+  </script>
+</body>
+</html>
