@@ -2460,9 +2460,14 @@
       let playerHtml = '';
       if(urls.length > 0) {
         if (urls[0].includes('youtube.com') || urls[0].includes('youtu.be')) {
-           const ytMatch = urls[0].match(/(?:youtu\.be\/|youtube\.com\/(?:embed\/|v\/|watch\?v=|watch\?.+&v=|shorts\/))((\w|-){11})/);
-           const ytId = ytMatch ? ytMatch[1] : '';
-           playerHtml = '<details class="history-accordion"><summary><span style="display: flex; align-items: center; gap: 8px;"><i data-lucide="youtube" style="width: 16px; height: 16px; color: var(--danger);"></i>YouTube 影片</span><span class="accordion-toggle-icon"><i data-lucide="chevron-down" style="width: 16px; height: 16px;"></i></span></summary><div class="accordion-body" style="padding: 0; background: #000; border-top: 1px solid var(--border);"><iframe src="https://www.youtube.com/embed/' + ytId + '" frameborder="0" allowfullscreen style="width: 100%; aspect-ratio: 16/9; display: block;"></iframe></div></details>';
+           let ytIframesHtml = '';
+           for (let k = 0; k < urls.length; k++) {
+             const ytMatch = urls[k].match(/(?:youtu\.be\/|youtube\.com\/(?:embed\/|v\/|watch\?v=|watch\?.+&v=|shorts\/))((\w|-){11})/);
+             if (ytMatch && ytMatch[1]) {
+               ytIframesHtml += '<iframe src="https://www.youtube.com/embed/' + ytMatch[1] + '" frameborder="0" allowfullscreen style="width: 100%; aspect-ratio: 16/9; display: block; border-bottom: 1px solid #333;"></iframe>';
+             }
+           }
+           playerHtml = '<details class="history-accordion"><summary><span style="display: flex; align-items: center; gap: 8px;"><i data-lucide="youtube" style="width: 16px; height: 16px; color: var(--danger);"></i>YouTube 影片 (' + urls.length + ')</span><span class="accordion-toggle-icon"><i data-lucide="chevron-down" style="width: 16px; height: 16px;"></i></span></summary><div class="accordion-body" style="padding: 0; background: #000; border-top: 1px solid var(--border);">' + ytIframesHtml + '</div></details>';
         } else {
           let optHtml = '';
           for(let k=0; k<urls.length; k++) optHtml += `<option value="${k}">片段 ${k+1}</option>`;
@@ -2898,9 +2903,15 @@
     let videoHtml = '';
       if (isShowVideo && urls && urls.length > 0) {
         if (urls[0].includes('youtube.com') || urls[0].includes('youtu.be')) {
-          const ytMatch = urls[0].match(/(?:youtu\.be\/|youtube\.com\/(?:embed\/|v\/|watch\?v=|watch\?.+&v=|shorts\/))((\w|-){11})/);
-          const ytId = ytMatch ? ytMatch[1] : '';
-          videoHtml = '<div style="background: #000; border-radius: 8px; overflow: hidden; margin-top: 32px; border: 1px solid var(--border); box-shadow: 0 4px 12px rgba(0,0,0,0.05);"><iframe src="https://www.youtube.com/embed/' + ytId + '" frameborder="0" allowfullscreen style="width: 100%; aspect-ratio: 16/9; display: block;"></iframe></div>';
+          let ytIframes = '';
+          for (let i = 0; i < urls.length; i++) {
+            const ytMatch = urls[i].match(/(?:youtu\.be\/|youtube\.com\/(?:embed\/|v\/|watch\?v=|watch\?.+&v=|shorts\/))((\w|-){11})/);
+            const ytId = ytMatch ? ytMatch[1] : '';
+            if (ytId) {
+              ytIframes += '<div style="background: #000; border-radius: 8px; overflow: hidden; margin-top: ' + (i === 0 ? '32px' : '16px') + '; border: 1px solid var(--border); box-shadow: 0 4px 12px rgba(0,0,0,0.05);"><iframe src="https://www.youtube.com/embed/' + ytId + '" frameborder="0" allowfullscreen style="width: 100%; aspect-ratio: 16/9; display: block;"></iframe></div>';
+            }
+          }
+          videoHtml = ytIframes;
         } else {
           let optHtml = '';
           for(let k=0; k<urls.length; k++) optHtml += `<option value="${k}">片段 ${k+1}</option>`;
