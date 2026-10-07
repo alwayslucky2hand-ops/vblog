@@ -562,11 +562,21 @@
   <div id="tab-live" class="tab-content active">
 
     
-    <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 8px;">
-      <span style="font-size: 13px; font-weight: 600; color: var(--text-muted); white-space: nowrap;"><i data-lucide="file-text" style="width: 14px; height: 14px;"></i> 總結指令</span>
-      <select id="liveLogPromptSelect" class="login-input" style="margin-bottom: 0; padding: 6px 12px; height: auto; flex: 1;">
-        <option value="請幫我摘要以下重點：">預設總結</option>
-      </select>
+    <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 8px; flex-wrap: wrap;">
+      <div class="input-group" style="width: auto;">
+        <span class="input-group-addon" style="padding: 6px 10px; border-right: none; background: #fff;"><i data-lucide="bot" id="iconAIMode" style="width: 14px; height: 14px; color: var(--accent);"></i></span>
+        <select id="liveAIModeSelect" class="login-input" style="margin-bottom: 0; border: none; padding: 6px 8px; height: 32px; font-weight: 600; outline: none; background: transparent; cursor: pointer; color: var(--text);" onchange="const icon = document.getElementById('iconAIMode'); if(this.value==='true'){ icon.style.color='var(--accent)'; icon.setAttribute('data-lucide', 'bot'); }else{ icon.style.color='var(--text-muted)'; icon.setAttribute('data-lucide', 'cloud'); } lucide.createIcons();">
+          <option value="true">AI 轉錄總結</option>
+          <option value="false">純錄影建檔</option>
+        </select>
+      </div>
+      
+      <div class="input-group" style="flex: 1; min-width: 200px;">
+        <span class="input-group-addon" style="padding: 6px 10px; border-right: none; background: #fff;"><i data-lucide="file-text" style="width: 14px; height: 14px; color: var(--text-muted);"></i></span>
+        <select id="liveLogPromptSelect" class="login-input" style="margin-bottom: 0; border: none; padding: 6px 8px; height: 32px; width: 100%; outline: none; background: transparent; cursor: pointer; color: var(--text);">
+          <option value="請幫我摘要以下重點：">預設總結</option>
+        </select>
+      </div>
     </div>
 
     
@@ -992,7 +1002,7 @@
   function escapeHtml(str) { return window.escapeHtml(str); }
 
   
-  const GAS_WEB_URL = "https://script.google.com/macros/s/AKfycbxJ_OQkf3bgc7R4hoJPkWeByTD5Jomc1uBp9etLPcTAFJn9c9NjFCGWBCSvX8q2DCs/exec";
+  const GAS_WEB_URL = "https://script.google.com/macros/s/AKfycbzNVJjdnOKJMy9v3A6TURw8p6U7OdUy4fnUZHIcU3dL1t6DSNWBi1oB79wrEWN2XHQiUQ/exec";
   const GAS_URL = GAS_WEB_URL;
 
   let currentStream = null;
@@ -1317,7 +1327,6 @@
 
   
   async function api(payload, retries = 2) {
-    
     if (typeof google !== 'undefined' && google.script && google.script.run) {
       return new Promise((resolve, reject) => {
         google.script.run
@@ -1329,34 +1338,65 @@
           .withFailureHandler(err => reject(err))
           .handleClientRequest(payload);
       });
-    } 
-    
-    else {
-      for (let i = 0; i <= retries; i++) {
-        try {
-          
-          const response = await fetch(GAS_WEB_URL, {
-            method: 'POST',
-            headers: { 
-              'Content-Type': 'text/plain;charset=utf-8' 
-            },
-            body: JSON.stringify(payload)
-          });
-          
-          const res = await response.json();
-          if (res.status === 'success') {
-            return res.data;
-          } else {
-            throw new Error(res.message || "伺服器發生未知錯誤");
-          }
-        } catch (e) {
-          if (i === retries) {
-            throw new Error("無法連線到伺服器，請確認 GAS 權限為「所有人」且網址正確 (" + e.message + ")");
-          }
-          
-          await new Promise(r => setTimeout(r, 1000));
+    } else {
+      return new Promise((resolve, reject) => {
+        const callbackName = 'jsonp_callback_' + Math.round(100000 * Math.random());
+        const urlParams = new URLSearchParams();
+        urlParams.append('callback', callbackName);
+        
+        for (const key in payload) {
+           if (typeof payload[key] === 'object') {
+              urlParams.append(key, JSON.stringify(payload[key]));
+           } else {
+              urlParams.append(key, payload[key]);
+           }
         }
-      }
+        
+        const requestUrl = GAS_WEB_URL + '?' + urlParams.toString();
+        const script = document.createElement('script');
+        script.src = requestUrl;
+        
+        
+        let isCleanedUp = false;
+        const cleanup = () => {
+          if (isCleanedUp) return;
+          isCleanedUp = true;
+          
+          window[callbackName] = function() {}; 
+          
+          try {
+            if (script && script.parentNode) {
+              script.parentNode.removeChild(script);
+            }
+          } catch (e) {
+            console.warn("Script node already removed", e);
+          }
+        };
+        
+        
+        const timeoutId = setTimeout(() => {
+          cleanup();
+          reject(new Error("請求超時，檔案過大或網路連線較慢，請稍後重試。"));
+        }, 45000); 
+        
+        window[callbackName] = function(response) {
+          clearTimeout(timeoutId);
+          cleanup(); 
+          if (response.status === 'success') {
+            resolve(response.data);
+          } else {
+            reject(new Error(response.message || "伺服器發生未知錯誤"));
+          }
+        };
+        
+        script.onerror = function() {
+          clearTimeout(timeoutId);
+          cleanup(); 
+          reject(new Error("無法載入腳本，請確認網路狀態或 GAS 權限"));
+        };
+        
+        document.body.appendChild(script);
+      });
     }
   }
 
@@ -2148,13 +2188,15 @@
           const base64 = reader.result.split(',')[1];
           log(`[處理] 正在解析第 ${index} 段...`);
           try {
+            const enableAI = document.getElementById('liveAIModeSelect') ? (document.getElementById('liveAIModeSelect').value === 'true') : true;
             await api({ 
               action: "processChunkRealtime", 
               base64Data: base64, 
               mimeType: mime, 
               folderId: logSession.folderId, 
               rowIndex: logSession.rowIndex, 
-              chunkIndex: index 
+              chunkIndex: index,
+              enableAI: enableAI
             });
             log(`[成功] 第 ${index} 段已寫入`);
           } catch (e) { 
@@ -2236,8 +2278,9 @@
     }
 
     try {
-      const logPromptContent = document.getElementById('liveLogPromptSelect') ? document.getElementById('liveLogPromptSelect').value : "";
-      const res = await api({ action: "finalizeLog", rowIndex: logSession.rowIndex, email: email, logPromptContent: logPromptContent });
+      const logPromptVal = document.getElementById('liveLogPromptSelect') ? document.getElementById('liveLogPromptSelect').value : "";
+      const enableAI = document.getElementById('liveAIModeSelect') ? (document.getElementById('liveAIModeSelect').value === 'true') : true;
+      const res = await api({ action: "finalizeLog", rowIndex: logSession.rowIndex, email: email, logPromptContent: logPromptVal, enableAI: enableAI });
       log("[成功] 總結與歸檔完成！");
       const urls = res.urls || [];
 
@@ -2865,39 +2908,7 @@
         }
       }
 
-    
-    window.togglePreviewEditMode = function() {
-      const visualMode = document.getElementById('preview-visual-mode');
-      const editZone = document.getElementById('markdown-edit-zone');
-      if (!visualMode || !editZone) return;
-
-      if (editZone.style.display === 'none') {
-        
-        visualMode.style.display = 'none';
-        editZone.style.display = 'block';
-        editZone.value = window.currentSelectedFullMd;
-      } else {
-        
-        window.currentSelectedFullMd = editZone.value;
-        renderBlogPreview(window.currentSelectedFullMd);
-        saveCurrentStepData('full');
-      }
-    };
-
-    
-    const previewHtml = '<div class="blog-preview-wrapper">' +
-      '<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px; border-bottom:1px dashed var(--border); padding-bottom:12px;">' +
-        '<span style="font-size: 13px; font-weight: 600; color: var(--text-muted);"><i data-lucide="layout" style="width:14px;height:14px;vertical-align:middle;margin-right:4px;"></i>全局內容視圖</span>' +
-        '<button class="action-btn-sm action-btn-primary" onclick="window.togglePreviewEditMode()"><i data-lucide="edit-3" style="width:14px;height:14px;"></i> 切換編輯 / 預覽</button>' +
-      '</div>' +
-      '<div id="preview-visual-mode">' +
-        '<h1 class="preview-main-title">' + escapeHtml(displayTitle) + '</h1>' +
-        '<div class="blog-meta-header"><div class="blog-author-info">' + avatarHtml + '<div><div style="font-weight: 700; color: var(--text); font-size: 15px;">' + escapeHtml(authorNameText) + '</div><div style="font-size: 12px; color: var(--text-muted); margin-top: 2px;">' + dateStr + '</div></div></div><div class="blog-stats"><span><i data-lucide="eye" style="width: 15px; height: 15px;"></i> 預覽</span></div></div>' +
-        '<div id="markdown-render-zone" class="markdown-body">' + marked.parse(bodyMd) + '</div>' +
-      '</div>' +
-      '<textarea id="markdown-edit-zone" class="workshop-textarea" style="display:none; min-height:600px; font-family:monospace; line-height:1.6;" oninput="window.currentSelectedFullMd=this.value;">' + escapeHtml(fullMd) + '</textarea>' +
-      videoHtml +
-    '</div>';
+    const previewHtml = '<div class="blog-preview-wrapper"><h1 class="preview-main-title">' + escapeHtml(displayTitle) + '</h1><div class="blog-meta-header"><div class="blog-author-info">' + avatarHtml + '<div><div style="font-weight: 700; color: var(--text); font-size: 15px;">' + escapeHtml(authorNameText) + '</div><div style="font-size: 12px; color: var(--text-muted); margin-top: 2px;">' + dateStr + '</div></div></div><div class="blog-stats"><span><i data-lucide="eye" style="width: 15px; height: 15px;"></i> 預覽</span></div></div><div id="markdown-render-zone" class="markdown-body">' + marked.parse(bodyMd) + '</div>' + videoHtml + '</div>';
 
     document.getElementById('fullArticlePreview').innerHTML = previewHtml;
 
