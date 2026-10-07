@@ -565,13 +565,13 @@
     <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 8px; flex-wrap: wrap;">
       <div class="input-group" style="width: auto;">
         <span class="input-group-addon" style="padding: 6px 10px; border-right: none; background: #fff;"><i data-lucide="bot" id="iconAIMode" style="width: 14px; height: 14px; color: var(--accent);"></i></span>
-        <select id="liveAIModeSelect" class="login-input" style="margin-bottom: 0; border: none; padding: 6px 8px; height: 32px; font-weight: 600; outline: none; background: transparent; cursor: pointer; color: var(--text);" onchange="const icon = document.getElementById('iconAIMode'); if(this.value==='true'){ icon.style.color='var(--accent)'; icon.setAttribute('data-lucide', 'bot'); }else{ icon.style.color='var(--text-muted)'; icon.setAttribute('data-lucide', 'cloud'); } lucide.createIcons();">
+        <select id="liveAIModeSelect" class="login-input" style="margin-bottom: 0; border: none; padding: 6px 8px; height: 32px; font-weight: 600; outline: none; background: transparent; cursor: pointer; color: var(--text);" onchange="const icon = document.getElementById('iconAIMode'); const promptGrp = document.getElementById('promptSelectGroup'); if(this.value==='true'){ icon.style.color='var(--accent)'; icon.setAttribute('data-lucide', 'bot'); promptGrp.style.display='flex'; }else{ icon.style.color='var(--text-muted)'; icon.setAttribute('data-lucide', 'cloud'); promptGrp.style.display='none'; } lucide.createIcons();">
           <option value="true">AI 轉錄總結</option>
           <option value="false">純錄影建檔</option>
         </select>
       </div>
       
-      <div class="input-group" style="flex: 1; min-width: 200px;">
+      <div class="input-group" id="promptSelectGroup" style="flex: 1; min-width: 200px; display: flex;">
         <span class="input-group-addon" style="padding: 6px 10px; border-right: none; background: #fff;"><i data-lucide="file-text" style="width: 14px; height: 14px; color: var(--text-muted);"></i></span>
         <select id="liveLogPromptSelect" class="login-input" style="margin-bottom: 0; border: none; padding: 6px 8px; height: 32px; width: 100%; outline: none; background: transparent; cursor: pointer; color: var(--text);">
           <option value="請幫我摘要以下重點：">預設總結</option>
