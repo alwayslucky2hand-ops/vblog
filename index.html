@@ -1002,7 +1002,7 @@
   function escapeHtml(str) { return window.escapeHtml(str); }
 
   
-  const GAS_WEB_URL = "https://script.google.com/macros/s/AKfycbzNVJjdnOKJMy9v3A6TURw8p6U7OdUy4fnUZHIcU3dL1t6DSNWBi1oB79wrEWN2XHQiUQ/exec";
+  const GAS_WEB_URL = "https://script.google.com/macros/s/AKfycbxQBW3X4GsjwkCCGsL2fv5VB57Mf6Liqix_qFfMacEadOQC8PBQ0G-d65fdBfpDGdrNMQ/exec";
   const GAS_URL = GAS_WEB_URL;
 
   let currentStream = null;
@@ -2462,7 +2462,7 @@
         if (urls[0].includes('youtube.com') || urls[0].includes('youtu.be')) {
            let ytIframesHtml = '';
            for (let k = 0; k < urls.length; k++) {
-             const ytMatch = urls[k].match(/(?:youtu\.be\/|youtube\.com\/(?:embed\/|v\/|watch\?v=|watch\?.+&v=|shorts\/))((\w|-){11})/);
+             const ytMatch = urls[k].match(/(?:youtu\.be\/|youtube\.com\/(?:embed\/|v\/|live\/|watch\?v=|watch\?.+&v=|shorts\/))([\w-]{11})/i);
              if (ytMatch && ytMatch[1]) {
                ytIframesHtml += '<iframe src="https://www.youtube.com/embed/' + ytMatch[1] + '" frameborder="0" allowfullscreen style="width: 100%; aspect-ratio: 16/9; display: block; border-bottom: 1px solid #333;"></iframe>';
              }
@@ -2905,10 +2905,9 @@
         if (urls[0].includes('youtube.com') || urls[0].includes('youtu.be')) {
           let ytIframes = '';
           for (let i = 0; i < urls.length; i++) {
-            const ytMatch = urls[i].match(/(?:youtu\.be\/|youtube\.com\/(?:embed\/|v\/|watch\?v=|watch\?.+&v=|shorts\/))((\w|-){11})/);
-            const ytId = ytMatch ? ytMatch[1] : '';
-            if (ytId) {
-              ytIframes += '<div style="background: #000; border-radius: 8px; overflow: hidden; margin-top: ' + (i === 0 ? '32px' : '16px') + '; border: 1px solid var(--border); box-shadow: 0 4px 12px rgba(0,0,0,0.05);"><iframe src="https://www.youtube.com/embed/' + ytId + '" frameborder="0" allowfullscreen style="width: 100%; aspect-ratio: 16/9; display: block;"></iframe></div>';
+            const ytMatch = urls[i].match(/(?:youtu\.be\/|youtube\.com\/(?:embed\/|v\/|live\/|watch\?v=|watch\?.+&v=|shorts\/))([\w-]{11})/i);
+            if (ytMatch && ytMatch[1]) {
+              ytIframes += '<div style="background: #000; border-radius: 8px; overflow: hidden; margin-top: ' + (i === 0 ? '32px' : '16px') + '; border: 1px solid var(--border); box-shadow: 0 4px 12px rgba(0,0,0,0.05);"><iframe src="https://www.youtube.com/embed/' + ytMatch[1] + '" frameborder="0" allowfullscreen style="width: 100%; aspect-ratio: 16/9; display: block;"></iframe></div>';
             }
           }
           videoHtml = ytIframes;
