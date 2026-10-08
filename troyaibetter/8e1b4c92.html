@@ -586,9 +586,10 @@
       
         <div style="margin-top: 48px; border-top: 1px solid #e2e8f0; padding-top: 32px;">
           <h3 style="font-size: 18px; font-weight: 800; margin-bottom: 16px;">YouTube 影音紀錄</h3>
-          <div style="background: #000; border-radius: 8px; overflow: hidden; margin-bottom: 16px; border: 1px solid #e2e8f0; box-shadow: 0 4px 12px rgba(0,0,0,0.05);">
-            <iframe src="https://www.youtube.com/embed/TkwX75LUTHA" frameborder="0" allowfullscreen style="width: 100%; aspect-ratio: 16/9; display: block;"></iframe>
-          </div>
+          
+            <div style="background: #000; border-radius: 8px; overflow: hidden; margin-bottom: 16px; border: 1px solid #e2e8f0; box-shadow: 0 4px 12px rgba(0,0,0,0.05);">
+              <iframe src="https://www.youtube.com/embed/TkwX75LUTHA" frameborder="0" allowfullscreen style="width: 100%; aspect-ratio: 16/9; display: block;"></iframe>
+            </div>
         </div>
     
       </main>
@@ -1089,7 +1090,7 @@
             document.getElementById("content").innerHTML = marked.parse(rawMd);
             
             if (res.data.urls && res.data.urls.length > 0) {
-              const vHtml = "\n        <div style=\"margin-top: 48px; border-top: 1px solid #e2e8f0; padding-top: 32px;\">\n          <h3 style=\"font-size: 18px; font-weight: 800; margin-bottom: 16px;\">YouTube 影音紀錄</h3>\n          <div style=\"background: #000; border-radius: 8px; overflow: hidden; margin-bottom: 16px; border: 1px solid #e2e8f0; box-shadow: 0 4px 12px rgba(0,0,0,0.05);\">\n            <iframe src=\"https://www.youtube.com/embed/TkwX75LUTHA\" frameborder=\"0\" allowfullscreen style=\"width: 100%; aspect-ratio: 16/9; display: block;\"></iframe>\n          </div>\n        </div>";
+              const vHtml = "\n        <div style=\"margin-top: 48px; border-top: 1px solid #e2e8f0; padding-top: 32px;\">\n          <h3 style=\"font-size: 18px; font-weight: 800; margin-bottom: 16px;\">YouTube 影音紀錄</h3>\n          \n            <div style=\"background: #000; border-radius: 8px; overflow: hidden; margin-bottom: 16px; border: 1px solid #e2e8f0; box-shadow: 0 4px 12px rgba(0,0,0,0.05);\">\n              <iframe src=\"https://www.youtube.com/embed/TkwX75LUTHA\" frameborder=\"0\" allowfullscreen style=\"width: 100%; aspect-ratio: 16/9; display: block;\"></iframe>\n            </div>\n        </div>";
               document.getElementById("dynamicVideoPlayerArea").innerHTML = vHtml;
               
             }
