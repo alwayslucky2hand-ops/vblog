@@ -1342,11 +1342,22 @@ async function api(payload, retries = 2) {
     
     return new Promise((resolve, reject) => {
       fetch(GAS_WEB_URL, {
+        redirect: 'follow', 
         method: 'POST',
         headers: { 'Content-Type': 'text/plain;charset=utf-8' }, 
         body: JSON.stringify(payload)
       })
-      .then(res => res.json())
+      .then(res => {
+        
+        const contentType = res.headers.get("content-type");
+        if (contentType && contentType.includes("application/json")) {
+          return res.json();
+        } else {
+          return res.text().then(text => {
+            throw new Error("伺服器回傳格式異常！請務必至 GAS 編輯器點擊「部署 > 管理部署作業 > 編輯 > 新版本」並儲存。");
+          });
+        }
+      })
       .then(response => {
         if (response && response.status === 'success') {
           resolve(response.data);
@@ -1355,7 +1366,7 @@ async function api(payload, retries = 2) {
         }
       })
       .catch(err => {
-        reject(new Error("無法連線至伺服器或請求失敗: " + err.message));
+        reject(new Error(err.message.includes("格式異常") ? err.message : "無法連線至伺服器或請求失敗: " + err.message));
       });
     });
   }
@@ -2093,13 +2104,14 @@ async function api(payload, retries = 2) {
   }
 
   function startChunkRecording() {
-    if (!isRecording || !currentStream || isPaused) return;
-    recordedChunks = [];
-    const mime = MediaRecorder.isTypeSupported('video/webm;codecs=vp9') ? 'video/webm;codecs=vp9' : 'video/webm';
+  if (!isRecording || !currentStream || isPaused) return;
+  recordedChunks = [];
+  const mime = MediaRecorder.isTypeSupported('video/webm;codecs=vp9') ? 'video/webm;codecs=vp9' : 'video/webm';
 
-    const recorderOptions = {
-      mimeType: mime,
-      videoBitsPerSecond: 1200000 
+  const recorderOptions = {
+    mimeType: mime,
+    videoBitsPerSecond: 2000000 
+  };
     };
 
     try {
@@ -2151,11 +2163,11 @@ async function api(payload, retries = 2) {
           try {
             const enableAI = document.getElementById('liveAIModeSelect') ? (document.getElementById('liveAIModeSelect').value === 'true') : true;
             await api({ 
-              action: "processChunkRealtime", 
-              base64Data: base64, 
-              mimeType: mime, 
-              folderId: logSession.folderId, 
-              rowIndex: logSession.rowIndex, 
+              action: "processChunkRealtime",
+              base64Data: base64,
+              mimeType: mime,
+              folderId: logSession.folderId,
+              logId: logSession.logId, 
               chunkIndex: index,
               enableAI: enableAI
             });
@@ -2239,10 +2251,10 @@ async function api(payload, retries = 2) {
     }
 
     try {
-      const logPromptVal = document.getElementById('liveLogPromptSelect') ? document.getElementById('liveLogPromptSelect').value : "";
-      const enableAI = document.getElementById('liveAIModeSelect') ? (document.getElementById('liveAIModeSelect').value === 'true') : true;
-      const res = await api({ action: "finalizeLog", rowIndex: logSession.rowIndex, email: email, logPromptContent: logPromptVal, enableAI: enableAI });
-      log("[成功] 總結與歸檔完成！");
+            const logPromptVal = document.getElementById('liveLogPromptSelect') ? document.getElementById('liveLogPromptSelect').value : "";
+            const enableAI = document.getElementById('liveAIModeSelect') ? (document.getElementById('liveAIModeSelect').value === 'true') : true;
+            const res = await api({ action: "finalizeLog", logId: logSession.logId, email: email, logPromptContent: logPromptVal, enableAI: enableAI });
+            log("[成功] 總結與歸檔完成！");
       const urls = res.urls || [];
 
       let linksHtml = '';
