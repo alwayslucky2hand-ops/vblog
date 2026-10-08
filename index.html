@@ -1339,63 +1339,19 @@
           .handleClientRequest(payload);
       });
     } else {
-      return new Promise((resolve, reject) => {
-        const callbackName = 'jsonp_callback_' + Math.round(100000 * Math.random());
-        const urlParams = new URLSearchParams();
-        urlParams.append('callback', callbackName);
-        
-        for (const key in payload) {
-           if (typeof payload[key] === 'object') {
-              urlParams.append(key, JSON.stringify(payload[key]));
-           } else {
-              urlParams.append(key, payload[key]);
-           }
-        }
-        
-        const requestUrl = GAS_WEB_URL + '?' + urlParams.toString();
-        const script = document.createElement('script');
-        script.src = requestUrl;
-        
-        
-        let isCleanedUp = false;
-        const cleanup = () => {
-          if (isCleanedUp) return;
-          isCleanedUp = true;
-          
-          window[callbackName] = function() {}; 
-          
-          try {
-            if (script && script.parentNode) {
-              script.parentNode.removeChild(script);
-            }
-          } catch (e) {
-            console.warn("Script node already removed", e);
-          }
-        };
-        
-        
-        const timeoutId = setTimeout(() => {
-          cleanup();
-          reject(new Error("請求超時，檔案過大或網路連線較慢，請稍後重試。"));
-        }, 45000); 
-        
-        window[callbackName] = function(response) {
-          clearTimeout(timeoutId);
-          cleanup(); 
-          if (response.status === 'success') {
-            resolve(response.data);
-          } else {
-            reject(new Error(response.message || "伺服器發生未知錯誤"));
-          }
-        };
-        
-        script.onerror = function() {
-          clearTimeout(timeoutId);
-          cleanup(); 
-          reject(new Error("無法載入腳本，請確認網路狀態或 GAS 權限"));
-        };
-        
-        document.body.appendChild(script);
+      
+      
+      return fetch(GAS_WEB_URL, {
+        method: 'POST',
+        body: JSON.stringify(payload)
+      })
+      .then(response => {
+        if (!response.ok) throw new Error('網路回應錯誤: ' + response.status);
+        return response.json();
+      })
+      .then(res => {
+        if (res.status === 'success') return res.data;
+        else throw new Error(res.message || "伺服器發生未知錯誤");
       });
     }
   }
@@ -2188,17 +2144,17 @@
           const base64 = reader.result.split(',')[1];
           log(`[處理] 正在解析第 ${index} 段...`);
           try {
-            const enableAI = document.getElementById('liveAIModeSelect') ? (document.getElementById('liveAIModeSelect').value === 'true') : true;
-            await api({ 
-              action: "processChunkRealtime", 
-              base64Data: base64, 
-              mimeType: mime, 
-              folderId: logSession.folderId, 
-              rowIndex: logSession.rowIndex, 
-              chunkIndex: index,
-              enableAI: enableAI
-            });
-            log(`[成功] 第 ${index} 段已寫入`);
+        const enableAI = document.getElementById('liveAIModeSelect') ? (document.getElementById('liveAIModeSelect').value === 'true') : true;
+        await api({ 
+          action: "processChunkRealtime", 
+          base64Data: base64, 
+          mimeType: mime, 
+          folderId: logSession.folderId, 
+          logId: logSession.logId, 
+          chunkIndex: index,
+          enableAI: enableAI
+        });
+        log(`[成功] 第 ${index} 段已寫入`);
           } catch (e) { 
             log(`[失敗] 第 ${index} 段寫入異常: ` + e.message); 
           }
@@ -2280,7 +2236,7 @@
     try {
       const logPromptVal = document.getElementById('liveLogPromptSelect') ? document.getElementById('liveLogPromptSelect').value : "";
       const enableAI = document.getElementById('liveAIModeSelect') ? (document.getElementById('liveAIModeSelect').value === 'true') : true;
-      const res = await api({ action: "finalizeLog", rowIndex: logSession.rowIndex, email: email, logPromptContent: logPromptVal, enableAI: enableAI });
+      const res = await api({ action: "finalizeLog", logId: logSession.logId, email: email, logPromptContent: logPromptVal, enableAI: enableAI });
       log("[成功] 總結與歸檔完成！");
       const urls = res.urls || [];
 
