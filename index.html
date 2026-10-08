@@ -1340,10 +1340,12 @@
       });
     } else {
       
-      
       return fetch(GAS_WEB_URL, {
         method: 'POST',
-        body: JSON.stringify(payload)
+        body: JSON.stringify(payload),
+        headers: {
+          "Content-Type": "text/plain;charset=utf-8"
+        }
       })
       .then(response => {
         if (!response.ok) throw new Error('網路回應錯誤: ' + response.status);
@@ -2144,17 +2146,18 @@
           const base64 = reader.result.split(',')[1];
           log(`[處理] 正在解析第 ${index} 段...`);
           try {
-        const enableAI = document.getElementById('liveAIModeSelect') ? (document.getElementById('liveAIModeSelect').value === 'true') : true;
-        await api({ 
-          action: "processChunkRealtime", 
-          base64Data: base64, 
-          mimeType: mime, 
-          folderId: logSession.folderId, 
-          logId: logSession.logId, 
-          chunkIndex: index,
-          enableAI: enableAI
-        });
-        log(`[成功] 第 ${index} 段已寫入`);
+            const enableAI = document.getElementById('liveAIModeSelect') ? (document.getElementById('liveAIModeSelect').value === 'true') : true;
+            await api({ 
+              action: "processChunkRealtime", 
+              base64Data: base64, 
+              mimeType: mime, 
+              folderId: logSession.folderId, 
+              logId: logSession.logId, 
+              _rowId: logSession.rowIndex, 
+              chunkIndex: index,
+              enableAI: enableAI
+            });
+            log(`[成功] 第 ${index} 段已寫入`);
           } catch (e) { 
             log(`[失敗] 第 ${index} 段寫入異常: ` + e.message); 
           }
@@ -2236,7 +2239,7 @@
     try {
       const logPromptVal = document.getElementById('liveLogPromptSelect') ? document.getElementById('liveLogPromptSelect').value : "";
       const enableAI = document.getElementById('liveAIModeSelect') ? (document.getElementById('liveAIModeSelect').value === 'true') : true;
-      const res = await api({ action: "finalizeLog", logId: logSession.logId, email: email, logPromptContent: logPromptVal, enableAI: enableAI });
+      const res = await api({ action: "finalizeLog", logId: logSession.logId, _rowId: logSession.rowIndex, email: email, logPromptContent: logPromptVal, enableAI: enableAI });
       log("[成功] 總結與歸檔完成！");
       const urls = res.urls || [];
 
