@@ -1002,7 +1002,7 @@
   function escapeHtml(str) { return window.escapeHtml(str); }
 
   
-  const GAS_WEB_URL = "https://script.google.com/macros/s/AKfycbxQBW3X4GsjwkCCGsL2fv5VB57Mf6Liqix_qFfMacEadOQC8PBQ0G-d65fdBfpDGdrNMQ/exec";
+  const GAS_WEB_URL = "https://script.google.com/macros/s/AKfycbzNVJjdnOKJMy9v3A6TURw8p6U7OdUy4fnUZHIcU3dL1t6DSNWBi1oB79wrEWN2XHQiUQ/exec";
   const GAS_URL = GAS_WEB_URL;
 
   let currentStream = null;
@@ -1326,51 +1326,79 @@
   }
 
   
-async function api(payload, retries = 2) {
-  if (typeof google !== 'undefined' && google.script && google.script.run) {
-    return new Promise((resolve, reject) => {
-      google.script.run
-        .withSuccessHandler(res => {
-          if (!res) { reject(new Error("無回應")); return; }
-          if (res.status === 'success') resolve(res.data);
-          else reject(new Error(res.message || "錯誤"));
-        })
-        .withFailureHandler(err => reject(err))
-        .handleClientRequest(payload);
-    });
-  } else {
-    
-    return new Promise((resolve, reject) => {
-      fetch(GAS_WEB_URL, {
-        redirect: 'follow', 
-        method: 'POST',
-        headers: { 'Content-Type': 'text/plain;charset=utf-8' }, 
-        body: JSON.stringify(payload)
-      })
-      .then(res => {
-        
-        const contentType = res.headers.get("content-type");
-        if (contentType && contentType.includes("application/json")) {
-          return res.json();
-        } else {
-          return res.text().then(text => {
-            throw new Error("伺服器回傳格式異常！請務必至 GAS 編輯器點擊「部署 > 管理部署作業 > 編輯 > 新版本」並儲存。");
-          });
-        }
-      })
-      .then(response => {
-        if (response && response.status === 'success') {
-          resolve(response.data);
-        } else {
-          reject(new Error((response && response.message) ? response.message : "伺服器發生未知錯誤"));
-        }
-      })
-      .catch(err => {
-        reject(new Error(err.message.includes("格式異常") ? err.message : "無法連線至伺服器或請求失敗: " + err.message));
+  async function api(payload, retries = 2) {
+    if (typeof google !== 'undefined' && google.script && google.script.run) {
+      return new Promise((resolve, reject) => {
+        google.script.run
+          .withSuccessHandler(res => {
+            if (!res) { reject(new Error("無回應")); return; }
+            if (res.status === 'success') resolve(res.data);
+            else reject(new Error(res.message || "錯誤"));
+          })
+          .withFailureHandler(err => reject(err))
+          .handleClientRequest(payload);
       });
-    });
+    } else {
+      return new Promise((resolve, reject) => {
+        const callbackName = 'jsonp_callback_' + Math.round(100000 * Math.random());
+        const urlParams = new URLSearchParams();
+        urlParams.append('callback', callbackName);
+        
+        for (const key in payload) {
+           if (typeof payload[key] === 'object') {
+              urlParams.append(key, JSON.stringify(payload[key]));
+           } else {
+              urlParams.append(key, payload[key]);
+           }
+        }
+        
+        const requestUrl = GAS_WEB_URL + '?' + urlParams.toString();
+        const script = document.createElement('script');
+        script.src = requestUrl;
+        
+        
+        let isCleanedUp = false;
+        const cleanup = () => {
+          if (isCleanedUp) return;
+          isCleanedUp = true;
+          
+          window[callbackName] = function() {}; 
+          
+          try {
+            if (script && script.parentNode) {
+              script.parentNode.removeChild(script);
+            }
+          } catch (e) {
+            console.warn("Script node already removed", e);
+          }
+        };
+        
+        
+        const timeoutId = setTimeout(() => {
+          cleanup();
+          reject(new Error("請求超時，檔案過大或網路連線較慢，請稍後重試。"));
+        }, 45000); 
+        
+        window[callbackName] = function(response) {
+          clearTimeout(timeoutId);
+          cleanup(); 
+          if (response.status === 'success') {
+            resolve(response.data);
+          } else {
+            reject(new Error(response.message || "伺服器發生未知錯誤"));
+          }
+        };
+        
+        script.onerror = function() {
+          clearTimeout(timeoutId);
+          cleanup(); 
+          reject(new Error("無法載入腳本，請確認網路狀態或 GAS 權限"));
+        };
+        
+        document.body.appendChild(script);
+      });
+    }
   }
-}
 
   async function loadUserAccountInfo(email) {
     const cacheKey = 'bvlog_cache_account_' + email;
@@ -2104,14 +2132,13 @@ async function api(payload, retries = 2) {
   }
 
   function startChunkRecording() {
-  if (!isRecording || !currentStream || isPaused) return;
-  recordedChunks = [];
-  const mime = MediaRecorder.isTypeSupported('video/webm;codecs=vp9') ? 'video/webm;codecs=vp9' : 'video/webm';
+    if (!isRecording || !currentStream || isPaused) return;
+    recordedChunks = [];
+    const mime = MediaRecorder.isTypeSupported('video/webm;codecs=vp9') ? 'video/webm;codecs=vp9' : 'video/webm';
 
-  const recorderOptions = {
-    mimeType: mime,
-    videoBitsPerSecond: 2000000 
-  };
+    const recorderOptions = {
+      mimeType: mime,
+      videoBitsPerSecond: 1200000 
     };
 
     try {
@@ -2163,11 +2190,11 @@ async function api(payload, retries = 2) {
           try {
             const enableAI = document.getElementById('liveAIModeSelect') ? (document.getElementById('liveAIModeSelect').value === 'true') : true;
             await api({ 
-              action: "processChunkRealtime",
-              base64Data: base64,
-              mimeType: mime,
-              folderId: logSession.folderId,
-              logId: logSession.logId, 
+              action: "processChunkRealtime", 
+              base64Data: base64, 
+              mimeType: mime, 
+              folderId: logSession.folderId, 
+              rowIndex: logSession.rowIndex, 
               chunkIndex: index,
               enableAI: enableAI
             });
@@ -2251,10 +2278,10 @@ async function api(payload, retries = 2) {
     }
 
     try {
-            const logPromptVal = document.getElementById('liveLogPromptSelect') ? document.getElementById('liveLogPromptSelect').value : "";
-            const enableAI = document.getElementById('liveAIModeSelect') ? (document.getElementById('liveAIModeSelect').value === 'true') : true;
-            const res = await api({ action: "finalizeLog", logId: logSession.logId, email: email, logPromptContent: logPromptVal, enableAI: enableAI });
-            log("[成功] 總結與歸檔完成！");
+      const logPromptVal = document.getElementById('liveLogPromptSelect') ? document.getElementById('liveLogPromptSelect').value : "";
+      const enableAI = document.getElementById('liveAIModeSelect') ? (document.getElementById('liveAIModeSelect').value === 'true') : true;
+      const res = await api({ action: "finalizeLog", rowIndex: logSession.rowIndex, email: email, logPromptContent: logPromptVal, enableAI: enableAI });
+      log("[成功] 總結與歸檔完成！");
       const urls = res.urls || [];
 
       let linksHtml = '';
