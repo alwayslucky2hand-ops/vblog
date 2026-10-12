@@ -2423,20 +2423,20 @@
            for (let k = 0; k < urls.length; k++) {
              const ytMatch = urls[k].match(/(?:youtu\.be\/|youtube\.com\/(?:embed\/|v\/|live\/|watch\?v=|watch\?.+&v=|shorts\/))([\w-]{11})/i);
              if (ytMatch && ytMatch[1]) {
-               ytIframesHtml += '<iframe src="https://www.youtube.com/embed/' + ytMatch[1] + '" frameborder="0" allowfullscreen style="width: 100%; aspect-ratio: 16/9; display: block; border-bottom: 1px solid #333;"></iframe>';
+               ytIframesHtml += '<iframe src="https://www.youtube.com/embed/' + ytMatch[1] + '" frameborder="0" allowfullscreen style="width: 100%; aspect-ratio: 16/9; display: block; border-bottom: 1px solid var(--border-subtle);"></iframe>';
              }
            }
-           playerHtml = '<details class="history-accordion"><summary><span style="display: flex; align-items: center; gap: 8px;"><i data-lucide="youtube" style="width: 16px; height: 16px; color: var(--danger);"></i>YouTube 影片 (' + urls.length + ')</span><span class="accordion-toggle-icon"><i data-lucide="chevron-down" style="width: 16px; height: 16px;"></i></span></summary><div class="accordion-body" style="padding: 0; background: #000; border-top: 1px solid var(--border);">' + ytIframesHtml + '</div></details>';
+           playerHtml = '<details class="history-accordion" id="details-player-' + item.logId + '"><summary><span style="display: flex; align-items: center; gap: 8px;"><i data-lucide="youtube" style="width: 16px; height: 16px; color: var(--danger);"></i>YouTube 影片 (' + urls.length + ')</span><span class="accordion-toggle-icon"><i data-lucide="chevron-down" style="width: 16px; height: 16px;"></i></span></summary><div class="accordion-body" style="padding: 0; background: #f8fafc; border-top: 1px solid var(--border);">' + ytIframesHtml + '</div></details>';
         } else {
           let optHtml = '';
           for(let k=0; k<urls.length; k++) optHtml += `<option value="${k}">片段 ${k+1}</option>`;
-          playerHtml = '<details class="history-accordion"><summary><span style="display: flex; align-items: center; gap: 8px;"><i data-lucide="play-circle" style="width: 16px; height: 16px; color: var(--accent);"></i>全片預覽</span><button class="action-btn-sm action-btn-primary" onclick="event.stopPropagation(); window.startSeamlessPlay(\'' + item.logId + '\')"><i data-lucide="play" style="width: 14px; height: 14px;"></i> 啟動播放</button></summary><div class="accordion-body" style="padding: 0; background: #000; border-top: 1px solid var(--border);"><div style="display:flex; justify-content:space-between; align-items:center; gap:8px; padding:12px 16px; background:#0f172a;"><div style="display:flex; gap:8px; align-items:center;"><button class="action-btn-sm" onclick="window.prevHistoryChunk(\'' + item.logId + '\')" style="background:#1e293b; color:#fff; border-color:#334155;">上一段</button><select id="player-sel-' + item.logId + '" onchange="window.playHistoryChunk(\'' + item.logId + '\', parseInt(this.value))" style="background:#1e293b; color:#fff; border:1px solid #334155; padding:6px; border-radius:4px; outline:none; font-size:13px; cursor:pointer;">' + optHtml + '</select><button class="action-btn-sm" onclick="window.nextHistoryChunk(\'' + item.logId + '\')" style="background:#1e293b; color:#fff; border-color:#334155;">下一段</button></div><span id="player-status-' + item.logId + '" style="color:#94a3b8; font-size:13px; font-weight:600;">準備就緒</span></div><div style="position: relative; width: 100%; aspect-ratio: 16/9; background: #000; overflow: hidden;"><video id="playerA-' + item.logId + '" controls playsinline style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 2; opacity: 1; transition: opacity 0.2s; background: #000; object-fit: contain;"></video><video id="playerB-' + item.logId + '" controls playsinline style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 1; opacity: 0; transition: opacity 0.2s; background: #000; object-fit: contain;"></video></div></div></details>';
+          playerHtml = '<details class="history-accordion" id="details-player-' + item.logId + '"><summary><span style="display: flex; align-items: center; gap: 8px;"><i data-lucide="play-circle" style="width: 16px; height: 16px; color: var(--accent);"></i>全片預覽</span><button class="action-btn-sm action-btn-primary" onclick="event.stopPropagation(); window.startSeamlessPlay(\'' + item.logId + '\')"><i data-lucide="play" style="width: 14px; height: 14px;"></i> 啟動播放</button></summary><div class="accordion-body" style="padding: 0; background: #fff; border-top: 1px solid var(--border);"><div style="display:flex; justify-content:space-between; align-items:center; gap:12px; padding:12px 16px; border-bottom:1px solid var(--border-subtle); background:#f8fafc;"><div style="display:flex; gap:8px; align-items:center;"><button class="action-btn-sm action-btn-icon" onclick="window.prevHistoryChunk(\'' + item.logId + '\')" title="上一段"><i data-lucide="chevron-left" style="width: 16px; height: 16px;"></i></button><select id="player-sel-' + item.logId + '" onchange="window.playHistoryChunk(\'' + item.logId + '\', parseInt(this.value))" style="background:#fff; color:var(--text); border:1px solid var(--border); padding:6px 12px; border-radius:4px; outline:none; font-size:13px; font-weight:600; cursor:pointer;">' + optHtml + '</select><button class="action-btn-sm action-btn-icon" onclick="window.nextHistoryChunk(\'' + item.logId + '\')" title="下一段"><i data-lucide="chevron-right" style="width: 16px; height: 16px;"></i></button></div><div style="display:flex; align-items:center; gap:8px;"><span id="player-status-' + item.logId + '" style="color:var(--text-muted); font-size:12.5px; font-weight:600;"><i data-lucide="check-circle" style="width:14px; height:14px; margin-right:4px; vertical-align:middle;"></i>準備就緒</span></div></div><div style="position: relative; width: 100%; aspect-ratio: 16/9; background: #e2e8f0; overflow: hidden;"><video id="playerA-' + item.logId + '" controls playsinline style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 2; opacity: 1; transition: opacity 0.2s; background: #000; object-fit: contain;"></video><video id="playerB-' + item.logId + '" controls playsinline style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 1; opacity: 0; transition: opacity 0.2s; background: #000; object-fit: contain;"></video></div></div></details>';
         }
       }
 
-      let summaryBlock = '<details class="history-accordion"><summary><span style="display: flex; align-items: center; gap: 8px;"><i data-lucide="sparkles" style="width: 15px; height: 15px; color: var(--accent);"></i>總結</span><div class="flex-wrap-gap"><button type="button" id="btn-edit-summary-' + item.logId + '" class="action-btn-sm action-btn-icon" onclick="event.stopPropagation(); toggleEditMode(\'' + item.logId + '\', \'summary\')" title="編輯"><i data-lucide="edit-3" style="width: 16px; height: 16px;"></i></button><button type="button" class="action-btn-sm action-btn-icon" onclick="event.stopPropagation(); copyTextToClipboard(this.getAttribute(\'data-text\'))" data-text="' + escapeHtml(safeSummaryRaw) + '" title="複製"><i data-lucide="copy" style="width: 16px; height: 16px;"></i></button><span class="accordion-toggle-icon"><i data-lucide="chevron-down" style="width: 16px; height: 16px;"></i></span></div></summary><div class="accordion-body"><div id="view-summary-' + item.logId + '" class="markdown-body">' + renderMarkdown(safeSummaryRaw) + '</div><div id="edit-summary-' + item.logId + '" style="display: none; flex-direction: column; gap: 12px;"><textarea id="input-summary-' + item.logId + '" class="workshop-textarea" style="min-height: 180px;">' + escapeHtml(safeSummaryRaw) + '</textarea><div style="display: flex; justify-content: flex-end; gap: 8px;"><button class="action-btn-sm action-btn-icon" onclick="toggleEditMode(\'' + item.logId + '\', \'summary\')" title="取消"><i data-lucide="x" style="width: 16px; height: 16px;"></i></button><button class="action-btn-sm action-btn-primary" onclick="saveHistoryLog(\'' + item.logId + '\', \'summary\', this)"><i data-lucide="save" style="width: 14px; height: 14px;"></i> 儲存</button></div></div></div></details>';
+      let summaryBlock = '<details class="history-accordion"><summary><span style="display: flex; align-items: center; gap: 8px;"><i data-lucide="sparkles" style="width: 15px; height: 15px; color: var(--accent);"></i>總結</span><div id="reanalyze-header-summary-progress-' + item.logId + '" style="display:none; align-items:center; gap:8px; font-size:13px; color:var(--accent); font-weight:600; margin-left:auto; margin-right:12px;"></div><div class="flex-wrap-gap" id="summary-actions-' + item.logId + '"><button type="button" class="action-btn-sm action-btn-icon" onclick="event.stopPropagation(); triggerReAnalyzeSummary(\'' + item.logId + '\', this)" title="重新產生總結"><i data-lucide="refresh-cw" style="width: 16px; height: 16px;"></i></button><button type="button" id="btn-edit-summary-' + item.logId + '" class="action-btn-sm action-btn-icon" onclick="event.stopPropagation(); toggleEditMode(\'' + item.logId + '\', \'summary\')" title="編輯"><i data-lucide="edit-3" style="width: 16px; height: 16px;"></i></button><button type="button" class="action-btn-sm action-btn-icon" onclick="event.stopPropagation(); copyTextToClipboard(this.getAttribute(\'data-text\'))" data-text="' + escapeHtml(safeSummaryRaw) + '" title="複製"><i data-lucide="copy" style="width: 16px; height: 16px;"></i></button><span class="accordion-toggle-icon"><i data-lucide="chevron-down" style="width: 16px; height: 16px;"></i></span></div></summary><div class="accordion-body"><div id="view-summary-' + item.logId + '" class="markdown-body">' + renderMarkdown(safeSummaryRaw) + '</div><div id="edit-summary-' + item.logId + '" style="display: none; flex-direction: column; gap: 12px;"><textarea id="input-summary-' + item.logId + '" class="workshop-textarea" style="min-height: 180px;">' + escapeHtml(safeSummaryRaw) + '</textarea><div style="display: flex; justify-content: flex-end; gap: 8px;"><button class="action-btn-sm action-btn-icon" onclick="toggleEditMode(\'' + item.logId + '\', \'summary\')" title="取消"><i data-lucide="x" style="width: 16px; height: 16px;"></i></button><button class="action-btn-sm action-btn-primary" onclick="saveHistoryLog(\'' + item.logId + '\', \'summary\', this)"><i data-lucide="save" style="width: 14px; height: 14px;"></i> 儲存</button></div></div></div></details>';
 
-      let contentBlock = '<details class="history-accordion"><summary><span style="display: flex; align-items: center; gap: 8px;"><i data-lucide="file-text" style="width: 15px; height: 15px; color: var(--text-muted);"></i>內容</span><div class="flex-wrap-gap"><button type="button" id="btn-edit-content-' + item.logId + '" class="action-btn-sm action-btn-icon" onclick="event.stopPropagation(); toggleEditMode(\'' + item.logId + '\', \'content\')" title="編輯"><i data-lucide="edit-3" style="width: 16px; height: 16px;"></i></button><button type="button" class="action-btn-sm action-btn-icon" onclick="event.stopPropagation(); copyTextToClipboard(this.getAttribute(\'data-text\'))" data-text="' + escapeHtml(safeContentRaw) + '" title="複製"><i data-lucide="copy" style="width: 16px; height: 16px;"></i></button><span class="accordion-toggle-icon"><i data-lucide="chevron-down" style="width: 16px; height: 16px;"></i></span></div></summary><div class="accordion-body"><div id="view-content-' + item.logId + '">' + formatTranscriptContent(safeContentRaw, urls) + '</div><div id="edit-content-' + item.logId + '" style="display: none; flex-direction: column; gap: 12px;"><textarea id="input-content-' + item.logId + '" class="workshop-textarea" style="min-height: 250px;">' + escapeHtml(safeContentRaw) + '</textarea><div style="display: flex; justify-content: flex-end; gap: 8px;"><button class="action-btn-sm action-btn-icon" onclick="toggleEditMode(\'' + item.logId + '\', \'content\')" title="取消"><i data-lucide="x" style="width: 16px; height: 16px;"></i></button><button class="action-btn-sm action-btn-primary" onclick="saveHistoryLog(\'' + item.logId + '\', \'content\', this)"><i data-lucide="save" style="width: 14px; height: 14px;"></i> 儲存</button></div></div></div></details>';
+      let contentBlock = '<details class="history-accordion"><summary><span style="display: flex; align-items: center; gap: 8px;"><i data-lucide="file-text" style="width: 15px; height: 15px; color: var(--text-muted);"></i>內容</span><div id="reanalyze-header-progress-' + item.logId + '" style="display:none; align-items:center; gap:8px; font-size:13px; color:var(--accent); font-weight:600; margin-left:auto; margin-right:12px;"></div><div class="flex-wrap-gap" id="content-actions-' + item.logId + '"><button type="button" class="action-btn-sm action-btn-icon" onclick="event.stopPropagation(); triggerReAnalyzeContent(\'' + item.logId + '\', this)" title="重新解析所有影音"><i data-lucide="wand-2" style="width: 16px; height: 16px;"></i></button><button type="button" id="btn-edit-content-' + item.logId + '" class="action-btn-sm action-btn-icon" onclick="event.stopPropagation(); toggleEditMode(\'' + item.logId + '\', \'content\')" title="編輯"><i data-lucide="edit-3" style="width: 16px; height: 16px;"></i></button><button type="button" class="action-btn-sm action-btn-icon" onclick="event.stopPropagation(); copyTextToClipboard(this.getAttribute(\'data-text\'))" data-text="' + escapeHtml(safeContentRaw) + '" title="複製"><i data-lucide="copy" style="width: 16px; height: 16px;"></i></button><span class="accordion-toggle-icon"><i data-lucide="chevron-down" style="width: 16px; height: 16px;"></i></span></div></summary><div class="accordion-body"><div id="view-content-' + item.logId + '">' + formatTranscriptContent(safeContentRaw, urls) + '</div><div id="edit-content-' + item.logId + '" style="display: none; flex-direction: column; gap: 12px;"><textarea id="input-content-' + item.logId + '" class="workshop-textarea" style="min-height: 250px;">' + escapeHtml(safeContentRaw) + '</textarea><div style="display: flex; justify-content: flex-end; gap: 8px;"><button class="action-btn-sm action-btn-icon" onclick="toggleEditMode(\'' + item.logId + '\', \'content\')" title="取消"><i data-lucide="x" style="width: 16px; height: 16px;"></i></button><button class="action-btn-sm action-btn-primary" onclick="saveHistoryLog(\'' + item.logId + '\', \'content\', this)"><i data-lucide="save" style="width: 14px; height: 14px;"></i> 儲存</button></div></div></div></details>';
 
       listHtml += '<div class="history-card" data-row-id="' + item.logId + '">' +
                   '<div class="history-header"><div><div style="font-weight: 700; font-size: 16px; color: var(--text);">ID: ' + item.logId + '</div><div style="font-size: 13px; color: var(--text-muted); margin-top: 6px; display: flex; align-items: center; gap: 6px;"><i data-lucide="clock" style="width: 14px; height: 14px;"></i> ' + cleanTime + '</div></div><div class="flex-wrap-gap"><span class="badge ' + (isRec ? 'recording' : '') + '">' + item.status + '</span><button type="button" class="action-btn-sm action-btn-primary" onclick="openArticleWorkshop(\'' + item.logId + '\')"><i data-lucide="file-text" style="width: 14px; height: 14px;"></i> 工坊</button><button type="button" class="action-btn-sm action-btn-icon danger" onclick="deleteHistoryLog(\'' + item.logId + '\')" title="刪除"><i data-lucide="trash-2" style="width: 16px; height: 16px;"></i></button></div></div>' +
@@ -3342,6 +3342,12 @@
     const urls = window.logPlaylists[logId];
     if (!urls || urls.length === 0) return;
     
+    
+    const detailsEl = document.getElementById('details-player-' + logId);
+    if (detailsEl && !detailsEl.open) {
+        detailsEl.open = true;
+    }
+    
     const statusEl = document.getElementById('player-status-' + logId);
     const vidA = document.getElementById('playerA-' + logId);
     const vidB = document.getElementById('playerB-' + logId);
@@ -3399,14 +3405,16 @@
     state.currentIndex = targetIndex;
     if (selector) selector.value = targetIndex;
     
-    statusEl.innerText = "雲端擷取中，請稍候..."; 
+    statusEl.innerHTML = '<i data-lucide="loader" class="spin" style="width:14px; height:14px; margin-right:4px; vertical-align:middle; color:var(--accent);"></i>雲端擷取中...';
+    lucide.createIcons();
 
     const targetUrl = state.streamUrls[targetIndex];
     const streamUrl = await window.fetchVideoChunkBase64(targetUrl);
 
     if (state.currentIndex !== targetIndex) return; 
     if (!streamUrl) {
-      statusEl.innerText = "載入失敗";
+      statusEl.innerHTML = '<i data-lucide="x-circle" style="width:14px; height:14px; margin-right:4px; vertical-align:middle; color:var(--danger);"></i>載入失敗';
+      lucide.createIcons();
       state.isTransitioning = false; return;
     }
 
@@ -3437,9 +3445,11 @@
       const playPromise = videoEl.play();
       if (playPromise !== undefined) {
         playPromise.then(() => {
-          statusEl.innerText = "播放中: 切片 " + (targetIndex + 1) + " / " + state.streamUrls.length;
+          statusEl.innerHTML = '<i data-lucide="play-circle" style="width:14px; height:14px; margin-right:4px; vertical-align:middle; color:var(--success);"></i>播放中 (' + (targetIndex + 1) + '/' + state.streamUrls.length + ')';
+          lucide.createIcons();
         }).catch(e => {
-          statusEl.innerText = "已就緒，請點擊影片播放";
+          statusEl.innerHTML = '<i data-lucide="info" style="width:14px; height:14px; margin-right:4px; vertical-align:middle;"></i>已就緒 (請點擊)';
+          lucide.createIcons();
         });
       }
     };
@@ -3794,6 +3804,381 @@
       showToast("背景儲存失敗");
     });
   }
+
+  window.reAnalyzeTaskStates = window.reAnalyzeTaskStates || {};
+
+  window.triggerReAnalyzeContent = async function(logId, btnEl) {
+    const urls = window.logPlaylists[logId];
+    if (!urls || urls.length === 0) {
+      alert("此日誌無影音檔案可供解析！");
+      return;
+    }
+    
+    const isYouTube = urls[0].includes('youtube.com') || urls[0].includes('youtu.be');
+    if (isYouTube) {
+       alert("YouTube 影片請透過頂部的 YouTube 解析區塊處理！");
+       return;
+    }
+
+    if (window.reAnalyzeTaskStates[logId] && window.reAnalyzeTaskStates[logId].status === 'running') {
+       alert("此日誌的解析任務正在進行中。");
+       return;
+    }
+
+    if (!window.reAnalyzeTaskStates[logId] || window.reAnalyzeTaskStates[logId].status === 'stopped') {
+       const logItem = globalLogsCache.find(l => l.logId === logId);
+       let validTranscripts = [];
+       
+       
+       if (logItem && logItem.content && !logItem.content.includes("純影音建檔中") && !logItem.content.includes("未啟用 AI 解析")) {
+           const parts = logItem.content.split(/(?=【第\s*\d+\s*(?:分鐘|段影音|段)】)/).map(p => p.trim()).filter(p => p !== "");
+           for (let p of parts) {
+               if (p.startsWith("【第") && !p.includes("（解析超時或失敗）") && !p.includes("（AI 解析發生錯誤")) {
+                   validTranscripts.push(p);
+               } else {
+                   break; 
+               }
+           }
+       }
+       
+       let startIdx = validTranscripts.length;
+       if (startIdx >= urls.length) {
+           if (!confirm(`系統偵測 ${urls.length} 段影音皆已解析完成。\n確定要強制「全部重新解析」嗎？（將覆蓋現有內容）`)) return;
+           validTranscripts = [];
+           startIdx = 0;
+       } else {
+           const confirmMsg = startIdx > 0 
+               ? `系統偵測到已完成 ${startIdx} 段解析。\n將從第 ${startIdx + 1} 段接續解析剩餘的 ${urls.length - startIdx} 段，不重複重工！\n確定要執行嗎？` 
+               : `將針對 ${urls.length} 個影音切片進行 AI 解析，確定要執行嗎？`;
+           if (!confirm(confirmMsg)) return;
+       }
+
+       window.reAnalyzeTaskStates[logId] = {
+         status: 'running',
+         currentIndex: startIdx,
+         fullTranscripts: validTranscripts,
+         urls: urls
+       };
+    } else if (window.reAnalyzeTaskStates[logId].status === 'paused') {
+       if (!confirm(`要繼續未完成的解析任務嗎？\n(目前進度: ${window.reAnalyzeTaskStates[logId].currentIndex}/${urls.length})`)) return;
+       window.reAnalyzeTaskStates[logId].status = 'running';
+    }
+
+    const actionsEl = document.getElementById('content-actions-' + logId);
+    if (actionsEl) actionsEl.style.display = 'none';
+
+    const progressEl = document.getElementById('reanalyze-header-progress-' + logId);
+    if (progressEl) {
+      progressEl.style.display = 'flex';
+      progressEl.innerHTML = `
+        <div id="reanalyze-text-${logId}" style="display:flex; align-items:center;"><i data-lucide="loader" class="spin" style="width:14px; height:14px; margin-right:4px;"></i> 準備解析...</div>
+        <div style="display:flex; gap:8px;">
+          <button class="action-btn-sm action-btn-icon" onclick="event.stopPropagation(); window.pauseReAnalyze('${logId}')" title="暫停"><i data-lucide="pause" style="width:14px; height:14px;"></i></button>
+          <button class="action-btn-sm action-btn-icon danger" onclick="event.stopPropagation(); window.stopReAnalyze('${logId}')" title="停止"><i data-lucide="square" style="width:14px; height:14px;"></i></button>
+        </div>
+      `;
+      lucide.createIcons();
+    }
+
+    const originalIconHtml = btnEl ? btnEl.innerHTML : '';
+    if (btnEl) {
+       btnEl.innerHTML = '<i data-lucide="loader" class="spin" style="width:16px; height:16px;"></i>';
+       btnEl.disabled = true;
+    }
+
+    window.processReAnalyzeLoop(logId, btnEl, originalIconHtml);
+  };
+
+  window.processReAnalyzeLoop = async function(logId, btnEl, originalIconHtml) {
+      const state = window.reAnalyzeTaskStates[logId];
+      const progressEl = document.getElementById('reanalyze-header-progress-' + logId);
+      const textEl = document.getElementById('reanalyze-text-' + logId);
+      const actionsEl = document.getElementById('content-actions-' + logId);
+      const logItem = globalLogsCache.find(l => l.logId === logId);
+      const viewEl = document.getElementById('view-content-' + logId);
+      const editInputEl = document.getElementById('input-content-' + logId);
+
+      
+      if (state.currentIndex === 0 && state.fullTranscripts.length === 0) {
+        if (logItem) logItem.content = "（正在啟動影音切片解析...）";
+        if (viewEl) viewEl.innerHTML = '<div style="color:var(--text-muted); font-size:14px; padding:12px 0;"><i data-lucide="loader" class="spin" style="width:14px; height:14px; margin-right:4px;"></i> 準備解析中...</div>';
+      }
+
+      try {
+        while (state.currentIndex < state.urls.length) {
+           if (state.status === 'paused') {
+               if (progressEl) {
+                 progressEl.innerHTML = `
+                    <div id="reanalyze-text-${logId}" style="display:flex; align-items:center;"><i data-lucide="pause-circle" style="width:14px; height:14px; margin-right:4px; color:var(--warning);"></i> 已暫停 (${state.currentIndex}/${state.urls.length})</div>
+                    <div style="display:flex; gap:8px;">
+                      <button class="action-btn-sm action-btn-icon" onclick="event.stopPropagation(); window.resumeReAnalyze('${logId}')" title="繼續"><i data-lucide="play" style="width:14px; height:14px;"></i></button>
+                      <button class="action-btn-sm action-btn-icon danger" onclick="event.stopPropagation(); window.stopReAnalyze('${logId}')" title="停止"><i data-lucide="square" style="width:14px; height:14px;"></i></button>
+                    </div>
+                 `;
+                 lucide.createIcons();
+               }
+               return; 
+           }
+           
+           if (state.status === 'stopped') {
+               throw new Error("USER_STOPPED");
+           }
+
+           const i = state.currentIndex;
+           if (textEl) textEl.innerHTML = `<i data-lucide="loader" class="spin" style="width:14px; height:14px; margin-right:4px;"></i> 解析第 ${i + 1}/${state.urls.length} 段 (${Math.round((i/state.urls.length)*100)}%)`;
+           lucide.createIcons();
+           
+           const res = await api({ action: "reAnalyzeChunk", url: state.urls[i], chunkIndex: i + 1, logId: logId });
+           state.fullTranscripts.push(res.transcript);
+           
+           const currentContent = state.fullTranscripts.join('|||CHUNK_SPLIT|||');
+           await api({ action: "saveReAnalyzedContent", logId: logId, content: currentContent });
+           
+           if (logItem) logItem.content = state.fullTranscripts.join('\n\n'); 
+           if (viewEl) viewEl.innerHTML = formatTranscriptContent(logItem.content, state.urls);
+           if (editInputEl) editInputEl.value = logItem.content;
+           
+           state.currentIndex++;
+        }
+        
+        if (progressEl) {
+           progressEl.innerHTML = `<div style="color:var(--success); display:flex; align-items:center;"><i data-lucide="check-circle" style="width:14px; height:14px; margin-right:4px;"></i> 解析完成</div>`;
+           setTimeout(() => {
+             progressEl.style.display = 'none';
+             if (actionsEl) actionsEl.style.display = 'flex';
+           }, 3000);
+        }
+        lucide.createIcons();
+        showToast("影音解析完成！");
+        state.status = 'stopped';
+        
+      } catch(e) {
+        if (e.message === "USER_STOPPED") {
+            if (progressEl) {
+              progressEl.innerHTML = `<div style="color:var(--danger); display:flex; align-items:center;"><i data-lucide="stop-circle" style="width:14px; height:14px; margin-right:4px;"></i> 已停止 (${state.currentIndex}/${state.urls.length})</div>`;
+              setTimeout(() => {
+                 progressEl.style.display = 'none';
+                 if (actionsEl) actionsEl.style.display = 'flex';
+              }, 3000);
+            }
+            showToast("解析已終止");
+        } else {
+            alert("解析過程中發生錯誤：" + e.message);
+            if (progressEl) {
+              progressEl.style.display = 'none';
+              if (actionsEl) actionsEl.style.display = 'flex';
+            }
+        }
+        state.status = 'stopped';
+      } finally {
+        if (btnEl) {
+          btnEl.innerHTML = originalIconHtml;
+          btnEl.disabled = false;
+        }
+        lucide.createIcons();
+      }
+  };
+
+  window.pauseReAnalyze = function(logId) {
+      if (window.reAnalyzeTaskStates[logId]) {
+          window.reAnalyzeTaskStates[logId].status = 'paused';
+      }
+  };
+
+  window.stopReAnalyze = function(logId) {
+      if (window.reAnalyzeTaskStates[logId]) {
+          window.reAnalyzeTaskStates[logId].status = 'stopped';
+      }
+  };
+
+  window.resumeReAnalyze = function(logId) {
+      if (window.reAnalyzeTaskStates[logId] && window.reAnalyzeTaskStates[logId].status === 'paused') {
+          window.reAnalyzeTaskStates[logId].status = 'running';
+          
+          const progressEl = document.getElementById('reanalyze-header-progress-' + logId);
+          if (progressEl) {
+            progressEl.style.display = 'flex';
+            progressEl.innerHTML = `
+              <div id="reanalyze-text-${logId}" style="display:flex; align-items:center;"><i data-lucide="loader" class="spin" style="width:14px; height:14px; margin-right:4px;"></i> 恢復解析...</div>
+              <div style="display:flex; gap:8px;">
+                <button class="action-btn-sm action-btn-icon" onclick="event.stopPropagation(); window.pauseReAnalyze('${logId}')" title="暫停"><i data-lucide="pause" style="width:14px; height:14px;"></i></button>
+                <button class="action-btn-sm action-btn-icon danger" onclick="event.stopPropagation(); window.stopReAnalyze('${logId}')" title="停止"><i data-lucide="square" style="width:14px; height:14px;"></i></button>
+              </div>
+            `;
+            lucide.createIcons();
+          }
+
+          window.processReAnalyzeLoop(logId, null, null);
+      }
+  };
+
+  window.triggerReAnalyzeSummary = async function(logId, btnEl) {
+    if (!confirm(`即將根據目前的「內容」重新呼叫 AI 產生總結，這會覆蓋目前的總結，確定執行嗎？`)) return;
+    
+    const email = localStorage.getItem('bvlog_user_email');
+    
+    let logPromptContent = "請幫我摘要以下重點：";
+    const selLogPrompt = document.getElementById('liveLogPromptSelect');
+    if (selLogPrompt && selLogPrompt.value !== "default") {
+      logPromptContent = decodeURIComponent(selLogPrompt.value);
+    }
+
+    const actionsEl = document.getElementById('summary-actions-' + logId);
+    if (actionsEl) actionsEl.style.display = 'none';
+
+    const progressEl = document.getElementById('reanalyze-header-summary-progress-' + logId);
+    if (progressEl) {
+      progressEl.style.display = 'flex';
+      progressEl.innerHTML = `<i data-lucide="loader" class="spin" style="width:14px; height:14px; margin-right:4px;"></i> 正在讀取內容並分析總結... (AI 運算中)`;
+      lucide.createIcons();
+    }
+
+    const originalIconHtml = btnEl.innerHTML;
+    btnEl.innerHTML = '<i data-lucide="loader" class="spin" style="width:16px; height:16px;"></i>';
+    btnEl.disabled = true;
+
+    try {
+       const res = await api({ action: "reAnalyzeSummary", logId: logId, email: email, promptContent: logPromptContent });
+       
+       if (progressEl) {
+         progressEl.innerHTML = `<div style="color:var(--success); display:flex; align-items:center;"><i data-lucide="check-circle" style="width:14px; height:14px; margin-right:4px;"></i> 生成完成</div>`;
+         setTimeout(() => {
+           progressEl.style.display = 'none';
+           if (actionsEl) actionsEl.style.display = 'flex';
+         }, 3000);
+       }
+       lucide.createIcons();
+       showToast("總結更新完成！");
+       
+       const logItem = globalLogsCache.find(l => l.logId === logId);
+       if (logItem) logItem.summary = res.summary;
+       
+       isHistoryRendered = false;
+       loadHistoryLogs(false);
+    } catch(e) {
+       alert("總結發生錯誤：" + e.message);
+       if (progressEl) {
+         progressEl.style.display = 'none';
+         if (actionsEl) actionsEl.style.display = 'flex';
+       }
+    } finally {
+       btnEl.innerHTML = originalIconHtml;
+       btnEl.disabled = false;
+       lucide.createIcons();
+    }
+  };
+
+  window.pauseReAnalyze = function(logId) {
+      if (window.reAnalyzeTaskStates[logId]) {
+          window.reAnalyzeTaskStates[logId].status = 'paused';
+          const textEl = document.getElementById('reanalyze-text-' + logId);
+          if (textEl) {
+              textEl.innerHTML = `<i data-lucide="loader" class="spin" style="width:14px; height:14px; margin-right:4px; color:var(--warning);"></i> 暫停中 (等待當前切片收尾)...`;
+              lucide.createIcons();
+          }
+          const progressEl = document.getElementById('reanalyze-header-progress-' + logId);
+          if (progressEl) {
+             const btns = progressEl.querySelectorAll('button');
+             btns.forEach(b => b.disabled = true);
+          }
+      }
+  };
+
+  window.stopReAnalyze = function(logId) {
+      if (window.reAnalyzeTaskStates[logId]) {
+          window.reAnalyzeTaskStates[logId].status = 'stopped';
+          const textEl = document.getElementById('reanalyze-text-' + logId);
+          if (textEl) {
+              textEl.innerHTML = `<i data-lucide="loader" class="spin" style="width:14px; height:14px; margin-right:4px; color:var(--danger);"></i> 停止中 (等待當前切片收尾)...`;
+              lucide.createIcons();
+          }
+          const progressEl = document.getElementById('reanalyze-header-progress-' + logId);
+          if (progressEl) {
+             const btns = progressEl.querySelectorAll('button');
+             btns.forEach(b => b.disabled = true);
+          }
+      }
+  };
+
+  window.resumeReAnalyze = function(logId) {
+      if (window.reAnalyzeTaskStates[logId] && window.reAnalyzeTaskStates[logId].status === 'paused') {
+          window.reAnalyzeTaskStates[logId].status = 'running';
+          
+          const progressEl = document.getElementById('reanalyze-content-progress-' + logId);
+          if (progressEl) {
+            progressEl.style.display = 'flex';
+            progressEl.innerHTML = `
+              <div id="reanalyze-text-${logId}" style="display:flex; align-items:center;"><i data-lucide="loader" class="spin" style="width:14px; height:14px; margin-right:4px;"></i> 恢復解析中...</div>
+              <div style="display:flex; gap:8px;">
+                <button class="action-btn-sm action-btn-icon" onclick="window.pauseReAnalyze('${logId}')" title="暫停"><i data-lucide="pause" style="width:14px; height:14px;"></i></button>
+                <button class="action-btn-sm action-btn-icon danger" onclick="window.stopReAnalyze('${logId}')" title="停止"><i data-lucide="square" style="width:14px; height:14px;"></i></button>
+              </div>
+            `;
+            lucide.createIcons();
+          }
+
+          let originalHtml = '<i data-lucide="wand-2" style="width: 16px; height: 16px;"></i>';
+          const historyCards = document.querySelectorAll('.history-card');
+          let wandBtn = null;
+          historyCards.forEach(card => {
+             if(card.getAttribute('data-row-id') === logId) {
+                 const btns = card.querySelectorAll('button');
+                 btns.forEach(b => {
+                     if(b.title === "重新解析所有影音") wandBtn = b;
+                 });
+             }
+          });
+
+          if (wandBtn) {
+             originalHtml = wandBtn.innerHTML;
+             wandBtn.innerHTML = '<i data-lucide="loader" class="spin" style="width:16px; height:16px;"></i>';
+             wandBtn.disabled = true;
+          }
+          
+          window.processReAnalyzeLoop(logId, wandBtn, originalHtml);
+      }
+  };
+
+  window.triggerReAnalyzeSummary = async function(logId, btnEl) {
+    if (!confirm(`即將根據目前的「內容」重新呼叫 AI 產生總結，這會覆蓋目前的總結，確定執行嗎？`)) return;
+    
+    const email = localStorage.getItem('bvlog_user_email');
+    
+    let logPromptContent = "請幫我摘要以下重點：";
+    const selLogPrompt = document.getElementById('liveLogPromptSelect');
+    if (selLogPrompt && selLogPrompt.value !== "default") {
+      logPromptContent = decodeURIComponent(selLogPrompt.value);
+    }
+
+    const progressEl = document.getElementById('reanalyze-summary-progress-' + logId);
+    if (progressEl) {
+      progressEl.style.display = 'block';
+      progressEl.innerHTML = `<i data-lucide="loader" class="spin" style="width:14px; height:14px; margin-right:4px;"></i> 總結生成中...`;
+      lucide.createIcons();
+    }
+
+    const originalIconHtml = btnEl.innerHTML;
+    btnEl.innerHTML = '<i data-lucide="loader" class="spin" style="width:16px; height:16px;"></i>';
+    btnEl.disabled = true;
+
+    try {
+       const res = await api({ action: "reAnalyzeSummary", logId: logId, email: email, promptContent: logPromptContent });
+       showToast("總結更新完成！");
+       
+       const logItem = globalLogsCache.find(l => l.logId === logId);
+       if (logItem) logItem.summary = res.summary;
+       
+       isHistoryRendered = false;
+       loadHistoryLogs(false);
+    } catch(e) {
+       alert("總結發生錯誤：" + e.message);
+       if (progressEl) progressEl.style.display = 'none';
+    } finally {
+       btnEl.innerHTML = originalIconHtml;
+       btnEl.disabled = false;
+       lucide.createIcons();
+    }
+  };
 
   async function generateStepTitles() {
     if (!window.currentSelectedLog) { alert("請選日誌"); return; }
