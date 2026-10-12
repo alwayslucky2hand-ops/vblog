@@ -562,22 +562,6 @@
   <div id="tab-live" class="tab-content active">
 
     
-    <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 8px; flex-wrap: wrap;">
-      <div class="input-group" style="width: auto;">
-        <span class="input-group-addon" style="padding: 6px 10px; border-right: none; background: #fff;"><i data-lucide="bot" id="iconAIMode" style="width: 14px; height: 14px; color: var(--accent);"></i></span>
-        <select id="liveAIModeSelect" class="login-input" style="margin-bottom: 0; border: none; padding: 6px 8px; height: 32px; font-weight: 600; outline: none; background: transparent; cursor: pointer; color: var(--text);" onchange="const icon = document.getElementById('iconAIMode'); const promptGrp = document.getElementById('promptSelectGroup'); if(this.value==='true'){ icon.style.color='var(--accent)'; icon.setAttribute('data-lucide', 'bot'); promptGrp.style.display='flex'; }else{ icon.style.color='var(--text-muted)'; icon.setAttribute('data-lucide', 'cloud'); promptGrp.style.display='none'; } lucide.createIcons();">
-          <option value="true">AI 轉錄總結</option>
-          <option value="false">純錄影建檔</option>
-        </select>
-      </div>
-      
-      <div class="input-group" id="promptSelectGroup" style="flex: 1; min-width: 200px; display: flex;">
-        <span class="input-group-addon" style="padding: 6px 10px; border-right: none; background: #fff;"><i data-lucide="file-text" style="width: 14px; height: 14px; color: var(--text-muted);"></i></span>
-        <select id="liveLogPromptSelect" class="login-input" style="margin-bottom: 0; border: none; padding: 6px 8px; height: 32px; width: 100%; outline: none; background: transparent; cursor: pointer; color: var(--text);">
-          <option value="請幫我摘要以下重點：">預設總結</option>
-        </select>
-      </div>
-    </div>
 
     
     <div style="display: flex; gap: 8px; margin-bottom: 8px;">
@@ -1636,16 +1620,21 @@
   };
 
   function updateLiveLogPromptSelect() {
-    const sel = document.getElementById('liveLogPromptSelect');
-    if (!sel) return;
-    const currentVal = sel.value;
+    const selects = document.querySelectorAll('.summary-prompt-select');
+    if (selects.length === 0) return;
+    
     let html = '';
     window.currentLogPrompts.forEach(p => {
       // 🌟 核心修復：使用 encodeURIComponent 對提示詞進行編碼，防止雙引號或換行破壞 HTML
       if(p.name) html += `<option value="${encodeURIComponent(p.content)}">${escapeHtml(p.name)}</option>`;
     });
-    sel.innerHTML = html || '<option value="default">預設總結</option>';
-    if (currentVal && Array.from(sel.options).some(o => o.value === currentVal)) sel.value = currentVal;
+    if (!html) html = '<option value="default">預設總結</option>';
+    
+    selects.forEach(sel => {
+      const currentVal = sel.value;
+      sel.innerHTML = html;
+      if (currentVal && Array.from(sel.options).some(o => o.value === currentVal)) sel.value = currentVal;
+    });
   }
 
   function renderCategoryPrompts() {
@@ -2026,16 +2015,11 @@
     log("[系統] 開始分析 YouTube 影片，這可能需要幾十秒鐘的時間...");
     urlInput.disabled = true;
 
-    // 🌟 核心修復：將編碼過的提示詞解碼還原
-    let logPromptContent = "請幫我摘要以下重點：";
-    const selLogPrompt = document.getElementById('liveLogPromptSelect');
-    if (selLogPrompt && selLogPrompt.value !== "default") {
-      logPromptContent = decodeURIComponent(selLogPrompt.value);
-    }
-
     try {
-      const logPromptContent = document.getElementById('liveLogPromptSelect') ? document.getElementById('liveLogPromptSelect').value : "";
-      await api({ action: "processYouTube", url: url, email: email, logPromptContent: logPromptContent });
+      // 🌟 由於錄製區已極簡化，初次提取 YT 影音強制給予預設總結提示詞。
+      
+      const defaultLogPrompt = "請幫我摘要以下重點：";
+      await api({ action: "processYouTube", url: url, email: email, logPromptContent: defaultLogPrompt });
       
       showToast("提取歸檔完成！");
       log("[系統] YouTube 分析完成");
@@ -2434,7 +2418,7 @@
         }
       }
 
-      let summaryBlock = '<details class="history-accordion"><summary><span style="display: flex; align-items: center; gap: 8px;"><i data-lucide="sparkles" style="width: 15px; height: 15px; color: var(--accent);"></i>總結</span><div id="reanalyze-header-summary-progress-' + item.logId + '" style="display:none; align-items:center; gap:8px; font-size:13px; color:var(--accent); font-weight:600; margin-left:auto; margin-right:12px;"></div><div class="flex-wrap-gap" id="summary-actions-' + item.logId + '"><button type="button" class="action-btn-sm action-btn-icon" onclick="event.stopPropagation(); triggerReAnalyzeSummary(\'' + item.logId + '\', this)" title="重新產生總結"><i data-lucide="refresh-cw" style="width: 16px; height: 16px;"></i></button><button type="button" id="btn-edit-summary-' + item.logId + '" class="action-btn-sm action-btn-icon" onclick="event.stopPropagation(); toggleEditMode(\'' + item.logId + '\', \'summary\')" title="編輯"><i data-lucide="edit-3" style="width: 16px; height: 16px;"></i></button><button type="button" class="action-btn-sm action-btn-icon" onclick="event.stopPropagation(); copyTextToClipboard(this.getAttribute(\'data-text\'))" data-text="' + escapeHtml(safeSummaryRaw) + '" title="複製"><i data-lucide="copy" style="width: 16px; height: 16px;"></i></button><span class="accordion-toggle-icon"><i data-lucide="chevron-down" style="width: 16px; height: 16px;"></i></span></div></summary><div class="accordion-body"><div id="view-summary-' + item.logId + '" class="markdown-body">' + renderMarkdown(safeSummaryRaw) + '</div><div id="edit-summary-' + item.logId + '" style="display: none; flex-direction: column; gap: 12px;"><textarea id="input-summary-' + item.logId + '" class="workshop-textarea" style="min-height: 180px;">' + escapeHtml(safeSummaryRaw) + '</textarea><div style="display: flex; justify-content: flex-end; gap: 8px;"><button class="action-btn-sm action-btn-icon" onclick="toggleEditMode(\'' + item.logId + '\', \'summary\')" title="取消"><i data-lucide="x" style="width: 16px; height: 16px;"></i></button><button class="action-btn-sm action-btn-primary" onclick="saveHistoryLog(\'' + item.logId + '\', \'summary\', this)"><i data-lucide="save" style="width: 14px; height: 14px;"></i> 儲存</button></div></div></div></details>';
+      let summaryBlock = '<details class="history-accordion"><summary><span style="display: flex; align-items: center; gap: 8px;"><i data-lucide="sparkles" style="width: 15px; height: 15px; color: var(--accent);"></i>總結</span><div id="reanalyze-header-summary-progress-' + item.logId + '" style="display:none; align-items:center; gap:8px; font-size:13px; color:var(--accent); font-weight:600; margin-left:auto; margin-right:12px;"></div><div class="flex-wrap-gap" id="summary-actions-' + item.logId + '"><select id="summary-prompt-select-' + item.logId + '" class="summary-prompt-select" onclick="event.stopPropagation()" style="border: 1px solid var(--border); border-radius: 4px; outline: none; cursor:pointer; height: 26px; font-size: 12px; background: #fff; color: var(--text-muted); font-weight: 600; max-width: 130px;"><option value="default">預設總結</option></select><button type="button" class="action-btn-sm action-btn-icon" onclick="event.stopPropagation(); triggerReAnalyzeSummary(\'' + item.logId + '\', this)" title="重新產生總結"><i data-lucide="refresh-cw" style="width: 16px; height: 16px;"></i></button><button type="button" id="btn-edit-summary-' + item.logId + '" class="action-btn-sm action-btn-icon" onclick="event.stopPropagation(); toggleEditMode(\'' + item.logId + '\', \'summary\')" title="編輯"><i data-lucide="edit-3" style="width: 16px; height: 16px;"></i></button><button type="button" class="action-btn-sm action-btn-icon" onclick="event.stopPropagation(); copyTextToClipboard(this.getAttribute(\'data-text\'))" data-text="' + escapeHtml(safeSummaryRaw) + '" title="複製"><i data-lucide="copy" style="width: 16px; height: 16px;"></i></button><span class="accordion-toggle-icon"><i data-lucide="chevron-down" style="width: 16px; height: 16px;"></i></span></div></summary><div class="accordion-body"><div id="view-summary-' + item.logId + '" class="markdown-body">' + renderMarkdown(safeSummaryRaw) + '</div><div id="edit-summary-' + item.logId + '" style="display: none; flex-direction: column; gap: 12px;"><textarea id="input-summary-' + item.logId + '" class="workshop-textarea" style="min-height: 180px;">' + escapeHtml(safeSummaryRaw) + '</textarea><div style="display: flex; justify-content: flex-end; gap: 8px;"><button class="action-btn-sm action-btn-icon" onclick="toggleEditMode(\'' + item.logId + '\', \'summary\')" title="取消"><i data-lucide="x" style="width: 16px; height: 16px;"></i></button><button class="action-btn-sm action-btn-primary" onclick="saveHistoryLog(\'' + item.logId + '\', \'summary\', this)"><i data-lucide="save" style="width: 14px; height: 14px;"></i> 儲存</button></div></div></div></details>';
 
       let contentBlock = '<details class="history-accordion"><summary><span style="display: flex; align-items: center; gap: 8px;"><i data-lucide="file-text" style="width: 15px; height: 15px; color: var(--text-muted);"></i>內容</span><div id="reanalyze-header-progress-' + item.logId + '" style="display:none; align-items:center; gap:8px; font-size:13px; color:var(--accent); font-weight:600; margin-left:auto; margin-right:12px;"></div><div class="flex-wrap-gap" id="content-actions-' + item.logId + '"><button type="button" class="action-btn-sm action-btn-icon" onclick="event.stopPropagation(); triggerReAnalyzeContent(\'' + item.logId + '\', this)" title="重新解析所有影音"><i data-lucide="wand-2" style="width: 16px; height: 16px;"></i></button><button type="button" id="btn-edit-content-' + item.logId + '" class="action-btn-sm action-btn-icon" onclick="event.stopPropagation(); toggleEditMode(\'' + item.logId + '\', \'content\')" title="編輯"><i data-lucide="edit-3" style="width: 16px; height: 16px;"></i></button><button type="button" class="action-btn-sm action-btn-icon" onclick="event.stopPropagation(); copyTextToClipboard(this.getAttribute(\'data-text\'))" data-text="' + escapeHtml(safeContentRaw) + '" title="複製"><i data-lucide="copy" style="width: 16px; height: 16px;"></i></button><span class="accordion-toggle-icon"><i data-lucide="chevron-down" style="width: 16px; height: 16px;"></i></span></div></summary><div class="accordion-body"><div id="view-content-' + item.logId + '">' + formatTranscriptContent(safeContentRaw, urls) + '</div><div id="edit-content-' + item.logId + '" style="display: none; flex-direction: column; gap: 12px;"><textarea id="input-content-' + item.logId + '" class="workshop-textarea" style="min-height: 250px;">' + escapeHtml(safeContentRaw) + '</textarea><div style="display: flex; justify-content: flex-end; gap: 8px;"><button class="action-btn-sm action-btn-icon" onclick="toggleEditMode(\'' + item.logId + '\', \'content\')" title="取消"><i data-lucide="x" style="width: 16px; height: 16px;"></i></button><button class="action-btn-sm action-btn-primary" onclick="saveHistoryLog(\'' + item.logId + '\', \'content\', this)"><i data-lucide="save" style="width: 14px; height: 14px;"></i> 儲存</button></div></div></div></details>';
 
@@ -2458,6 +2442,7 @@
     }
 
     container.innerHTML = listHtml;
+    updateLiveLogPromptSelect(); 
     lucide.createIcons();
     isHistoryRendered = true;
   }
@@ -4018,7 +4003,7 @@
     const email = localStorage.getItem('bvlog_user_email');
     
     let logPromptContent = "請幫我摘要以下重點：";
-    const selLogPrompt = document.getElementById('liveLogPromptSelect');
+    const selLogPrompt = document.getElementById('summary-prompt-select-' + logId);
     if (selLogPrompt && selLogPrompt.value !== "default") {
       logPromptContent = decodeURIComponent(selLogPrompt.value);
     }
@@ -4145,10 +4130,11 @@
     const email = localStorage.getItem('bvlog_user_email');
     
     let logPromptContent = "請幫我摘要以下重點：";
-    const selLogPrompt = document.getElementById('liveLogPromptSelect');
+    const selLogPrompt = document.getElementById('summary-prompt-select-' + logId);
     if (selLogPrompt && selLogPrompt.value !== "default") {
       logPromptContent = decodeURIComponent(selLogPrompt.value);
     }
+  
 
     const progressEl = document.getElementById('reanalyze-summary-progress-' + logId);
     if (progressEl) {
