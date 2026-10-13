@@ -312,30 +312,13 @@ https://docs.google.com/document/d/1xgjDabubaFISCVSvzr5-XS-6vZFgId1MM7Y01ajTftU/
 讓ＡＩ為你效勞，讓工作不再過勞。
 我是特洛伊，一起用ＡＩ守住光陰。</div></noscript>
       
-    <div style="margin-top: 48px; border-top: 1px solid #e2e8f0; padding-top: 32px;">
-      <h3 style="font-size: 18px; font-weight: 800; margin-bottom: 16px;">專屬影音紀錄</h3>
-      <div id="vblog-player-container-d4f857d3" class="vblog-player-container">
-        
-        <div class="vblog-video-wrapper">
-          <video id="videoPlayerA" playsinline controls controlsList="nodownload" oncontextmenu="return false;" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 2; opacity: 1; transition: opacity 0.2s; background: #000; object-fit: contain;"></video>
-          <video id="videoPlayerB" playsinline controls controlsList="nodownload" oncontextmenu="return false;" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 1; opacity: 0; transition: opacity 0.2s; background: #000; object-fit: contain;"></video>
+        <div style="margin-top: 48px; border-top: 1px solid #e2e8f0; padding-top: 32px;">
+          <h3 style="font-size: 18px; font-weight: 800; margin-bottom: 16px;">YouTube 影音紀錄</h3>
+          
+            <div style="background: #000; border-radius: 8px; overflow: hidden; margin-bottom: 16px; border: 1px solid #e2e8f0; box-shadow: 0 4px 12px rgba(0,0,0,0.05);">
+              <iframe src="https://www.youtube.com/embed/oW504KIwoiU" frameborder="0" allowfullscreen style="width: 100%; aspect-ratio: 16/9; display: block;"></iframe>
+            </div>
         </div>
-        
-        <div class="vblog-player-bar">
-          <div class="vblog-player-nav">
-            <button id="btnPrevChunk" class="vblog-player-btn" disabled title="上一段"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="19 20 9 12 19 4 19 20"/><line x1="5" x2="5" y1="19" y2="5"/></svg></button>
-            <select id="chunkSelector" class="vblog-player-select">
-              <option value="">載入中...</option>
-            </select>
-            <button id="btnNextChunk" class="vblog-player-btn" disabled title="下一段"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="5 4 15 12 5 20 5 4"/><line x1="19" x2="19" y1="5" y2="19"/></svg></button>
-          </div>
-          <div style="display:flex; align-items:center; gap:12px;">
-            <span id="videoStatus" class="vblog-player-status">準備就緒</span>
-            <button id="btnStartStream" class="vblog-btn-play" title="啟動播放"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><polygon points="5 3 19 12 5 21 5 3"/></svg><span>播放全片</span></button>
-          </div>
-        </div>
-      </div>
-    </div>
     
       </main>
     </article>
@@ -770,7 +753,7 @@ https://docs.google.com/document/d/1xgjDabubaFISCVSvzr5-XS-6vZFgId1MM7Y01ajTftU/
         document.getElementById("content").innerHTML = marked.parse(rawMd);
       }
       
-      bindVideoLogic(["https://drive.google.com/file/d/1mizF5VDYh5UGsr8iBXAwkRq2E8ZZpQjU/view?usp=drivesdk","https://drive.google.com/file/d/1u6TU4ykIInMstkJ84PuQMEllOMf73z3Y/view?usp=drivesdk","https://drive.google.com/file/d/1rckX4PNT8FXu-OSScuZjNtICUR-455nm/view?usp=drivesdk","https://drive.google.com/file/d/1O8XTLaUUlmsvwv0kMQrBYMTXQTt1-eN3/view?usp=drivesdk","https://drive.google.com/file/d/1rK3EHzHsLPI3p1AJJySX-U07-6E_2mYX/view?usp=drivesdk","https://drive.google.com/file/d/1fmAClq0RhV2nDytHGG7rvwEIKlgX-Cv6/view?usp=drivesdk","https://drive.google.com/file/d/1gY5NP4ynZ45vjiuDQE_Di3CdD5EIYMKf/view?usp=drivesdk","https://drive.google.com/file/d/1UMXao5fgGUxFZX-a8y0X_RAKPWhFZz02/view?usp=drivesdk","https://drive.google.com/file/d/1Cpth2UtlOeohl7Abo05US2VW-IZ5u3Ge/view?usp=drivesdk","https://drive.google.com/file/d/1fFVvBLrPhUh03XZF_mgdqo0WSmJvsSGj/view?usp=drivesdk","https://drive.google.com/file/d/1IBZFDKZntsxgtjSJw4hANRGaAqhYbJg3/view?usp=drivesdk","https://drive.google.com/file/d/1zBYLuTjT8jZYfjNoLvgNPvZVwsH73_jN/view?usp=drivesdk","https://drive.google.com/file/d/1cen_TYHB7XebLmcBs74exw74jHM5AJ3G/view?usp=drivesdk","https://drive.google.com/file/d/1-PK4wAuXbbavPAtl_8mmH9ZE_zABmxKP/view?usp=drivesdk","https://drive.google.com/file/d/1j0w8sxQ_9q_00-AauC5etTLs6C73C-lQ/view?usp=drivesdk","https://drive.google.com/file/d/1yYmVwQxso04pUuAh_mP35uRUmtRzfcCY/view?usp=drivesdk","https://drive.google.com/file/d/1dl_5ucCl7bJNO9frPnqbQZ23l6oeLwRT/view?usp=drivesdk","https://drive.google.com/file/d/1es2nHZdE6Sbje_JJpAwmyHwrqVva8cUE/view?usp=drivesdk","https://drive.google.com/file/d/1pgpWqjDivEUp6GnmokxPFeMqi-OyforC/view?usp=drivesdk","https://drive.google.com/file/d/1U-wpXf2npq0RQ3ErBy_NPFhgRiy3Iq0H/view?usp=drivesdk","https://drive.google.com/file/d/1M43yzwIH80i7O_YbuhkfNYyUVmGhHNw5/view?usp=drivesdk","https://drive.google.com/file/d/1dXtQ_WTbhogQGeFR4WBXGbHBf1SCmjFL/view?usp=drivesdk","https://drive.google.com/file/d/1L3VpvJ_dtY4fZnOukklzboil4txkWjIT/view?usp=drivesdk","https://drive.google.com/file/d/1nHLld8O3KvIIE4ArMCmw7kuR_hDp3WTM/view?usp=drivesdk","https://drive.google.com/file/d/1ZjR_gFT-wOisGYwxJfuO1Xfw8OebwHVS/view?usp=drivesdk","https://drive.google.com/file/d/1qk7glgaGYL-uyUnNUr18VSk_JRr83e6x/view?usp=drivesdk","https://drive.google.com/file/d/1l46kuFJERFvQlLnz_k8jSOXGO4V_KfHo/view?usp=drivesdk","https://drive.google.com/file/d/1bzcv-sTU87GVByU9LVdNq5Cti4nO49J8/view?usp=drivesdk","https://drive.google.com/file/d/1TJPO-gZtzCMdEm-kP7TzM6Mxa7S7Rfdi/view?usp=drivesdk","https://drive.google.com/file/d/1Td0P7xXxkJbxDLZoLYkvW6QvEqEkIvFr/view?usp=drivesdk","https://drive.google.com/file/d/1u2pPO-2FKxvcJBCW4PKJkqMSgzfiPKvB/view?usp=drivesdk","https://drive.google.com/file/d/1lEdUiYl6xQw4KIoxU6V88aCVpNswRges/view?usp=drivesdk","https://drive.google.com/file/d/1_n5C2EkM_InJ8AtupsyGO4ZKa0WE42C-/view?usp=drivesdk","https://drive.google.com/file/d/156NqZ_w6DVC4Rt0hDBvUPu83Da6TX2rn/view?usp=drivesdk","https://drive.google.com/file/d/1TI8MPUNS60ngJ7425JPx1_6atENL18h8/view?usp=drivesdk","https://drive.google.com/file/d/1n4UML5RwgHCpRRiKLNjBg5kWYUGRcYEq/view?usp=drivesdk","https://drive.google.com/file/d/14izJjwY8J6e28ZdMhuALDiyHtA8ezhHK/view?usp=drivesdk","https://drive.google.com/file/d/1o6Q1chWCiDKW7pAul9DPno_kA0KUZt7V/view?usp=drivesdk","https://drive.google.com/file/d/18RvlK3OerxMwNr9Q_qobKkU9fqYWHDzj/view?usp=drivesdk","https://drive.google.com/file/d/1nbKgq_UUn7asizyyGuo1C331IZmduvfJ/view?usp=drivesdk","https://drive.google.com/file/d/1JXrzKNjWUQTZSFBaVtMmFfsxNy3Wvwnw/view?usp=drivesdk","https://drive.google.com/file/d/1Jh3di-Cd_MqOH-cEhqgeVS54o_kZU8EZ/view?usp=drivesdk","https://drive.google.com/file/d/1dYhPstoTscSebijIjrTGC4kBBdnp8V1r/view?usp=drivesdk"]);
+      
       
       const wrapper = document.getElementById("salonIntroWrapper");
       const btn = document.getElementById("expandIntroBtn");
@@ -834,9 +817,9 @@ https://docs.google.com/document/d/1xgjDabubaFISCVSvzr5-XS-6vZFgId1MM7Y01ajTftU/
             document.getElementById("content").innerHTML = marked.parse(rawMd);
             
             if (res.data.urls && res.data.urls.length > 0) {
-              const vHtml = "\n    <div style=\"margin-top: 48px; border-top: 1px solid #e2e8f0; padding-top: 32px;\">\n      <h3 style=\"font-size: 18px; font-weight: 800; margin-bottom: 16px;\">專屬影音紀錄</h3>\n      <div id=\"vblog-player-container-d4f857d3\" class=\"vblog-player-container\">\n        \n        <div class=\"vblog-video-wrapper\">\n          <video id=\"videoPlayerA\" playsinline controls controlsList=\"nodownload\" oncontextmenu=\"return false;\" style=\"position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 2; opacity: 1; transition: opacity 0.2s; background: #000; object-fit: contain;\"></video>\n          <video id=\"videoPlayerB\" playsinline controls controlsList=\"nodownload\" oncontextmenu=\"return false;\" style=\"position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 1; opacity: 0; transition: opacity 0.2s; background: #000; object-fit: contain;\"></video>\n        </div>\n        \n        <div class=\"vblog-player-bar\">\n          <div class=\"vblog-player-nav\">\n            <button id=\"btnPrevChunk\" class=\"vblog-player-btn\" disabled title=\"上一段\"><svg xmlns=\"http://www.w3.org/2000/svg\" width=\"18\" height=\"18\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><polygon points=\"19 20 9 12 19 4 19 20\"/><line x1=\"5\" x2=\"5\" y1=\"19\" y2=\"5\"/></svg></button>\n            <select id=\"chunkSelector\" class=\"vblog-player-select\">\n              <option value=\"\">載入中...</option>\n            </select>\n            <button id=\"btnNextChunk\" class=\"vblog-player-btn\" disabled title=\"下一段\"><svg xmlns=\"http://www.w3.org/2000/svg\" width=\"18\" height=\"18\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><polygon points=\"5 4 15 12 5 20 5 4\"/><line x1=\"19\" x2=\"19\" y1=\"5\" y2=\"19\"/></svg></button>\n          </div>\n          <div style=\"display:flex; align-items:center; gap:12px;\">\n            <span id=\"videoStatus\" class=\"vblog-player-status\">準備就緒</span>\n            <button id=\"btnStartStream\" class=\"vblog-btn-play\" title=\"啟動播放\"><svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 24 24\"><polygon points=\"5 3 19 12 5 21 5 3\"/></svg><span>播放全片</span></button>\n          </div>\n        </div>\n      </div>\n    </div>";
+              const vHtml = "\n        <div style=\"margin-top: 48px; border-top: 1px solid #e2e8f0; padding-top: 32px;\">\n          <h3 style=\"font-size: 18px; font-weight: 800; margin-bottom: 16px;\">YouTube 影音紀錄</h3>\n          \n            <div style=\"background: #000; border-radius: 8px; overflow: hidden; margin-bottom: 16px; border: 1px solid #e2e8f0; box-shadow: 0 4px 12px rgba(0,0,0,0.05);\">\n              <iframe src=\"https://www.youtube.com/embed/oW504KIwoiU\" frameborder=\"0\" allowfullscreen style=\"width: 100%; aspect-ratio: 16/9; display: block;\"></iframe>\n            </div>\n        </div>";
               document.getElementById("dynamicVideoPlayerArea").innerHTML = vHtml;
-              bindVideoLogic(res.data.urls);
+              
             }
           } else {
             msg.innerText = res.message || "驗證失敗"; msg.style.color = "#ef4444";
