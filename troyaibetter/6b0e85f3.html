@@ -172,7 +172,7 @@
 
         /* 🌟 VBLOG 極簡播放器 UI */
         .vblog-player-container { background: #000; border-radius: 12px; overflow: hidden; margin-top: 32px; border: 1px solid rgba(255,255,255,0.1); box-shadow: 0 12px 40px rgba(0,0,0,0.2); display: flex; flex-direction: column; }
-        .vblog-video-wrapper { position: relative; width: 100%; aspect-ratio: 16/9; background: #000; overflow: hidden; flex-shrink: 0; }
+        .vblog-video-wrapper { position: relative; width: 100%; aspect-ratio: 16/9; background: #000; overflow: hidden; flex-shrink: 0; transition: aspect-ratio 0.3s ease; }
         .vblog-player-bar { display: flex; justify-content: space-between; align-items: center; padding: 12px 20px; background: #0f172a; gap: 12px; border-top: 1px solid rgba(255,255,255,0.05); }
         .vblog-player-nav { display: flex; align-items: center; gap: 4px; background: rgba(255,255,255,0.06); border-radius: 8px; padding: 4px; border: 1px solid rgba(255,255,255,0.03); }
         .vblog-player-btn { background: transparent; border: none; color: #94a3b8; padding: 8px; cursor: pointer; border-radius: 6px; display: flex; align-items: center; justify-content: center; transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1); outline: none; }
@@ -183,20 +183,16 @@
         .vblog-player-select:hover { color: #38bdf8; }
         .vblog-player-select option { background: #1e293b; color: #ffffff; font-weight: 500; }
         .vblog-player-status { color: #94a3b8; font-size: 13px; font-weight: 600; letter-spacing: 0.5px; }
-        .vblog-btn-primary { background: #ffffff; color: #0f172a; border: none; padding: 8px 24px; border-radius: 24px; font-weight: 800; display: flex; align-items: center; gap: 8px; cursor: pointer; transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1); font-size: 14.5px; letter-spacing: 0.5px; }
-        .vblog-btn-primary:hover { transform: scale(1.05); box-shadow: 0 4px 16px rgba(255,255,255,0.3); }
-        .vblog-btn-primary:active { transform: scale(0.95); }
-        
-        .vblog-player-container:fullscreen { width: 100vw; height: 100vh; border-radius: 0; border: none; max-width: none; margin: 0; padding: 0; }
-        .vblog-player-container:-webkit-full-screen { width: 100vw; height: 100vh; border-radius: 0; border: none; max-width: none; margin: 0; padding: 0; }
-        .vblog-player-container:fullscreen .vblog-video-wrapper { flex: 1; height: auto; max-height: calc(100vh - 64px); }
-        .vblog-player-container:-webkit-full-screen .vblog-video-wrapper { flex: 1; height: auto; max-height: calc(100vh - 64px); }
+        .vblog-btn-play { background: rgba(56, 189, 248, 0.1); color: #38bdf8; border: 1px solid rgba(56, 189, 248, 0.25); padding: 6px 16px; border-radius: 6px; font-weight: 700; display: flex; align-items: center; gap: 6px; cursor: pointer; transition: all 0.2s ease; font-size: 13.5px; letter-spacing: 0.5px; white-space: nowrap; flex-shrink: 0; outline: none; }
+        .vblog-btn-play:hover { background: #38bdf8; color: #0f172a; border-color: #38bdf8; transform: scale(1.05); }
+        .vblog-btn-play:active { transform: scale(0.95); }
+        .vblog-btn-play svg { fill: currentColor; stroke: none; width: 14px; height: 14px; }
         
         @media (max-width: 480px) {
           .vblog-player-status { display: none; }
           .vblog-player-bar { padding: 10px 14px; gap: 8px; }
-          .vblog-btn-primary span { display: none; }
-          .vblog-btn-primary { padding: 10px; border-radius: 50%; gap: 0; justify-content: center; width: 36px; height: 36px; }
+          .vblog-btn-play span { display: none; }
+          .vblog-btn-play { padding: 8px; width: 34px; height: 34px; justify-content: center; }
           .vblog-player-select { padding: 0 4px; font-size: 13.5px; }
           .vblog-player-btn { padding: 6px; }
         }
@@ -870,24 +866,6 @@ https://rubybranddesign-cloud.github.io</div></noscript>
     
     window.videoBlobCache = window.videoBlobCache || {};
 
-    window.togglePlayerFullscreen = function(logId) {
-      const container = document.getElementById('vblog-player-container-' + logId);
-      if (!container) return;
-      if (!document.fullscreenElement && !document.webkitFullscreenElement) {
-        if (container.requestFullscreen) {
-          container.requestFullscreen();
-        } else if (container.webkitRequestFullscreen) {
-          container.webkitRequestFullscreen();
-        }
-      } else {
-        if (document.exitFullscreen) {
-          document.exitFullscreen();
-        } else if (document.webkitExitFullscreen) {
-          document.webkitExitFullscreen();
-        }
-      }
-    };
-
     window.fetchVideoChunkBase64 = async function(url) {
       if (!url) return null;
       if (url.includes('youtube.com') || url.includes('youtu.be')) return url;
@@ -1005,6 +983,9 @@ https://rubybranddesign-cloud.github.io</div></noscript>
         }
         
         const playVideo = () => {
+          const ratio = videoEl.videoWidth / videoEl.videoHeight;
+          const wrapper = videoEl.parentElement;
+          if (wrapper && !isNaN(ratio)) wrapper.style.aspectRatio = (ratio < 1) ? '9/16' : '16/9';
           videoEl.currentTime = 0;
           const playPromise = videoEl.play();
           if (playPromise !== undefined) {
