@@ -165,16 +165,42 @@
     .markdown-body h3 { font-size: 20px; color: #3175B5; margin: 32px 0 16px 0; font-weight: 800; }
     
     .markdown-body img { 
-      max-width: 100%; 
-      height: auto; 
-      object-fit: contain; 
-      border-radius: 8px; 
-      display: block; 
-      margin: 32px auto; 
-      box-shadow: 0 4px 12px rgba(0,0,0,0.06); 
-      pointer-events: none; 
-    }
-  </style>
+          max-width: 100%; height: auto; object-fit: contain; border-radius: 8px; 
+          display: block; margin: 32px auto; box-shadow: 0 4px 12px rgba(0,0,0,0.06); 
+          pointer-events: none; 
+        }
+
+        /* 🌟 VBLOG 極簡播放器 UI */
+        .vblog-player-container { background: #000; border-radius: 12px; overflow: hidden; margin-top: 32px; border: 1px solid rgba(255,255,255,0.1); box-shadow: 0 12px 40px rgba(0,0,0,0.2); display: flex; flex-direction: column; }
+        .vblog-video-wrapper { position: relative; width: 100%; aspect-ratio: 16/9; background: #000; overflow: hidden; flex-shrink: 0; }
+        .vblog-player-bar { display: flex; justify-content: space-between; align-items: center; padding: 12px 20px; background: #0f172a; gap: 12px; border-top: 1px solid rgba(255,255,255,0.05); }
+        .vblog-player-nav { display: flex; align-items: center; gap: 4px; background: rgba(255,255,255,0.06); border-radius: 8px; padding: 4px; border: 1px solid rgba(255,255,255,0.03); }
+        .vblog-player-btn { background: transparent; border: none; color: #94a3b8; padding: 8px; cursor: pointer; border-radius: 6px; display: flex; align-items: center; justify-content: center; transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1); outline: none; }
+        .vblog-player-btn:hover:not(:disabled) { color: #ffffff; background: rgba(255,255,255,0.12); transform: scale(1.05); }
+        .vblog-player-btn:active:not(:disabled) { transform: scale(0.95); }
+        .vblog-player-btn:disabled { opacity: 0.3; cursor: not-allowed; }
+        .vblog-player-select { appearance: none; background: transparent; color: #ffffff; border: none; padding: 0 10px; font-size: 14px; font-weight: 700; cursor: pointer; text-align: center; outline: none; letter-spacing: 0.5px; transition: color 0.2s; }
+        .vblog-player-select:hover { color: #38bdf8; }
+        .vblog-player-select option { background: #1e293b; color: #ffffff; font-weight: 500; }
+        .vblog-player-status { color: #94a3b8; font-size: 13px; font-weight: 600; letter-spacing: 0.5px; }
+        .vblog-btn-primary { background: #ffffff; color: #0f172a; border: none; padding: 8px 24px; border-radius: 24px; font-weight: 800; display: flex; align-items: center; gap: 8px; cursor: pointer; transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1); font-size: 14.5px; letter-spacing: 0.5px; }
+        .vblog-btn-primary:hover { transform: scale(1.05); box-shadow: 0 4px 16px rgba(255,255,255,0.3); }
+        .vblog-btn-primary:active { transform: scale(0.95); }
+        
+        .vblog-player-container:fullscreen { width: 100vw; height: 100vh; border-radius: 0; border: none; max-width: none; margin: 0; padding: 0; }
+        .vblog-player-container:-webkit-full-screen { width: 100vw; height: 100vh; border-radius: 0; border: none; max-width: none; margin: 0; padding: 0; }
+        .vblog-player-container:fullscreen .vblog-video-wrapper { flex: 1; height: auto; max-height: calc(100vh - 64px); }
+        .vblog-player-container:-webkit-full-screen .vblog-video-wrapper { flex: 1; height: auto; max-height: calc(100vh - 64px); }
+        
+        @media (max-width: 480px) {
+          .vblog-player-status { display: none; }
+          .vblog-player-bar { padding: 10px 14px; gap: 8px; }
+          .vblog-btn-primary span { display: none; }
+          .vblog-btn-primary { padding: 10px; border-radius: 50%; gap: 0; justify-content: center; width: 36px; height: 36px; }
+          .vblog-player-select { padding: 0 4px; font-size: 13.5px; }
+          .vblog-player-btn { padding: 6px; }
+        }
+      </style>
 </head>
 <body>
 
@@ -723,6 +749,24 @@ Step 3：無痛架構——Google 生態原生串接
     
     window.videoBlobCache = window.videoBlobCache || {};
 
+    window.togglePlayerFullscreen = function(logId) {
+      const container = document.getElementById('vblog-player-container-' + logId);
+      if (!container) return;
+      if (!document.fullscreenElement && !document.webkitFullscreenElement) {
+        if (container.requestFullscreen) {
+          container.requestFullscreen();
+        } else if (container.webkitRequestFullscreen) {
+          container.webkitRequestFullscreen();
+        }
+      } else {
+        if (document.exitFullscreen) {
+          document.exitFullscreen();
+        } else if (document.webkitExitFullscreen) {
+          document.webkitExitFullscreen();
+        }
+      }
+    };
+
     window.fetchVideoChunkBase64 = async function(url) {
       if (!url) return null;
       if (url.includes('youtube.com') || url.includes('youtu.be')) return url;
@@ -967,7 +1011,7 @@ Step 3：無痛架構——Google 生態原生串接
             document.getElementById("content").innerHTML = marked.parse(rawMd);
             
             if (res.data.urls && res.data.urls.length > 0) {
-              const vHtml = "\n    <div style=\"margin-top: 48px; border-top: 1px solid #e2e8f0; padding-top: 32px;\">\n      <h3 style=\"font-size: 18px; font-weight: 800; margin-bottom: 16px;\">專屬影音紀錄</h3>\n      <div style=\"background: #000; border-radius: 8px; overflow: hidden; margin-bottom: 16px; border: 1px solid #e2e8f0; box-shadow: 0 4px 12px rgba(0,0,0,0.05);\">\n        \n        <div id=\"seamlessVideoContainer\" style=\"position: relative; width: 100%; aspect-ratio: 16/9; background: #000; overflow: hidden;\">\n          <video id=\"videoPlayerA\" playsinline style=\"position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 2; opacity: 1; transition: opacity 0.2s; background: #000; object-fit: contain;\"></video>\n          <video id=\"videoPlayerB\" playsinline style=\"position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 1; opacity: 0; transition: opacity 0.2s; background: #000; object-fit: contain;\"></video>\n        </div>\n        \n        <div style=\"display:flex; flex-wrap:wrap; justify-content: space-between; align-items: center; padding: 12px 16px; background: #0f172a; gap: 12px;\">\n          <div style=\"display:flex; align-items:center; gap:8px;\">\n            <button id=\"btnPrevChunk\" disabled style=\"background: #1e293b; color: #f8fafc; border: 1px solid #334155; padding: 6px 12px; border-radius: 4px; font-weight: 700; font-size: 13px; transition: 0.2s; outline: none; cursor: pointer;\">上一段</button>\n            <select id=\"chunkSelector\" style=\"background: #1e293b; color: #f8fafc; border: 1px solid #334155; padding: 6px 8px; border-radius: 4px; font-size: 13px; outline: none; cursor: pointer; max-width: 100px;\">\n              <option value=\"\">載入中...</option>\n            </select>\n            <button id=\"btnNextChunk\" disabled style=\"background: #1e293b; color: #f8fafc; border: 1px solid #334155; padding: 6px 12px; border-radius: 4px; font-weight: 700; font-size: 13px; transition: 0.2s; outline: none; cursor: pointer;\">下一段</button>\n          </div>\n          <div style=\"display:flex; align-items:center; gap:12px;\">\n            <span id=\"videoStatus\" style=\"color: #94a3b8; font-size: 13px;\">準備就緒</span>\n            <button id=\"btnStartStream\" style=\"background: #3175B5; color: #fff; border: none; padding: 6px 16px; border-radius: 4px; font-weight: 700; cursor: pointer; font-size: 13px; transition: background 0.2s;\">啟動播放</button>\n          </div>\n        </div>\n      </div>\n    </div>";
+              const vHtml = "\n    <div style=\"margin-top: 48px; border-top: 1px solid #e2e8f0; padding-top: 32px;\">\n      <h3 style=\"font-size: 18px; font-weight: 800; margin-bottom: 16px;\">專屬影音紀錄</h3>\n      <div id=\"vblog-player-container-b8e472a1\" class=\"vblog-player-container\">\n        \n        <div class=\"vblog-video-wrapper\">\n          <video id=\"videoPlayerA\" playsinline controls controlsList=\"nodownload\" oncontextmenu=\"return false;\" style=\"position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 2; opacity: 1; transition: opacity 0.2s; background: #000; object-fit: contain;\"></video>\n          <video id=\"videoPlayerB\" playsinline controls controlsList=\"nodownload\" oncontextmenu=\"return false;\" style=\"position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 1; opacity: 0; transition: opacity 0.2s; background: #000; object-fit: contain;\"></video>\n        </div>\n        \n        <div class=\"vblog-player-bar\">\n          <div class=\"vblog-player-nav\">\n            <button id=\"btnPrevChunk\" class=\"vblog-player-btn\" disabled title=\"上一段\"><svg xmlns=\"http://www.w3.org/2000/svg\" width=\"18\" height=\"18\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><polygon points=\"19 20 9 12 19 4 19 20\"/><line x1=\"5\" x2=\"5\" y1=\"19\" y2=\"5\"/></svg></button>\n            <select id=\"chunkSelector\" class=\"vblog-player-select\">\n              <option value=\"\">載入中...</option>\n            </select>\n            <button id=\"btnNextChunk\" class=\"vblog-player-btn\" disabled title=\"下一段\"><svg xmlns=\"http://www.w3.org/2000/svg\" width=\"18\" height=\"18\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><polygon points=\"5 4 15 12 5 20 5 4\"/><line x1=\"19\" x2=\"19\" y1=\"5\" y2=\"19\"/></svg></button>\n          </div>\n          <div style=\"display:flex; align-items:center; gap:12px;\">\n            <span id=\"videoStatus\" class=\"vblog-player-status\">準備就緒</span>\n            <button id=\"btnStartStream\" class=\"vblog-btn-primary\" title=\"啟動播放\"><svg xmlns=\"http://www.w3.org/2000/svg\" width=\"16\" height=\"16\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><polygon points=\"6 3 20 12 6 21 6 3\"/></svg><span>聯播</span></button>\n            <button class=\"vblog-player-btn\" onclick=\"window.togglePlayerFullscreen('b8e472a1')\" title=\"全螢幕切換\"><svg xmlns=\"http://www.w3.org/2000/svg\" width=\"18\" height=\"18\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M8 3H5a2 2 0 0 0-2 2v3\"/><path d=\"M21 8V5a2 2 0 0 0-2-2h-3\"/><path d=\"M3 16v3a2 2 0 0 0 2 2h3\"/><path d=\"M16 21h3a2 2 0 0 0 2-2v-3\"/></svg></button>\n          </div>\n        </div>\n      </div>\n    </div>";
               document.getElementById("dynamicVideoPlayerArea").innerHTML = vHtml;
               bindVideoLogic(res.data.urls);
             }
