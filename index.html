@@ -411,6 +411,31 @@
     @keyframes fadeIn { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: translateY(0); } }
     
      
+    .vblog-player-container { background: #0f172a; border-radius: 12px; overflow: hidden; margin-top: 32px; border: 1px solid var(--border); box-shadow: 0 12px 32px rgba(0,0,0,0.15); display: flex; flex-direction: column; }
+    .vblog-video-wrapper { position: relative; width: 100%; aspect-ratio: 16/9; background: #000; overflow: hidden; flex-shrink: 0; }
+    .vblog-player-bar { display: flex; justify-content: space-between; align-items: center; padding: 12px 16px; background: #0f172a; gap: 12px; }
+    .vblog-player-nav { display: flex; align-items: center; gap: 4px; background: rgba(255,255,255,0.05); border-radius: 8px; padding: 4px; }
+    .vblog-player-btn { background: transparent; border: none; color: #94a3b8; padding: 8px; cursor: pointer; border-radius: 6px; display: flex; align-items: center; justify-content: center; transition: all 0.2s ease; outline: none; }
+    .vblog-player-btn:hover:not(:disabled) { color: #ffffff; background: rgba(255,255,255,0.1); transform: scale(1.1); }
+    .vblog-player-btn:active:not(:disabled) { transform: scale(0.95); }
+    .vblog-player-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+    .vblog-player-select { appearance: none; background: transparent; color: #ffffff; border: none; padding: 0 8px; font-size: 14px; font-weight: 700; cursor: pointer; text-align: center; outline: none; letter-spacing: 0.5px; }
+    .vblog-player-select option { background: #1e293b; color: #ffffff; }
+    .vblog-player-status { color: #94a3b8; font-size: 13px; font-weight: 600; letter-spacing: 0.5px; }
+    .vblog-btn-play { background: rgba(56, 189, 248, 0.1); color: #38bdf8; border: 1px solid rgba(56, 189, 248, 0.25); padding: 6px 14px; border-radius: 6px; font-weight: 700; display: flex; align-items: center; gap: 6px; cursor: pointer; transition: all 0.2s ease; font-size: 13.5px; letter-spacing: 0.5px; white-space: nowrap; flex-shrink: 0; outline: none; }
+    .vblog-btn-play:hover { background: #38bdf8; color: #0f172a; border-color: #38bdf8; transform: scale(1.05); }
+    .vblog-btn-play:active { transform: scale(0.95); }
+    .vblog-btn-play svg { fill: currentColor; stroke: none; width: 14px; height: 14px; }
+    .vblog-video-wrapper { transition: aspect-ratio 0.3s ease; }
+    
+    @media (max-width: 480px) {
+      .vblog-player-status { display: none; }
+      .vblog-player-bar { padding: 10px 12px; gap: 8px; }
+      .vblog-btn-play span { display: none; }
+      .vblog-btn-play { padding: 8px; width: 32px; height: 32px; justify-content: center; }
+    }
+
+     
     .section-title { font-size: 22px; font-weight: 800; border-bottom: 2px solid; display: inline-flex; align-items: center; gap: 8px; padding-bottom: 8px; margin-bottom: 24px; margin-top: 32px; }
     .feed-list { display: flex; flex-direction: column; gap: 32px; margin-top: 16px; width: 100%; }
     .feed-item { display: flex; gap: 32px; padding-bottom: 32px; border-bottom: 1px solid var(--border); text-decoration: none; color: inherit; align-items: flex-start; transition: opacity 0.2s; background: #fff; padding: 24px; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.03); border: 1px solid var(--border-subtle); cursor: default; }
@@ -1843,6 +1868,145 @@
 
   
 
+  // 🌟 無縫混流引擎專用常駐變數
+  let micStream = null;
+  let screenAudioSourceNode = null;
+  let recordingCanvas = null;
+  let recordingCtx = null;
+  let recordingStream = null;
+  let canvasRenderWorker = null;
+  let canvasFallbackTimer = null;
+  let chunkElapsedMs = 0;
+  let lastChunkTickTime = 0;
+  let isSwitchingSource = false;
+
+  function drawVideoFrameToCanvas() {
+    if (!recordingCanvas || !recordingCtx) return;
+    const cw = recordingCanvas.width;
+    const ch = recordingCanvas.height;
+
+    if (!isVideoEnabled) {
+      recordingCtx.fillStyle = "#000000";
+      recordingCtx.fillRect(0, 0, cw, ch);
+      return;
+    }
+
+    const player = document.getElementById('mediaPlayer');
+    if (player && player.readyState >= 2 && player.videoWidth > 0 && player.videoHeight > 0) {
+      const vw = player.videoWidth;
+      const vh = player.videoHeight;
+      const scale = Math.min(cw / vw, ch / vh);
+      const dw = vw * scale;
+      const dh = vh * scale;
+      const dx = (cw - dw) / 2;
+      const dy = (ch - dh) / 2;
+
+      recordingCtx.fillStyle = "#000000";
+      recordingCtx.fillRect(0, 0, cw, ch);
+      recordingCtx.drawImage(player, dx, dy, dw, dh);
+    }
+    // 若處於切換鏡頭的極短暫過渡期 (readyState < 2)，保留畫布最後一幀畫面，達成零黑屏無縫銜接
+  }
+
+  function startCanvasCompositorLoop() {
+    stopCanvasCompositorLoop();
+    try {
+      const workerBlob = new Blob([
+        "let t=null;self.onmessage=function(e){if(e.data==='start'){if(t)clearInterval(t);t=setInterval(()=>self.postMessage('tick'),33);}else{clearInterval(t);t=null;}};"
+      ], { type: "application/javascript" });
+      canvasRenderWorker = new Worker(URL.createObjectURL(workerBlob));
+      canvasRenderWorker.onmessage = () => drawVideoFrameToCanvas();
+      canvasRenderWorker.postMessage('start');
+    } catch (err) {
+      canvasFallbackTimer = setInterval(drawVideoFrameToCanvas, 33);
+    }
+  }
+
+  function stopCanvasCompositorLoop() {
+    if (canvasRenderWorker) {
+      try { canvasRenderWorker.postMessage('stop'); canvasRenderWorker.terminate(); } catch (e) {}
+      canvasRenderWorker = null;
+    }
+    if (canvasFallbackTimer) {
+      clearInterval(canvasFallbackTimer);
+      canvasFallbackTimer = null;
+    }
+  }
+
+  function syncRecordingCanvasSize() {
+    if (!recordingCanvas) {
+      recordingCanvas = document.createElement('canvas');
+      recordingCtx = recordingCanvas.getContext('2d', { alpha: false });
+      recordingCtx.imageSmoothingEnabled = true;
+    }
+    // 僅在尚未開始錄製前鎖定畫布解析度，錄製中切換鏡頭或螢幕皆自動等比例縮放至畫布，防止編碼器重置斷片
+    if (!isRecording) {
+      const player = document.getElementById('mediaPlayer');
+      if (player && player.videoWidth > 0 && player.videoHeight > 0) {
+        recordingCanvas.width = player.videoWidth;
+        recordingCanvas.height = player.videoHeight;
+      } else {
+        recordingCanvas.width = isMobile ? 720 : 1280;
+        recordingCanvas.height = isMobile ? 1280 : 720;
+      }
+    }
+  }
+
+  async function ensureAudioMixer(extraAudioStream) {
+    if (!audioContext || audioContext.state === 'closed') {
+      audioContext = new (window.AudioContext || window.webkitAudioContext)();
+      mixedAudioDest = audioContext.createMediaStreamDestination();
+
+      // 注入極低頻靜音基準訊號，確保即使無麥克風或切換來源時音軌時鐘永不中斷
+      try {
+        const osc = audioContext.createOscillator();
+        const silentGain = audioContext.createGain();
+        silentGain.gain.value = 0;
+        osc.connect(silentGain);
+        silentGain.connect(mixedAudioDest);
+        osc.start();
+      } catch (e) {}
+
+      if (micStream && micStream.getAudioTracks().length > 0) {
+        const micSource = audioContext.createMediaStreamSource(micStream);
+        micSource.connect(mixedAudioDest);
+      }
+    }
+
+    if (audioContext.state === 'suspended') {
+      try { await audioContext.resume(); } catch (e) {}
+    }
+
+    if (screenAudioSourceNode) {
+      try { screenAudioSourceNode.disconnect(); } catch (e) {}
+      screenAudioSourceNode = null;
+    }
+    if (extraAudioStream && extraAudioStream.getAudioTracks().length > 0) {
+      try {
+        screenAudioSourceNode = audioContext.createMediaStreamSource(extraAudioStream);
+        screenAudioSourceNode.connect(mixedAudioDest);
+      } catch (e) {}
+    }
+  }
+
+  function ensureCompositeRecordingStream() {
+    syncRecordingCanvasSize();
+    drawVideoFrameToCanvas();
+    startCanvasCompositorLoop();
+
+    if (!recordingStream || recordingStream.getVideoTracks().every(t => t.readyState === 'ended')) {
+      const canvasStream = recordingCanvas.captureStream(30);
+      const tracks = [...canvasStream.getVideoTracks()];
+      if (mixedAudioDest && mixedAudioDest.stream.getAudioTracks().length > 0) {
+        tracks.push(mixedAudioDest.stream.getAudioTracks()[0]);
+      } else if (micStream && micStream.getAudioTracks().length > 0) {
+        tracks.push(micStream.getAudioTracks()[0]);
+      }
+      recordingStream = new MediaStream(tracks);
+    }
+    return recordingStream;
+  }
+
   async function enableHardware() {
     log("[系統] 授權...");
     const ok = await acquireStream();
@@ -1857,9 +2021,12 @@
   }
 
   function closeCamera() {
+    stopCanvasCompositorLoop();
     if (currentStream) { currentStream.getTracks().forEach(t => t.stop()); currentStream = null; }
+    if (micStream) { micStream.getTracks().forEach(t => t.stop()); micStream = null; }
+    if (recordingStream) { recordingStream.getTracks().forEach(t => t.stop()); recordingStream = null; }
     if (document.getElementById('mediaPlayer')) document.getElementById('mediaPlayer').srcObject = null;
-    if (audioContext) { audioContext.close(); audioContext = null; }
+    if (audioContext) { try { audioContext.close(); } catch(e){} audioContext = null; mixedAudioDest = null; }
     document.getElementById('cameraPrompt').style.display = 'flex';
     document.getElementById('controlsIsland').style.display = 'none';
     document.getElementById('statusBadge').style.display = 'none';
@@ -1875,50 +2042,83 @@
     lucide.createIcons();
   }
 
+  async function requestCameraVideoStream(facing) {
+    const baseConstraints = {
+      width: { ideal: 1280 },
+      height: { ideal: 720 },
+      frameRate: { ideal: cameraFps },
+      backgroundBlur: false
+    };
+    if (isMobile && facing) {
+      try {
+        return await navigator.mediaDevices.getUserMedia({
+          video: Object.assign({}, baseConstraints, { facingMode: { exact: facing } }),
+          audio: false
+        });
+      } catch (e) {}
+    }
+    return await navigator.mediaDevices.getUserMedia({
+      video: Object.assign({}, baseConstraints, { facingMode: facing || "user" }),
+      audio: false
+    });
+  }
+
   async function acquireStream() {
-    if (currentStream) { currentStream.getTracks().forEach(t => t.stop()); currentStream = null; }
-    if (audioContext) { audioContext.close(); audioContext = null; }
+    if (currentStream) { currentStream.getVideoTracks().forEach(t => t.stop()); currentStream = null; }
 
     const audioConstraints = { echoCancellation: true, noiseSuppression: true, autoGainControl: true };
 
     try {
-      if (!isMobile && currentSourceType === "screen") {
-        const screenStream = await navigator.mediaDevices.getDisplayMedia({ video: { frameRate: { ideal: cameraFps } }, audio: true });
-        let micStream = null;
-        try { micStream = await navigator.mediaDevices.getUserMedia({ audio: audioConstraints }); } 
-        catch (e) { log("[系統] 靜音"); }
-
-        audioContext = new (window.AudioContext || window.webkitAudioContext)();
-        mixedAudioDest = audioContext.createMediaStreamDestination();
-
-        if (screenStream.getAudioTracks().length > 0) { const screenAudioSource = audioContext.createMediaStreamSource(screenStream); screenAudioSource.connect(mixedAudioDest); }
-        if (micStream && micStream.getAudioTracks().length > 0) { const micSource = audioContext.createMediaStreamSource(micStream); micSource.connect(mixedAudioDest); }
-
-        currentStream = new MediaStream([ screenStream.getVideoTracks()[0], mixedAudioDest.stream.getAudioTracks()[0] ]);
-        screenStream.getVideoTracks()[0].onended = async () => { if (currentSourceType === "screen") { await switchMediaSource(); } };
-      } else {
-        let videoConstraints = {
-          facingMode: mobileFacingMode,
-          width: { ideal: 1280 },  // 🌟 調整為 720p HD 寬度
-          height: { ideal: 720 },  // 🌟 調整為 720p HD 高度
-          frameRate: { ideal: cameraFps },
-          backgroundBlur: false 
-        };
-
-        currentStream = await navigator.mediaDevices.getUserMedia({ video: videoConstraints, audio: audioConstraints });
+      // 1. 取得並常駐保持麥克風音軌，後續切換鏡頭或螢幕時永不中斷收音
+      if (!micStream || micStream.getAudioTracks().every(t => t.readyState === 'ended')) {
+        try {
+          micStream = await navigator.mediaDevices.getUserMedia({ audio: audioConstraints, video: false });
+        } catch (e) {
+          log("[系統] 靜音模式");
+        }
       }
 
-      document.getElementById('mediaPlayer').srcObject = currentStream;
-      const vTrack = currentStream.getVideoTracks()[0];
+      // 2. 取得視訊畫面來源
+      let videoSourceStream = null;
+      if (!isMobile && currentSourceType === "screen") {
+        videoSourceStream = await navigator.mediaDevices.getDisplayMedia({ video: { frameRate: { ideal: cameraFps } }, audio: true });
+        await ensureAudioMixer(videoSourceStream);
+        videoSourceStream.getVideoTracks()[0].onended = async () => {
+          if (currentSourceType === "screen") await switchMediaSource();
+        };
+      } else {
+        videoSourceStream = await requestCameraVideoStream(mobileFacingMode);
+        await ensureAudioMixer(null);
+      }
+
+      const vTrack = videoSourceStream.getVideoTracks()[0];
       if (vTrack) vTrack.enabled = isVideoEnabled;
+
+      currentStream = new MediaStream([vTrack]);
+      const player = document.getElementById('mediaPlayer');
+      player.srcObject = currentStream;
+
+      await new Promise(resolve => {
+        if (player.readyState >= 1) { resolve(); return; }
+        const onMeta = () => { player.removeEventListener('loadedmetadata', onMeta); resolve(); };
+        player.addEventListener('loadedmetadata', onMeta);
+        setTimeout(resolve, 500);
+      });
+      await player.play().catch(() => {});
+
+      ensureCompositeRecordingStream();
       updateSourceIcon();
       return true;
-    } catch (err) { log("[錯誤] " + err.message); return false; }
+    } catch (err) {
+      log("[錯誤] " + err.message);
+      return false;
+    }
   }
 
   function toggleVideoTrack() {
     isVideoEnabled = !isVideoEnabled;
     if (currentStream && currentStream.getVideoTracks().length > 0) currentStream.getVideoTracks()[0].enabled = isVideoEnabled;
+    drawVideoFrameToCanvas();
     const icon = document.getElementById('iconVideo');
     if (icon) icon.setAttribute('data-lucide', isVideoEnabled ? 'video' : 'video-off');
     document.getElementById('btnVideoTrack').classList.toggle('active', !isVideoEnabled);
@@ -1927,17 +2127,23 @@
   }
 
   async function switchMediaSource() {
+    if (isSwitchingSource) return;
+
     if (!currentStream) {
       const prevSourceType = currentSourceType;
       const prevFacingMode = mobileFacingMode;
       if (isMobile) mobileFacingMode = (mobileFacingMode === "user") ? "environment" : "user";
       else currentSourceType = (currentSourceType === "camera") ? "screen" : "camera";
-      
+
       const success = await acquireStream();
       if (!success) { currentSourceType = prevSourceType; mobileFacingMode = prevFacingMode; await acquireStream(); }
       wakeControls();
       return;
     }
+
+    isSwitchingSource = true;
+    const btnSource = document.getElementById('btnSource');
+    if (btnSource) btnSource.disabled = true;
 
     const prevSourceType = currentSourceType;
     const prevFacingMode = mobileFacingMode;
@@ -1949,48 +2155,68 @@
     }
 
     try {
-      let newStream;
-      
-      if (!isMobile && currentSourceType === "screen") {
-        newStream = await navigator.mediaDevices.getDisplayMedia({ video: { frameRate: { ideal: cameraFps } } });
-        newStream.getVideoTracks()[0].onended = async () => { 
-          if (currentSourceType === "screen") await switchMediaSource(); 
-        };
-      } else {
-        let videoConstraints = {
-          facingMode: mobileFacingMode,
-          width: { ideal: 1280 },  // 🌟 調整為 720p HD 寬度
-          height: { ideal: 720 },  // 🌟 調整為 720p HD 高度
-          frameRate: { ideal: cameraFps },
-          backgroundBlur: false 
-        };
-        newStream = await navigator.mediaDevices.getUserMedia({ video: videoConstraints });
+      // 切換前先將最後一幀定格在畫布上，確保過渡期零黑屏
+      drawVideoFrameToCanvas();
+
+      const oldVideoTrack = currentStream.getVideoTracks()[0];
+
+      // 📱 手機版硬體特性：必須先釋放舊鏡頭，硬體才允許開啟另一顆鏡頭
+      // 因為 MediaRecorder 綁定的是 recordingCanvas 混流，停止舊鏡頭完全不會中斷錄製！
+      if (isMobile && oldVideoTrack) {
+        oldVideoTrack.stop();
       }
 
-      if (newStream) {
-        const newVideoTrack = newStream.getVideoTracks()[0];
-        const oldVideoTrack = currentStream.getVideoTracks()[0];
+      let newStream = null;
+      if (!isMobile && currentSourceType === "screen") {
+        newStream = await navigator.mediaDevices.getDisplayMedia({ video: { frameRate: { ideal: cameraFps } }, audio: true });
+        await ensureAudioMixer(newStream);
+        newStream.getVideoTracks()[0].onended = async () => {
+          if (currentSourceType === "screen") await switchMediaSource();
+        };
+      } else {
+        newStream = await requestCameraVideoStream(mobileFacingMode);
+        await ensureAudioMixer(null);
+      }
 
-        if (oldVideoTrack && newVideoTrack) {
-          currentStream.removeTrack(oldVideoTrack);
-          currentStream.addTrack(newVideoTrack);
-          
-          oldVideoTrack.stop(); 
-          
-          document.getElementById('mediaPlayer').srcObject = currentStream;
-          newVideoTrack.enabled = isVideoEnabled;
-          
-          log("[系統] 畫面已無縫切換");
+      if (newStream && newStream.getVideoTracks().length > 0) {
+        const newVideoTrack = newStream.getVideoTracks()[0];
+        newVideoTrack.enabled = isVideoEnabled;
+
+        if (oldVideoTrack) {
+          try { currentStream.removeTrack(oldVideoTrack); } catch (e) {}
+          try { oldVideoTrack.stop(); } catch (e) {}
         }
+        currentStream.addTrack(newVideoTrack);
+
+        const player = document.getElementById('mediaPlayer');
+        player.srcObject = currentStream;
+        await player.play().catch(() => {});
+
+        log("[系統] 畫面已無縫切換（錄製持續進行中）");
       }
 
       updateSourceIcon();
       wakeControls();
-
     } catch (err) {
-      log("[錯誤] 切換失敗: " + err.message);
-      currentSourceType = prevSourceType; 
+      log("[錯誤] 切換取消或失敗: " + err.message);
+      currentSourceType = prevSourceType;
       mobileFacingMode = prevFacingMode;
+      // 若手機端已先釋放舊鏡頭但新鏡頭開啟失敗，自動救回原鏡頭
+      if (!currentStream.getVideoTracks()[0] || currentStream.getVideoTracks()[0].readyState === 'ended') {
+        try {
+          const fallbackStream = await requestCameraVideoStream(mobileFacingMode);
+          const fbTrack = fallbackStream.getVideoTracks()[0];
+          fbTrack.enabled = isVideoEnabled;
+          currentStream = new MediaStream([fbTrack]);
+          const player = document.getElementById('mediaPlayer');
+          player.srcObject = currentStream;
+          await player.play().catch(() => {});
+        } catch (e) {}
+      }
+      updateSourceIcon();
+    } finally {
+      isSwitchingSource = false;
+      if (btnSource) btnSource.disabled = false;
     }
   }
 
@@ -2046,6 +2272,7 @@
 
     document.getElementById('btnStart').disabled = true;
     document.getElementById('archiveView').style.display = 'none';
+    document.getElementById('recordTimer').innerText = "00:00";
 
     
     window.chunkProcessQueue = Promise.resolve();
@@ -2056,27 +2283,44 @@
       if (!ok) { document.getElementById('btnStart').disabled = false; return; }
     }
 
+    ensureCompositeRecordingStream();
+    if (audioContext && audioContext.state === 'suspended') {
+      try { await audioContext.resume(); } catch (e) {}
+    }
+
     try {
       const res = await api({ action: "initLog", email: email });
       logSession = res;
       isRecording = true; isPaused = false; chunkIndex = 1; secondsElapsed = 0;
       isHistoryRendered = false; isDashboardRendered = false; 
 
+      const pauseIcon = document.getElementById('iconPause');
+      if (pauseIcon) pauseIcon.setAttribute('data-lucide', 'pause');
+
       document.getElementById('btnStart').style.display = 'none';
       document.getElementById('btnCloseCamera').style.display = 'none'; 
       document.getElementById('btnPause').style.display = 'flex';
       document.getElementById('btnStop').style.display = 'flex';
       document.getElementById('statusBadge').style.display = 'flex';
+      lucide.createIcons();
 
       startTimer(); startChunkRecording(); wakeControls();
-      log("[系統] 錄製開始");
+      log("[系統] 錄製開始（無縫混流模式：每滿 30 秒實質錄影自動建檔）");
     } catch (e) { log("[錯誤] " + e.message); document.getElementById('btnStart').disabled = false; }
   }
 
   function startChunkRecording() {
-    if (!isRecording || !currentStream || isPaused) return;
+    if (!isRecording) return;
+    if (chunkTimer) { clearInterval(chunkTimer); chunkTimer = null; }
+
+    const targetStream = ensureCompositeRecordingStream();
     recordedChunks = [];
-    const mime = MediaRecorder.isTypeSupported('video/webm;codecs=vp9') ? 'video/webm;codecs=vp9' : 'video/webm';
+    chunkElapsedMs = 0;
+    lastChunkTickTime = Date.now();
+
+    const mime = MediaRecorder.isTypeSupported('video/webm;codecs=vp8,opus')
+      ? 'video/webm;codecs=vp8,opus'
+      : (MediaRecorder.isTypeSupported('video/webm;codecs=vp9') ? 'video/webm;codecs=vp9' : 'video/webm');
 
     const recorderOptions = {
       mimeType: mime,
@@ -2084,29 +2328,52 @@
     };
 
     try {
-      mediaRecorder = new MediaRecorder(currentStream, recorderOptions);
+      mediaRecorder = new MediaRecorder(targetStream, recorderOptions);
     } catch(e) {
-      mediaRecorder = new MediaRecorder(currentStream, { mimeType: mime });
+      mediaRecorder = new MediaRecorder(targetStream, { mimeType: 'video/webm' });
     }
 
     mediaRecorder.ondataavailable = e => { if (e.data && e.data.size > 0) recordedChunks.push(e.data); };
     mediaRecorder.onstop = () => {
       if (recordedChunks.length > 0) {
-        const chunkBlob = new Blob(recordedChunks, { type: mime });
+        const cleanMime = mime.split(';')[0] || 'video/webm';
+        const chunkBlob = new Blob(recordedChunks, { type: cleanMime });
         
-        processChunk(chunkBlob, mime, chunkIndex++); 
+        processChunk(chunkBlob, cleanMime, chunkIndex++); 
         recordedChunks = [];
       }
-      if (isRecording && !isPaused && mediaRecorder && mediaRecorder.state === "inactive") startChunkRecording(); 
-    };
-    mediaRecorder.start();
-
-    chunkTimer = setTimeout(() => {
-      if (mediaRecorder && mediaRecorder.state === "recording") { 
-        log("[系統] 截斷第 " + chunkIndex + " 段切片，準備進入解析序列"); 
-        mediaRecorder.stop(); 
+      if (isRecording) {
+        startChunkRecording();
       }
-    }, 30000);
+    };
+
+    
+    mediaRecorder.start(200);
+    if (isPaused && mediaRecorder.state === "recording") {
+      try { mediaRecorder.pause(); } catch (e) {}
+    }
+
+    
+    chunkTimer = setInterval(() => {
+      if (!isRecording) {
+        clearInterval(chunkTimer);
+        chunkTimer = null;
+        return;
+      }
+      const now = Date.now();
+      if (!isPaused && mediaRecorder && mediaRecorder.state === "recording") {
+        chunkElapsedMs += (now - lastChunkTickTime);
+        lastChunkTickTime = now;
+        if (chunkElapsedMs >= 30000) {
+          clearInterval(chunkTimer);
+          chunkTimer = null;
+          log("[系統] 已累積滿 30 秒實質錄影，打包第 " + chunkIndex + " 段並無縫續錄...");
+          try { mediaRecorder.stop(); } catch (e) {}
+        }
+      } else {
+        lastChunkTickTime = now;
+      }
+    }, 200);
   }
 
   
@@ -2128,7 +2395,7 @@
             resolve(); return;
           }
           const base64 = reader.result.split(',')[1];
-          log(`[處理] 正在解析第 ${index} 段...`);
+          log(`[處理] 正在上傳第 ${index} 段...`);
           try {
             const enableAI = document.getElementById('liveAIModeSelect') ? (document.getElementById('liveAIModeSelect').value === 'true') : true;
             await api({ 
@@ -2141,7 +2408,7 @@
               chunkIndex: index,
               enableAI: enableAI
             });
-            log(`[成功] 第 ${index} 段已寫入`);
+            log(`[成功] 第 ${index} 段已寫入雲端`);
           } catch (e) { 
             log(`[失敗] 第 ${index} 段寫入異常: ` + e.message); 
           }
@@ -2157,14 +2424,28 @@
     const pauseIcon = document.getElementById('iconPause');
     if (!isPaused) {
       isPaused = true;
-      if (mediaRecorder && mediaRecorder.state === "recording") { mediaRecorder.stop(); }
-      clearTimeout(chunkTimer); clearInterval(timerInterval);
+      
+      if (mediaRecorder && mediaRecorder.state === "recording") {
+        try { mediaRecorder.pause(); } catch (e) {}
+      }
+      clearInterval(timerInterval);
       if (pauseIcon) pauseIcon.setAttribute('data-lucide', 'play');
-      log("[系統] 暫停");
+      const secSoFar = Math.floor(chunkElapsedMs / 1000);
+      log(`[系統] 暫停錄製（本段已累積 ${secSoFar} 秒，恢復後將接續錄滿 30 秒才建檔）`);
     } else {
-      isPaused = false; startTimer(); startChunkRecording();
+      isPaused = false;
+      lastChunkTickTime = Date.now();
+      if (audioContext && audioContext.state === 'suspended') {
+        audioContext.resume().catch(() => {});
+      }
+      if (mediaRecorder && mediaRecorder.state === "paused") {
+        try { mediaRecorder.resume(); } catch (e) {}
+      } else if (!mediaRecorder || mediaRecorder.state === "inactive") {
+        startChunkRecording();
+      }
+      startTimer();
       if (pauseIcon) pauseIcon.setAttribute('data-lucide', 'pause');
-      log("[系統] 恢復");
+      log("[系統] 恢復錄製（無縫延續當前片段）");
     }
     lucide.createIcons(); wakeControls();
   }
@@ -2177,7 +2458,11 @@
         if (originalOnStop) originalOnStop(e); 
         resolve(); 
       };
-      mediaRecorder.stop();
+      try {
+        mediaRecorder.stop();
+      } catch (err) {
+        resolve();
+      }
     });
   }
 
@@ -2186,14 +2471,19 @@
   
   async function stopRecording() {
     const email = localStorage.getItem('bvlog_user_email');
-    isRecording = false; isPaused = false; clearTimeout(chunkTimer); clearInterval(timerInterval);
+    isRecording = false; isPaused = false;
+    if (chunkTimer) { clearInterval(chunkTimer); chunkTimer = null; }
+    clearInterval(timerInterval);
 
-    if (mediaRecorder && mediaRecorder.state === "recording") log("[系統] 結束錄影，打包最後一段...");
+    if (mediaRecorder && mediaRecorder.state !== "inactive") log("[系統] 結束錄影，打包最後一段...");
     await stopMediaRecorderAsync(); 
 
+    stopCanvasCompositorLoop();
     if (currentStream) { currentStream.getTracks().forEach(t => t.stop()); currentStream = null; }
+    if (micStream) { micStream.getTracks().forEach(t => t.stop()); micStream = null; }
+    if (recordingStream) { recordingStream.getTracks().forEach(t => t.stop()); recordingStream = null; }
     if (document.getElementById('mediaPlayer')) document.getElementById('mediaPlayer').srcObject = null;
-    if (audioContext) { audioContext.close(); audioContext = null; }
+    if (audioContext) { try { audioContext.close(); } catch(e){} audioContext = null; mixedAudioDest = null; }
 
     document.getElementById('cameraPrompt').style.display = 'flex';
     document.getElementById('controlsIsland').style.display = 'none';
@@ -2207,11 +2497,11 @@
 
     
     if (pendingChunksCount > 0) { 
-      log(`[等待] 剩餘 ${pendingChunksCount} 段切片排隊解析中，請勿關閉視窗...`); 
+      log(`[等待] 剩餘 ${pendingChunksCount} 段切片排隊上傳中，請勿關閉視窗...`); 
     }
     await window.chunkProcessQueue; 
 
-    log("[處理] 所有切片解析完畢，開始進行全局總結與歸檔...");
+    log("[處理] 所有切片寫入完畢，開始進行最終歸檔...");
 
     
     let logPromptContent = "請幫我摘要以下重點：";
@@ -2224,7 +2514,7 @@
       const logPromptVal = document.getElementById('liveLogPromptSelect') ? document.getElementById('liveLogPromptSelect').value : "";
       const enableAI = document.getElementById('liveAIModeSelect') ? (document.getElementById('liveAIModeSelect').value === 'true') : true;
       const res = await api({ action: "finalizeLog", logId: logSession.logId, _rowId: logSession.rowIndex, email: email, logPromptContent: logPromptVal, enableAI: enableAI });
-      log("[成功] 總結與歸檔完成！");
+      log("[成功] 歸檔完成！");
       const urls = res.urls || [];
 
       let linksHtml = '';
@@ -2242,7 +2532,7 @@
       document.getElementById('btnStart').style.display = 'flex';
       document.getElementById('btnStart').disabled = false;
       lucide.createIcons();
-      
+
       isLogsFetched = false;
       isHistoryRendered = false;
       isDashboardRendered = false;
@@ -2858,7 +3148,24 @@
         } else {
           let optHtml = '';
           for(let k=0; k<urls.length; k++) optHtml += `<option value="${k}">片段 ${k+1}</option>`;
-          videoHtml = '<div style="background: #000; border-radius: 8px; overflow: hidden; margin-top: 32px; border: 1px solid var(--border); box-shadow: 0 4px 12px rgba(0,0,0,0.05);"><div style="position: relative; width: 100%; aspect-ratio: 16/9; background: #000; overflow: hidden;"><video id="preview-playerA" controls playsinline style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 2; opacity: 1; transition: opacity 0.2s; background: #000; object-fit: contain;"></video><video id="preview-playerB" controls playsinline style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 1; opacity: 0; transition: opacity 0.2s; background: #000; object-fit: contain;"></video></div><div style="display:flex; flex-wrap:wrap; justify-content: space-between; align-items: center; padding: 12px 16px; background: #0f172a; gap:12px;"><div style="display:flex; gap:8px;"><button class="action-btn-sm" onclick="window.prevPreviewChunk(\'' + logId + '\')" style="background:#1e293b; color:#fff; border-color:#334155;">上一段</button><select id="preview-select" onchange="window.playPreviewChunk(\'' + logId + '\', parseInt(this.value))" style="background:#1e293b; color:#fff; border:1px solid #334155; padding:6px; border-radius:4px; outline:none; font-size:13px; cursor:pointer;">' + optHtml + '</select><button class="action-btn-sm" onclick="window.nextPreviewChunk(\'' + logId + '\')" style="background:#1e293b; color:#fff; border-color:#334155;">下一段</button></div><div style="display:flex; align-items:center; gap:12px;"><span id="preview-player-status" style="color: #94a3b8; font-size: 13px; font-weight:600;">準備就緒</span><button class="action-btn-sm" onclick="window.initPreviewPlayer(\'' + logId + '\')" style="background: var(--accent); color: #fff; border: none; padding: 6px 16px;"><i data-lucide="play" style="width: 14px; height: 14px;"></i> 啟動聯播</button></div></div></div>';
+          videoHtml = `
+          <div id="vblog-player-container-preview" class="vblog-player-container">
+            <div class="vblog-video-wrapper">
+              <video id="preview-playerA" controls playsinline controlsList="nodownload" oncontextmenu="return false;" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 2; opacity: 1; transition: opacity 0.2s; background: #000; object-fit: contain;"></video>
+              <video id="preview-playerB" controls playsinline controlsList="nodownload" oncontextmenu="return false;" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 1; opacity: 0; transition: opacity 0.2s; background: #000; object-fit: contain;"></video>
+            </div>
+            <div class="vblog-player-bar">
+              <div class="vblog-player-nav">
+                <button class="vblog-player-btn" onclick="window.prevPreviewChunk('${logId}')" title="上一段"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="19 20 9 12 19 4 19 20"/><line x1="5" x2="5" y1="19" y2="5"/></svg></button>
+                <select id="preview-select" class="vblog-player-select" onchange="window.playPreviewChunk('${logId}', parseInt(this.value))">${optHtml}</select>
+                <button class="vblog-player-btn" onclick="window.nextPreviewChunk('${logId}')" title="下一段"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="5 4 15 12 5 20 5 4"/><line x1="19" x2="19" y1="5" y2="19"/></svg></button>
+              </div>
+              <div style="display:flex; align-items:center; gap:12px;">
+                <span id="preview-player-status" class="vblog-player-status">準備就緒</span>
+                <button class="vblog-btn-play" onclick="window.initPreviewPlayer('${logId}')" title="啟動播放"><svg xmlns="http:
+              </div>
+            </div>
+          </div>`;
         }
       }
 
@@ -3426,6 +3733,9 @@
     }
     
     const playVideo = () => {
+      const ratio = videoEl.videoWidth / videoEl.videoHeight;
+      const wrapper = videoEl.parentElement;
+      if (wrapper && !isNaN(ratio)) wrapper.style.aspectRatio = (ratio < 1) ? '9/16' : '16/9';
       videoEl.currentTime = 0;
       const playPromise = videoEl.play();
       if (playPromise !== undefined) {
@@ -3571,6 +3881,9 @@
     }
     
     const playVideo = () => {
+      const ratio = videoEl.videoWidth / videoEl.videoHeight;
+      const wrapper = videoEl.parentElement;
+      if (wrapper && !isNaN(ratio)) wrapper.style.aspectRatio = (ratio < 1) ? '9/16' : '16/9';
       videoEl.currentTime = 0;
       const playPromise = videoEl.play();
       if (playPromise !== undefined) {
