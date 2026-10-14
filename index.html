@@ -411,28 +411,37 @@
     @keyframes fadeIn { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: translateY(0); } }
     
      
-    .vblog-player-container { background: #0f172a; border-radius: 12px; overflow: hidden; margin-top: 32px; border: 1px solid var(--border); box-shadow: 0 12px 32px rgba(0,0,0,0.15); display: flex; flex-direction: column; }
-    .vblog-video-wrapper { position: relative; width: 100%; aspect-ratio: 16/9; background: #000; overflow: hidden; flex-shrink: 0; }
-    .vblog-player-bar { display: flex; justify-content: space-between; align-items: center; padding: 12px 16px; background: #0f172a; gap: 12px; }
-    .vblog-player-nav { display: flex; align-items: center; gap: 4px; background: rgba(255,255,255,0.05); border-radius: 8px; padding: 4px; }
-    .vblog-player-btn { background: transparent; border: none; color: #94a3b8; padding: 8px; cursor: pointer; border-radius: 6px; display: flex; align-items: center; justify-content: center; transition: all 0.2s ease; outline: none; }
-    .vblog-player-btn:hover:not(:disabled) { color: #ffffff; background: rgba(255,255,255,0.1); transform: scale(1.1); }
-    .vblog-player-btn:active:not(:disabled) { transform: scale(0.95); }
-    .vblog-player-btn:disabled { opacity: 0.4; cursor: not-allowed; }
-    .vblog-player-select { appearance: none; background: transparent; color: #ffffff; border: none; padding: 0 8px; font-size: 14px; font-weight: 700; cursor: pointer; text-align: center; outline: none; letter-spacing: 0.5px; }
-    .vblog-player-select option { background: #1e293b; color: #ffffff; }
-    .vblog-player-status { color: #94a3b8; font-size: 13px; font-weight: 600; letter-spacing: 0.5px; }
-    .vblog-btn-play { background: rgba(56, 189, 248, 0.1); color: #38bdf8; border: 1px solid rgba(56, 189, 248, 0.25); padding: 6px 14px; border-radius: 6px; font-weight: 700; display: flex; align-items: center; gap: 6px; cursor: pointer; transition: all 0.2s ease; font-size: 13.5px; letter-spacing: 0.5px; white-space: nowrap; flex-shrink: 0; outline: none; }
-    .vblog-btn-play:hover { background: #38bdf8; color: #0f172a; border-color: #38bdf8; transform: scale(1.05); }
-    .vblog-btn-play:active { transform: scale(0.95); }
-    .vblog-btn-play svg { fill: currentColor; stroke: none; width: 14px; height: 14px; }
-    .vblog-video-wrapper { transition: aspect-ratio 0.3s ease; }
-    
-    @media (max-width: 480px) {
-      .vblog-player-status { display: none; }
-      .vblog-player-bar { padding: 10px 12px; gap: 8px; }
-      .vblog-btn-play span { display: none; }
-      .vblog-btn-play { padding: 8px; width: 32px; height: 32px; justify-content: center; }
+    @keyframes vblogSpin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+    .vblog-spin, .spin { animation: vblogSpin 0.9s linear infinite; }
+    .vblog-player-container { background: #000000; border-radius: 8px; overflow: hidden; margin-top: 24px; border: 1px solid #0f172a; display: flex; flex-direction: column; width: 100%; }
+    .vblog-player-container.in-accordion { margin-top: 0; border-radius: 0; border: none; }
+    .vblog-player-container.is-vertical-player { max-width: 420px; margin-left: auto; margin-right: auto; }
+    .vblog-video-wrapper { position: relative; width: 100%; aspect-ratio: 16 / 9; background: #000000; overflow: hidden; flex-shrink: 0; cursor: pointer; margin: 0 auto; }
+    .vblog-video-wrapper.is-horizontal { width: 100%; aspect-ratio: 16 / 9 !important; }
+    .vblog-video-wrapper.is-vertical { width: 100%; aspect-ratio: 9 / 16 !important; max-height: 80vh; }
+    .vblog-stage-loader { position: absolute; inset: 0; z-index: 5; display: flex; align-items: center; justify-content: center; color: #ffffff; pointer-events: none; background: transparent; }
+    .vblog-progress-track { width: 100%; height: 3px; background: rgba(255,255,255,0.16); cursor: pointer; position: relative; transition: height 0.15s ease; }
+    .vblog-progress-track:hover { height: 5px; }
+    .vblog-progress-fill { width: 0%; height: 100%; background: #ffffff; transition: width 0.08s linear; }
+    .vblog-player-bar { display: flex; justify-content: space-between; align-items: center; padding: 8px 12px; background: #0a0a0a; gap: 8px; border-top: 1px solid rgba(255,255,255,0.08); user-select: none; }
+    .vblog-player-nav, .vblog-player-right { display: flex; align-items: center; gap: 4px; }
+    .vblog-player-btn, .vblog-btn-play { background: transparent; border: 1px solid rgba(255,255,255,0.18); color: #f8fafc; width: 32px; height: 32px; padding: 0; cursor: pointer; border-radius: 4px; display: inline-flex; align-items: center; justify-content: center; transition: border-color 0.15s ease, background 0.15s ease, color 0.15s ease; outline: none; flex-shrink: 0; }
+    .vblog-player-btn:hover:not(:disabled), .vblog-btn-play:hover:not(:disabled) { border-color: #ffffff; background: rgba(255,255,255,0.08); color: #ffffff; }
+    .vblog-player-btn:disabled { opacity: 0.28; cursor: not-allowed; border-color: rgba(255,255,255,0.08); }
+    .vblog-btn-play svg, .vblog-player-btn svg { fill: none !important; stroke: currentColor !important; width: 16px; height: 16px; }
+    .vblog-player-select { appearance: none; background: transparent; color: #f8fafc; border: 1px solid rgba(255,255,255,0.18); border-radius: 4px; height: 32px; padding: 0 10px; font-size: 12.5px; font-weight: 600; cursor: pointer; text-align: center; outline: none; letter-spacing: 0.3px; }
+    .vblog-player-select:hover { border-color: #ffffff; }
+    .vblog-player-select option { background: #0f172a; color: #ffffff; }
+    .vblog-time-display { font-family: ui-monospace, "SF Mono", Menlo, monospace; font-size: 11.5px; color: #94a3b8; margin-left: 6px; white-space: nowrap; }
+    .vblog-preload-pill { display: inline-flex; align-items: center; gap: 5px; padding: 0 8px; height: 28px; border: 1px solid rgba(255,255,255,0.12); border-radius: 4px; color: #cbd5e1; font-size: 11.5px; font-family: ui-monospace, "SF Mono", Menlo, monospace; }
+    .vblog-player-status { color: #cbd5e1; font-size: 11.5px; font-weight: 600; }
+    .vblog-player-container:fullscreen, .vblog-player-container.vblog-css-fullscreen { position: fixed !important; inset: 0 !important; width: 100vw !important; height: 100dvh !important; max-width: none !important; margin: 0 !important; border-radius: 0 !important; z-index: 99999 !important; background: #000000 !important; }
+    .vblog-player-container:fullscreen .vblog-video-wrapper, .vblog-player-container.vblog-css-fullscreen .vblog-video-wrapper { flex: 1; width: 100% !important; height: calc(100dvh - 52px) !important; max-height: none !important; }
+    @media (max-width: 768px) {
+      .vblog-player-container.is-vertical-player { max-width: 100%; }
+      .vblog-video-wrapper.is-vertical { width: 100%; max-height: 82dvh; aspect-ratio: 9 / 16 !important; }
+      .vblog-time-display { display: none; }
+      .vblog-player-bar { padding: 8px 10px; gap: 6px; }
     }
 
      
@@ -2695,16 +2704,58 @@
         if (urls[0].includes('youtube.com') || urls[0].includes('youtu.be')) {
            let ytIframesHtml = '';
            for (let k = 0; k < urls.length; k++) {
+             const isShorts = urls[k].includes('/shorts/');
              const ytMatch = urls[k].match(/(?:youtu\.be\/|youtube\.com\/(?:embed\/|v\/|live\/|watch\?v=|watch\?.+&v=|shorts\/))([\w-]{11})/i);
              if (ytMatch && ytMatch[1]) {
-               ytIframesHtml += '<iframe src="https://www.youtube.com/embed/' + ytMatch[1] + '" frameborder="0" allowfullscreen style="width: 100%; aspect-ratio: 16/9; display: block; border-bottom: 1px solid var(--border-subtle);"></iframe>';
+               ytIframesHtml += '<div class="vblog-player-container in-accordion ' + (isShorts ? 'is-vertical-player' : 'is-horizontal-player') + '"><div class="vblog-video-wrapper ' + (isShorts ? 'is-vertical' : 'is-horizontal') + '"><iframe src="https://www.youtube.com/embed/' + ytMatch[1] + '?rel=0&playsinline=1" frameborder="0" allowfullscreen style="position:absolute; inset:0; width:100%; height:100%; display:block;"></iframe></div></div>';
              }
            }
-           playerHtml = '<details class="history-accordion" id="details-player-' + item.logId + '"><summary><span style="display: flex; align-items: center; gap: 8px;"><i data-lucide="youtube" style="width: 16px; height: 16px; color: var(--danger);"></i>YouTube 影片 (' + urls.length + ')</span><span class="accordion-toggle-icon"><i data-lucide="chevron-down" style="width: 16px; height: 16px;"></i></span></summary><div class="accordion-body" style="padding: 0; background: #f8fafc; border-top: 1px solid var(--border);">' + ytIframesHtml + '</div></details>';
+           playerHtml = '<details class="history-accordion" id="details-player-' + item.logId + '"><summary><span style="display: flex; align-items: center; gap: 8px;"><i data-lucide="youtube" style="width: 16px; height: 16px; color: var(--danger);"></i>YouTube 影片 (' + urls.length + ')</span><span class="accordion-toggle-icon"><i data-lucide="chevron-down" style="width: 16px; height: 16px;"></i></span></summary><div class="accordion-body" style="padding: 0; background: #000; border-top: 1px solid var(--border);">' + ytIframesHtml + '</div></details>';
         } else {
           let optHtml = '';
-          for(let k=0; k<urls.length; k++) optHtml += `<option value="${k}">片段 ${k+1}</option>`;
-          playerHtml = '<details class="history-accordion" id="details-player-' + item.logId + '"><summary><span style="display: flex; align-items: center; gap: 8px;"><i data-lucide="play-circle" style="width: 16px; height: 16px; color: var(--accent);"></i>全片預覽</span><button class="action-btn-sm action-btn-primary" onclick="event.stopPropagation(); window.startSeamlessPlay(\'' + item.logId + '\')"><i data-lucide="play" style="width: 14px; height: 14px;"></i> 啟動播放</button></summary><div class="accordion-body" style="padding: 0; background: #fff; border-top: 1px solid var(--border);"><div style="display:flex; justify-content:space-between; align-items:center; gap:12px; padding:12px 16px; border-bottom:1px solid var(--border-subtle); background:#f8fafc;"><div style="display:flex; gap:8px; align-items:center;"><button class="action-btn-sm action-btn-icon" onclick="window.prevHistoryChunk(\'' + item.logId + '\')" title="上一段"><i data-lucide="chevron-left" style="width: 16px; height: 16px;"></i></button><select id="player-sel-' + item.logId + '" onchange="window.playHistoryChunk(\'' + item.logId + '\', parseInt(this.value))" style="background:#fff; color:var(--text); border:1px solid var(--border); padding:6px 12px; border-radius:4px; outline:none; font-size:13px; font-weight:600; cursor:pointer;">' + optHtml + '</select><button class="action-btn-sm action-btn-icon" onclick="window.nextHistoryChunk(\'' + item.logId + '\')" title="下一段"><i data-lucide="chevron-right" style="width: 16px; height: 16px;"></i></button></div><div style="display:flex; align-items:center; gap:8px;"><span id="player-status-' + item.logId + '" style="color:var(--text-muted); font-size:12.5px; font-weight:600;"><i data-lucide="check-circle" style="width:14px; height:14px; margin-right:4px; vertical-align:middle;"></i>準備就緒</span></div></div><div style="position: relative; width: 100%; aspect-ratio: 16/9; background: #e2e8f0; overflow: hidden;"><video id="playerA-' + item.logId + '" controls playsinline style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 2; opacity: 1; transition: opacity 0.2s; background: #000; object-fit: contain;"></video><video id="playerB-' + item.logId + '" controls playsinline style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 1; opacity: 0; transition: opacity 0.2s; background: #000; object-fit: contain;"></video></div></div></details>';
+          for(let k=0; k<urls.length; k++) optHtml += `<option value="${k}">片段 ${String(k+1).padStart(2, '0')}</option>`;
+          playerHtml = '<details class="history-accordion" id="details-player-' + item.logId + '">' +
+            '<summary>' +
+              '<span style="display: flex; align-items: center; gap: 8px;"><i data-lucide="film" style="width: 15px; height: 15px; color: var(--text);"></i>全片預覽 (' + urls.length + ')</span>' +
+              '<div style="display: flex; align-items: center; gap: 8px;">' +
+                '<button type="button" class="action-btn-sm action-btn-icon" style="border: 1px solid var(--border); width: 30px; height: 30px; display: inline-flex; align-items: center; justify-content: center;" onclick="event.stopPropagation(); window.startSeamlessPlay(\'' + item.logId + '\')" title="雲端載入並啟動播放">' +
+                  '<svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M4 14.899A7 7 0 1 1 15.71 8h1.79a4.5 4.5 0 0 1 2.5 8.242"/><polygon points="10 11 16 14.5 10 18 10 11"/></svg>' +
+                '</button>' +
+                '<span class="accordion-toggle-icon"><i data-lucide="chevron-down" style="width: 16px; height: 16px;"></i></span>' +
+              '</div>' +
+            '</summary>' +
+            '<div class="accordion-body" style="padding: 0; background: #000; border-top: 1px solid var(--border);">' +
+              '<div id="history-player-container-' + item.logId + '" class="vblog-player-container in-accordion is-horizontal-player">' +
+                '<div id="history-wrapper-' + item.logId + '" class="vblog-video-wrapper is-horizontal" onclick="window.toggleHistoryPlayPause(\'' + item.logId + '\')">' +
+                  '<video id="playerA-' + item.logId + '" playsinline preload="auto" controlsList="nodownload" oncontextmenu="return false;" style="position: absolute; inset: 0; width: 100%; height: 100%; z-index: 2; opacity: 1; background: #000; object-fit: contain;"></video>' +
+                  '<video id="playerB-' + item.logId + '" playsinline preload="auto" controlsList="nodownload" oncontextmenu="return false;" style="position: absolute; inset: 0; width: 100%; height: 100%; z-index: 1; opacity: 0; background: #000; object-fit: contain;"></video>' +
+                  '<div id="history-loader-' + item.logId + '" class="vblog-stage-loader" style="display: none;">' +
+                    '<svg class="vblog-spin" xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 1 1-6.219-8.56"/></svg>' +
+                  '</div>' +
+                '</div>' +
+                '<div id="history-progress-track-' + item.logId + '" class="vblog-progress-track" onclick="window.seekHistoryVideo(event, \'' + item.logId + '\')">' +
+                  '<div id="history-progress-fill-' + item.logId + '" class="vblog-progress-fill"></div>' +
+                '</div>' +
+                '<div class="vblog-player-bar">' +
+                  '<div class="vblog-player-nav">' +
+                    '<button type="button" id="history-btn-play-' + item.logId + '" class="vblog-btn-play" onclick="window.toggleHistoryPlayPause(\'' + item.logId + '\')" title="雲端載入 / 播放"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M4 14.899A7 7 0 1 1 15.71 8h1.79a4.5 4.5 0 0 1 2.5 8.242"/><polygon points="10 11 16 14.5 10 18 10 11"/></svg></button>' +
+                    '<button type="button" id="history-btn-prev-' + item.logId + '" class="vblog-player-btn" onclick="window.prevHistoryChunk(\'' + item.logId + '\')" title="上一段"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><polygon points="19 20 9 12 19 4 19 20"/><line x1="5" x2="5" y1="19" y2="5"/></svg></button>' +
+                    '<select id="player-sel-' + item.logId + '" class="vblog-player-select" onchange="window.playHistoryChunk(\'' + item.logId + '\', parseInt(this.value, 10), false)">' + optHtml + '</select>' +
+                    '<button type="button" id="history-btn-next-' + item.logId + '" class="vblog-player-btn" onclick="window.nextHistoryChunk(\'' + item.logId + '\')" title="下一段"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><polygon points="5 4 15 12 5 20 5 4"/><line x1="19" x2="19" y1="5" y2="19"/></svg></button>' +
+                    '<span id="history-time-' + item.logId + '" class="vblog-time-display">00:00 / 00:00</span>' +
+                  '</div>' +
+                  '<div class="vblog-player-right">' +
+                    '<span class="vblog-preload-pill" title="雲端切片預載進度">' +
+                      '<svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M20 16.2A4.5 4.5 0 0 0 17.5 8h-1.8A7 7 0 1 0 4 14.9"/><polyline points="9 14 12 17 16 13"/></svg>' +
+                      '<span id="player-status-' + item.logId + '" class="vblog-player-status">0 / ' + urls.length + '</span>' +
+                    '</span>' +
+                    '<button type="button" id="history-btn-mute-' + item.logId + '" class="vblog-player-btn" onclick="window.toggleHistoryMute(\'' + item.logId + '\')" title="音訊開關"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14"/></svg></button>' +
+                    '<button type="button" id="history-btn-fs-' + item.logId + '" class="vblog-player-btn" onclick="window.toggleVblogFullscreen(\'history-player-container-' + item.logId + '\', this)" title="全螢幕"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M8 3H5a2 2 0 0 0-2 2v3"/><path d="M21 8V5a2 2 0 0 0-2-2h-3"/><path d="M3 16v3a2 2 0 0 0 2 2h3"/><path d="M16 21h3a2 2 0 0 0 2-2v-3"/></svg></button>' +
+                  '</div>' +
+                '</div>' +
+              '</div>' +
+            '</div>' +
+          '</details>';
         }
       }
 
@@ -2732,7 +2783,7 @@
     }
 
     container.innerHTML = listHtml;
-    updateLiveLogPromptSelect(); 
+    updateLiveLogPromptSelect(); // 🌟 在渲染後立刻載入每個總結的指令選項
     lucide.createIcons();
     isHistoryRendered = true;
   }
@@ -2817,7 +2868,6 @@
             <select required class="login-input" style="margin-bottom:0; background:#fff; font-weight: 700; color: var(--text);">
               <option value="一般會員(免費)">一般會員 (免費)</option>
               <option value="享學會員(月繳NT$298)">享學會員 (月繳NT$298)</option>
-              <option value="享學會員(年繳NT$2980)">享學會員 (年繳NT$2980)</option>
             </select>
             <input type="email" placeholder="您的 Email (必填)" required class="login-input" style="margin-bottom:0; background:#fff;">
             <div style="display: flex; gap: 12px; flex-wrap: wrap;">
@@ -2848,7 +2898,7 @@
         return; 
       }
     } else if (!isLogsFetched) {
-      
+      // 無快取時的防呆轉圈
       container.innerHTML = '<div style="text-align:center; color:var(--text-muted); padding:32px 0;"><i data-lucide="loader" class="spin"></i> 初次載入中...</div>';
       lucide.createIcons();
       await getSharedLogs(email);
@@ -3139,30 +3189,43 @@
         if (urls[0].includes('youtube.com') || urls[0].includes('youtu.be')) {
           let ytIframes = '';
           for (let i = 0; i < urls.length; i++) {
+            const isShorts = urls[i].includes('/shorts/');
             const ytMatch = urls[i].match(/(?:youtu\.be\/|youtube\.com\/(?:embed\/|v\/|live\/|watch\?v=|watch\?.+&v=|shorts\/))([\w-]{11})/i);
             if (ytMatch && ytMatch[1]) {
-              ytIframes += '<div style="background: #000; border-radius: 8px; overflow: hidden; margin-top: ' + (i === 0 ? '32px' : '16px') + '; border: 1px solid var(--border); box-shadow: 0 4px 12px rgba(0,0,0,0.05);"><iframe src="https://www.youtube.com/embed/' + ytMatch[1] + '" frameborder="0" allowfullscreen style="width: 100%; aspect-ratio: 16/9; display: block;"></iframe></div>';
+              ytIframes += '<div class="vblog-player-container ' + (isShorts ? 'is-vertical-player' : 'is-horizontal-player') + '" style="margin-top: ' + (i === 0 ? '32px' : '16px') + ';"><div class="vblog-video-wrapper ' + (isShorts ? 'is-vertical' : 'is-horizontal') + '"><iframe src="https://www.youtube.com/embed/' + ytMatch[1] + '?rel=0&playsinline=1" frameborder="0" allowfullscreen style="position:absolute; inset:0; width:100%; height:100%; display:block;"></iframe></div></div>';
             }
           }
           videoHtml = ytIframes;
         } else {
           let optHtml = '';
-          for(let k=0; k<urls.length; k++) optHtml += `<option value="${k}">片段 ${k+1}</option>`;
+          for(let k=0; k<urls.length; k++) optHtml += `<option value="${k}">片段 ${String(k+1).padStart(2, '0')}</option>`;
           videoHtml = `
-          <div id="vblog-player-container-preview" class="vblog-player-container">
-            <div class="vblog-video-wrapper">
-              <video id="preview-playerA" controls playsinline controlsList="nodownload" oncontextmenu="return false;" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 2; opacity: 1; transition: opacity 0.2s; background: #000; object-fit: contain;"></video>
-              <video id="preview-playerB" controls playsinline controlsList="nodownload" oncontextmenu="return false;" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 1; opacity: 0; transition: opacity 0.2s; background: #000; object-fit: contain;"></video>
+          <div id="vblog-player-container-preview" class="vblog-player-container is-horizontal-player">
+            <div id="preview-wrapper" class="vblog-video-wrapper is-horizontal" onclick="window.togglePreviewPlayPause('${logId}')">
+              <video id="preview-playerA" playsinline preload="auto" controlsList="nodownload" oncontextmenu="return false;" style="position: absolute; inset: 0; width: 100%; height: 100%; z-index: 2; opacity: 1; background: #000; object-fit: contain;"></video>
+              <video id="preview-playerB" playsinline preload="auto" controlsList="nodownload" oncontextmenu="return false;" style="position: absolute; inset: 0; width: 100%; height: 100%; z-index: 1; opacity: 0; background: #000; object-fit: contain;"></video>
+              <div id="preview-loader" class="vblog-stage-loader" style="display: none;">
+                <svg class="vblog-spin" xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 1 1-6.219-8.56"/></svg>
+              </div>
+            </div>
+            <div id="preview-progress-track" class="vblog-progress-track" onclick="window.seekPreviewVideo(event, '${logId}')">
+              <div id="preview-progress-fill" class="vblog-progress-fill"></div>
             </div>
             <div class="vblog-player-bar">
               <div class="vblog-player-nav">
-                <button class="vblog-player-btn" onclick="window.prevPreviewChunk('${logId}')" title="上一段"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="19 20 9 12 19 4 19 20"/><line x1="5" x2="5" y1="19" y2="5"/></svg></button>
-                <select id="preview-select" class="vblog-player-select" onchange="window.playPreviewChunk('${logId}', parseInt(this.value))">${optHtml}</select>
-                <button class="vblog-player-btn" onclick="window.nextPreviewChunk('${logId}')" title="下一段"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="5 4 15 12 5 20 5 4"/><line x1="19" x2="19" y1="5" y2="19"/></svg></button>
+                <button type="button" id="preview-btn-play" class="vblog-btn-play" onclick="window.togglePreviewPlayPause('${logId}')" title="雲端載入 / 播放"><svg xmlns="http:
+                <button type="button" id="preview-btn-prev" class="vblog-player-btn" onclick="window.prevPreviewChunk('${logId}')" title="上一段"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><polygon points="19 20 9 12 19 4 19 20"/><line x1="5" x2="5" y1="19" y2="5"/></svg></button>
+                <select id="preview-select" class="vblog-player-select" onchange="window.playPreviewChunk('${logId}', parseInt(this.value, 10), true, false)">${optHtml}</select>
+                <button type="button" id="preview-btn-next" class="vblog-player-btn" onclick="window.nextPreviewChunk('${logId}')" title="下一段"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><polygon points="5 4 15 12 5 20 5 4"/><line x1="19" x2="19" y1="5" y2="19"/></svg></button>
+                <span id="preview-time" class="vblog-time-display">00:00 / 00:00</span>
               </div>
-              <div style="display:flex; align-items:center; gap:12px;">
-                <span id="preview-player-status" class="vblog-player-status">準備就緒</span>
-                <button class="vblog-btn-play" onclick="window.initPreviewPlayer('${logId}')" title="啟動播放"><svg xmlns="http:
+              <div class="vblog-player-right">
+                <span class="vblog-preload-pill" title="雲端切片預載進度">
+                  <svg xmlns="http:
+                  <span id="preview-player-status" class="vblog-player-status">0 / ${urls.length}</span>
+                </span>
+                <button type="button" id="preview-btn-mute" class="vblog-player-btn" onclick="window.togglePreviewMute('${logId}')" title="音訊開關"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14"/></svg></button>
+                <button type="button" id="preview-btn-fs" class="vblog-player-btn" onclick="window.toggleVblogFullscreen('vblog-player-container-preview', this)" title="全螢幕"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M8 3H5a2 2 0 0 0-2 2v3"/><path d="M21 8V5a2 2 0 0 0-2-2h-3"/><path d="M3 16v3a2 2 0 0 0 2 2h3"/><path d="M16 21h3a2 2 0 0 0 2-2v-3"/></svg></button>
               </div>
             </div>
           </div>`;
@@ -3606,325 +3669,532 @@
   
   
   window.videoBlobCache = window.videoBlobCache || {};
+  window.videoFetchPromises = window.videoFetchPromises || {};
 
-  
-  window.fetchVideoChunkBase64 = async function(url) {
-    if (!url) return null;
-    if (url.includes('youtube.com') || url.includes('youtu.be')) return url;
-    
-    if (window.videoBlobCache[url]) return window.videoBlobCache[url]; 
-    
+  window.VBLOG_ICONS = {
+    cloudPlay: '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M4 14.899A7 7 0 1 1 15.71 8h1.79a4.5 4.5 0 0 1 2.5 8.242"/><polygon points="10 11 16 14.5 10 18 10 11"/></svg>',
+    play: '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><polygon points="5 3 19 12 5 21 5 3"/></svg>',
+    pause: '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><rect x="6" y="4" width="4" height="16" rx="1"/><rect x="14" y="4" width="4" height="16" rx="1"/></svg>',
+    spin: '<svg class="vblog-spin" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 1 1-6.219-8.56"/></svg>',
+    vol: '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14"/></svg>',
+    mute: '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><line x1="23" y1="9" x2="17" y2="15"/><line x1="17" y1="9" x2="23" y2="15"/></svg>',
+    max: '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M8 3H5a2 2 0 0 0-2 2v3"/><path d="M21 8V5a2 2 0 0 0-2-2h-3"/><path d="M3 16v3a2 2 0 0 0 2 2h3"/><path d="M16 21h3a2 2 0 0 0 2-2v-3"/></svg>',
+    min: '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M8 3v3a2 2 0 0 1-2 2H3"/><path d="M21 8h-3a2 2 0 0 1-2-2V3"/><path d="M3 16h3a2 2 0 0 1 2 2v3"/><path d="M16 21v-3a2 2 0 0 1 2-2h3"/></svg>'
+  };
+
+  window.base64ToBlobUrl = function(base64, mimeType) {
     try {
-      
-      const res = await api({ action: "getVideoChunk", url: url });
-      if(res && res.base64) {
-         const dataUrl = `data:${res.mimeType};base64,${res.base64}`;
-         window.videoBlobCache[url] = dataUrl;
-         return dataUrl;
+      const byteChars = atob(base64);
+      const byteArrays = [];
+      const sliceSize = 8192;
+      for (let offset = 0; offset < byteChars.length; offset += sliceSize) {
+        const slice = byteChars.slice(offset, offset + sliceSize);
+        const byteNumbers = new Array(slice.length);
+        for (let i = 0; i < slice.length; i++) byteNumbers[i] = slice.charCodeAt(i);
+        byteArrays.push(new Uint8Array(byteNumbers));
       }
-      return null;
-    } catch(e) {
-      console.error("載入切片失敗", e);
-      return null;
+      const blob = new Blob(byteArrays, { type: mimeType || 'video/webm' });
+      return URL.createObjectURL(blob);
+    } catch (e) {
+      return `data:${mimeType || 'video/webm'};base64,${base64}`;
     }
   };
 
-  
-  window.startSeamlessPlay = function(logId) { 
-    const urls = window.logPlaylists[logId];
-    if (!urls || urls.length === 0) return;
-    
-    
-    const detailsEl = document.getElementById('details-player-' + logId);
-    if (detailsEl && !detailsEl.open) {
-        detailsEl.open = true;
-    }
-    
-    const statusEl = document.getElementById('player-status-' + logId);
-    const vidA = document.getElementById('playerA-' + logId);
-    const vidB = document.getElementById('playerB-' + logId);
+  window.fetchVideoChunkBase64 = function(url) {
+    if (!url) return Promise.resolve(null);
+    if (url.includes('youtube.com') || url.includes('youtu.be')) return Promise.resolve(url);
+    if (window.videoBlobCache[url]) return Promise.resolve(window.videoBlobCache[url]);
+    if (window.videoFetchPromises[url]) return window.videoFetchPromises[url];
 
-    
-    vidA.play().catch(()=>{}); vidA.pause();
-    vidB.play().catch(()=>{}); vidB.pause();
-
-    let state = window.historyPlayerStates[logId];
-    if (!state) {
-      state = {
-        currentIndex: 0,
-        activeVid: vidA,
-        nextVid: vidB,
-        isTransitioning: false,
-        streamUrls: urls
-      };
-      window.historyPlayerStates[logId] = state;
-
-      function monitorPlayback(e) {
-        const v = e.target;
-        if (v !== state.activeVid) return; 
-        if (!v.duration) return;
-        state.nextVid.volume = state.activeVid.volume;
-        if (v.duration - v.currentTime <= 0.3 && !state.isTransitioning) {
-          state.isTransitioning = true;
-          if (state.currentIndex < state.streamUrls.length - 1) {
-            window.playHistoryChunk(logId, state.currentIndex + 1);
-          } else {
-            statusEl.innerText = '全片播放完畢';
-          }
+    const p = api({ action: "getVideoChunk", url: url })
+      .then(res => {
+        if (res && res.base64) {
+          const blobUrl = window.base64ToBlobUrl(res.base64, res.mimeType);
+          window.videoBlobCache[url] = blobUrl;
+          return blobUrl;
         }
-      }
-      vidA.addEventListener('timeupdate', monitorPlayback);
-      vidB.addEventListener('timeupdate', monitorPlayback);
+        return null;
+      })
+      .catch(e => {
+        console.error("載入切片失敗", e);
+        return null;
+      })
+      .finally(() => {
+        delete window.videoFetchPromises[url];
+      });
 
-      const onEnded = (e) => { 
-        if(e.target === state.activeVid && !state.isTransitioning && state.currentIndex < state.streamUrls.length - 1) {
-            window.playHistoryChunk(logId, state.currentIndex + 1); 
-        }
-      };
-      vidA.addEventListener('ended', onEnded);
-      vidB.addEventListener('ended', onEnded);
-    }
-
-    window.playHistoryChunk(logId, 0);
+    window.videoFetchPromises[url] = p;
+    return p;
   };
 
-  window.playHistoryChunk = async function(logId, targetIndex) {
-    const state = window.historyPlayerStates[logId];
-    const statusEl = document.getElementById('player-status-' + logId);
-    const selector = document.getElementById('player-sel-' + logId);
+  window.formatVblogTime = function(sec) {
+    if (!sec || isNaN(sec)) return '00:00';
+    const m = Math.floor(sec / 60);
+    const s = Math.floor(sec % 60);
+    return String(m).padStart(2, '0') + ':' + String(s).padStart(2, '0');
+  };
 
-    if (!state) return;
+  window.applyVblogVideoAspect = function(videoEl, wrapperEl, containerEl) {
+    if (!videoEl || !videoEl.videoWidth || !videoEl.videoHeight) return;
+    const isVert = videoEl.videoHeight > videoEl.videoWidth;
+    if (wrapperEl) {
+      wrapperEl.classList.toggle('is-vertical', isVert);
+      wrapperEl.classList.toggle('is-horizontal', !isVert);
+      wrapperEl.style.aspectRatio = isVert ? '9 / 16' : '16 / 9';
+    }
+    if (containerEl) {
+      containerEl.classList.toggle('is-vertical-player', isVert);
+      containerEl.classList.toggle('is-horizontal-player', !isVert);
+    }
+  };
+
+  window.refreshVblogStateUI = function(state) {
+    if (!state || !state.streamUrls) return;
+    const urls = state.streamUrls;
+    let loadedCount = 0;
+    const sel = document.getElementById(state.dom.selectId);
+    urls.forEach((u, idx) => {
+      const ok = !!window.videoBlobCache[u];
+      if (ok) loadedCount++;
+      if (sel && sel.options[idx]) {
+        sel.options[idx].text = '片段 ' + String(idx + 1).padStart(2, '0') + (ok ? ' · ✓' : '');
+      }
+    });
+    if (sel) sel.value = state.currentIndex;
+    const statusEl = document.getElementById(state.dom.statusId);
+    if (statusEl) statusEl.innerText = loadedCount + ' / ' + urls.length;
+    const prevBtn = document.getElementById(state.dom.prevBtnId);
+    const nextBtn = document.getElementById(state.dom.nextBtnId);
+    if (prevBtn) prevBtn.disabled = (state.currentIndex <= 0);
+    if (nextBtn) nextBtn.disabled = (state.currentIndex >= urls.length - 1);
+  };
+
+  window.mountVblogStandby = function(state, nextIdx) {
+    if (!state || nextIdx >= state.streamUrls.length) return;
+    const nextUrl = state.streamUrls[nextIdx];
+    const cached = window.videoBlobCache[nextUrl];
+    if (cached && state.nextVid && state.nextVid.dataset.chunkIndex !== String(nextIdx)) {
+      state.nextVid.src = cached;
+      state.nextVid.dataset.chunkIndex = String(nextIdx);
+      state.nextVid.preload = 'auto';
+      state.nextVid.load();
+    }
+  };
+
+  window.preloadAllChunksForState = async function(state, startIdx) {
+    if (!state || state.preloadRunning) return;
+    state.preloadRunning = true;
+    try {
+      const urls = state.streamUrls;
+      const order = [];
+      for (let i = startIdx; i < urls.length; i++) order.push(i);
+      for (let i = 0; i < startIdx; i++) order.push(i);
+
+      for (let k = 0; k < order.length; k++) {
+        const idx = order[k];
+        const u = urls[idx];
+        if (!window.videoBlobCache[u]) {
+          await window.fetchVideoChunkBase64(u);
+          window.refreshVblogStateUI(state);
+        }
+        if (idx === state.currentIndex + 1) {
+          window.mountVblogStandby(state, idx);
+        }
+      }
+    } finally {
+      state.preloadRunning = false;
+    }
+  };
+
+  window.executeVblogChunkPlay = async function(state, targetIndex, isAutoAdvance = false) {
+    if (!state || !state.streamUrls || targetIndex < 0 || targetIndex >= state.streamUrls.length) return;
+    const myToken = ++state.switchToken;
     state.currentIndex = targetIndex;
-    if (selector) selector.value = targetIndex;
-    
-    statusEl.innerHTML = '<i data-lucide="loader" class="spin" style="width:14px; height:14px; margin-right:4px; vertical-align:middle; color:var(--accent);"></i>雲端擷取中...';
-    lucide.createIcons();
+    state.isTransitioning = true;
+    state.hasStarted = true;
+    window.refreshVblogStateUI(state);
+
+    const playBtn = document.getElementById(state.dom.playBtnId);
+    const loaderEl = document.getElementById(state.dom.loaderId);
+    const fillEl = document.getElementById(state.dom.progressFillId);
+    const containerEl = document.getElementById(state.dom.containerId);
+    const wrapperEl = document.getElementById(state.dom.wrapperId);
 
     const targetUrl = state.streamUrls[targetIndex];
+    const isCached = !!window.videoBlobCache[targetUrl];
+
+    if (!isAutoAdvance) {
+      state.activeVid.pause();
+      state.nextVid.pause();
+      if (fillEl) fillEl.style.width = '0%';
+    }
+
+    if (!isCached) {
+      if (playBtn) playBtn.innerHTML = window.VBLOG_ICONS.spin;
+      if (!isAutoAdvance && loaderEl) loaderEl.style.display = 'flex';
+    }
+
     const streamUrl = await window.fetchVideoChunkBase64(targetUrl);
+    if (myToken !== state.switchToken) return;
+    if (loaderEl) loaderEl.style.display = 'none';
+    window.refreshVblogStateUI(state);
 
-    if (state.currentIndex !== targetIndex) return; 
     if (!streamUrl) {
-      statusEl.innerHTML = '<i data-lucide="x-circle" style="width:14px; height:14px; margin-right:4px; vertical-align:middle; color:var(--danger);"></i>載入失敗';
-      lucide.createIcons();
-      state.isTransitioning = false; return;
+      if (playBtn) playBtn.innerHTML = window.VBLOG_ICONS.cloudPlay;
+      state.isTransitioning = false;
+      return;
     }
 
-    let videoEl = state.activeVid;
-    if (state.nextVid.dataset.chunkIndex == targetIndex && state.nextVid.src) {
-        const temp = state.activeVid;
-        state.activeVid = state.nextVid;
-        state.nextVid = temp;
-        videoEl = state.activeVid;
+    const canUseStandby = (state.nextVid.dataset.chunkIndex === String(targetIndex) && state.nextVid.src);
+    const incomingVid = canUseStandby ? state.nextVid : state.activeVid;
+    const outgoingVid = canUseStandby ? state.activeVid : state.nextVid;
+
+    if (!canUseStandby || incomingVid.src !== streamUrl) {
+      incomingVid.src = streamUrl;
+      incomingVid.dataset.chunkIndex = String(targetIndex);
+      incomingVid.load();
     }
 
-    videoEl.style.opacity = '1';
-    videoEl.style.zIndex = '2';
-    videoEl.controls = true;
+    incomingVid.volume = state.activeVid.volume;
+    incomingVid.muted = state.activeVid.muted;
 
-    state.nextVid.style.opacity = '0';
-    state.nextVid.style.zIndex = '1';
-    state.nextVid.controls = false;
-    state.nextVid.pause();
+    const doZeroFlashSwap = () => {
+      if (myToken !== state.switchToken) return;
+      window.applyVblogVideoAspect(incomingVid, wrapperEl, containerEl);
+      incomingVid.currentTime = 0;
 
-    if (videoEl.src !== streamUrl) {
-      videoEl.src = streamUrl;
-      videoEl.load();
-    }
-    
-    const playVideo = () => {
-      const ratio = videoEl.videoWidth / videoEl.videoHeight;
-      const wrapper = videoEl.parentElement;
-      if (wrapper && !isNaN(ratio)) wrapper.style.aspectRatio = (ratio < 1) ? '9/16' : '16/9';
-      videoEl.currentTime = 0;
-      const playPromise = videoEl.play();
+      incomingVid.style.transition = 'none';
+      outgoingVid.style.transition = 'none';
+      incomingVid.style.zIndex = '2';
+      incomingVid.style.opacity = '1';
+
+      const playPromise = incomingVid.play();
       if (playPromise !== undefined) {
         playPromise.then(() => {
-          statusEl.innerHTML = '<i data-lucide="play-circle" style="width:14px; height:14px; margin-right:4px; vertical-align:middle; color:var(--success);"></i>播放中 (' + (targetIndex + 1) + '/' + state.streamUrls.length + ')';
-          lucide.createIcons();
-        }).catch(e => {
-          statusEl.innerHTML = '<i data-lucide="info" style="width:14px; height:14px; margin-right:4px; vertical-align:middle;"></i>已就緒 (請點擊)';
-          lucide.createIcons();
+          if (myToken !== state.switchToken) return;
+          if (playBtn) playBtn.innerHTML = window.VBLOG_ICONS.pause;
+        }).catch(() => {
+          if (playBtn) playBtn.innerHTML = window.VBLOG_ICONS.play;
         });
+      }
+
+      requestAnimationFrame(() => {
+        if (myToken !== state.switchToken) return;
+        if (outgoingVid !== incomingVid) {
+          outgoingVid.pause();
+          outgoingVid.style.zIndex = '1';
+          outgoingVid.style.opacity = '0';
+        }
+      });
+
+      state.activeVid = incomingVid;
+      state.nextVid = outgoingVid;
+      state.isTransitioning = false;
+
+      window.mountVblogStandby(state, targetIndex + 1);
+      window.preloadAllChunksForState(state, targetIndex + 1);
+    };
+
+    if (incomingVid.readyState >= 2) {
+      doZeroFlashSwap();
+    } else {
+      if (!isAutoAdvance && loaderEl) loaderEl.style.display = 'flex';
+      const onReady = function() {
+        incomingVid.removeEventListener('loadeddata', onReady);
+        if (loaderEl) loaderEl.style.display = 'none';
+        doZeroFlashSwap();
+      };
+      incomingVid.addEventListener('loadeddata', onReady);
+    }
+  };
+
+  window.bindVblogStateEvents = function(state, onNextCallback) {
+    const vidA = state.activeVid;
+    const vidB = state.nextVid;
+
+    function monitorPlayback(e) {
+      const v = e.target;
+      if (v !== state.activeVid || !v.duration) return;
+      const fillEl = document.getElementById(state.dom.progressFillId);
+      const timeEl = document.getElementById(state.dom.timeId);
+      if (fillEl) {
+        const pct = Math.min(100, Math.max(0, (v.currentTime / v.duration) * 100));
+        fillEl.style.width = pct + '%';
+      }
+      if (timeEl) {
+        timeEl.innerText = window.formatVblogTime(v.currentTime) + ' / ' + window.formatVblogTime(v.duration);
+      }
+      state.nextVid.volume = state.activeVid.volume;
+      state.nextVid.muted = state.activeVid.muted;
+
+      if (v.duration - v.currentTime <= 0.12 && !state.isTransitioning) {
+        state.isTransitioning = true;
+        if (state.currentIndex < state.streamUrls.length - 1) {
+          onNextCallback(state.currentIndex + 1, true);
+        } else {
+          const playBtn = document.getElementById(state.dom.playBtnId);
+          if (playBtn) playBtn.innerHTML = window.VBLOG_ICONS.play;
+        }
+      }
+    }
+
+    const onEnded = (e) => {
+      if (e.target !== state.activeVid) return;
+      if (!state.isTransitioning && state.currentIndex < state.streamUrls.length - 1) {
+        state.isTransitioning = true;
+        onNextCallback(state.currentIndex + 1, true);
+      } else if (state.currentIndex === state.streamUrls.length - 1) {
+        const playBtn = document.getElementById(state.dom.playBtnId);
+        if (playBtn) playBtn.innerHTML = window.VBLOG_ICONS.play;
       }
     };
 
-    if (videoEl.readyState >= 1) {
-      playVideo();
-    } else {
-      const onMeta = function() {
-        playVideo();
-        videoEl.removeEventListener('loadedmetadata', onMeta);
-      };
-      videoEl.addEventListener('loadedmetadata', onMeta);
-    }
+    vidA.addEventListener('timeupdate', monitorPlayback);
+    vidB.addEventListener('timeupdate', monitorPlayback);
+    vidA.addEventListener('ended', onEnded);
+    vidB.addEventListener('ended', onEnded);
+  };
 
-    state.isTransitioning = false;
-    
-    
-    if (targetIndex + 1 < state.streamUrls.length) {
-       window.fetchVideoChunkBase64(state.streamUrls[targetIndex + 1]).then(nextDataUrl => {
-         if (nextDataUrl && state.nextVid.dataset.chunkIndex != (targetIndex + 1)) {
-            state.nextVid.src = nextDataUrl;
-            state.nextVid.dataset.chunkIndex = targetIndex + 1;
-            state.nextVid.preload = "auto";
-         }
-       });
+  window.toggleVblogFullscreen = function(containerId, btnEl) {
+    const container = document.getElementById(containerId);
+    if (!container) return;
+    if (document.fullscreenElement === container) {
+      document.exitFullscreen().catch(()=>{});
+      container.classList.remove('vblog-css-fullscreen');
+      if (btnEl) btnEl.innerHTML = window.VBLOG_ICONS.max;
+    } else if (container.classList.contains('vblog-css-fullscreen')) {
+      container.classList.remove('vblog-css-fullscreen');
+      if (btnEl) btnEl.innerHTML = window.VBLOG_ICONS.max;
+    } else if (container.requestFullscreen) {
+      container.requestFullscreen().then(() => {
+        if (btnEl) btnEl.innerHTML = window.VBLOG_ICONS.min;
+      }).catch(() => {
+        container.classList.toggle('vblog-css-fullscreen');
+        if (btnEl) btnEl.innerHTML = container.classList.contains('vblog-css-fullscreen') ? window.VBLOG_ICONS.min : window.VBLOG_ICONS.max;
+      });
+    } else {
+      container.classList.toggle('vblog-css-fullscreen');
+      if (btnEl) btnEl.innerHTML = container.classList.contains('vblog-css-fullscreen') ? window.VBLOG_ICONS.min : window.VBLOG_ICONS.max;
     }
+  };
+
+  
+  window.ensureHistoryPlayerState = function(logId) {
+    const urls = window.logPlaylists[logId];
+    if (!urls || urls.length === 0) return null;
+    const vidA = document.getElementById('playerA-' + logId);
+    const vidB = document.getElementById('playerB-' + logId);
+    if (!vidA || !vidB) return null;
+
+    let state = window.historyPlayerStates[logId];
+    if (!state || state.vidA !== vidA) {
+      state = {
+        logId: logId,
+        currentIndex: 0,
+        activeVid: vidA,
+        nextVid: vidB,
+        vidA: vidA,
+        vidB: vidB,
+        isTransitioning: false,
+        hasStarted: false,
+        switchToken: 0,
+        preloadRunning: false,
+        streamUrls: urls,
+        dom: {
+          containerId: 'history-player-container-' + logId,
+          wrapperId: 'history-wrapper-' + logId,
+          loaderId: 'history-loader-' + logId,
+          progressFillId: 'history-progress-fill-' + logId,
+          playBtnId: 'history-btn-play-' + logId,
+          prevBtnId: 'history-btn-prev-' + logId,
+          nextBtnId: 'history-btn-next-' + logId,
+          muteBtnId: 'history-btn-mute-' + logId,
+          selectId: 'player-sel-' + logId,
+          statusId: 'player-status-' + logId,
+          timeId: 'history-time-' + logId
+        }
+      };
+      window.historyPlayerStates[logId] = state;
+      window.bindVblogStateEvents(state, (nextIdx, isAuto) => {
+        window.playHistoryChunk(logId, nextIdx, isAuto);
+      });
+      window.refreshVblogStateUI(state);
+    }
+    return state;
+  };
+
+  window.startSeamlessPlay = function(logId) {
+    const detailsEl = document.getElementById('details-player-' + logId);
+    if (detailsEl && !detailsEl.open) detailsEl.open = true;
+    const state = window.ensureHistoryPlayerState(logId);
+    if (!state) return;
+    state.vidA.play().catch(()=>{}); state.vidA.pause();
+    state.vidB.play().catch(()=>{}); state.vidB.pause();
+    window.playHistoryChunk(logId, state.hasStarted ? state.currentIndex : 0, false);
+  };
+
+  window.toggleHistoryPlayPause = function(logId) {
+    const state = window.ensureHistoryPlayerState(logId);
+    if (!state) return;
+    if (!state.hasStarted) {
+      window.startSeamlessPlay(logId);
+      return;
+    }
+    const playBtn = document.getElementById(state.dom.playBtnId);
+    if (state.activeVid.paused) {
+      state.activeVid.play().then(() => {
+        if (playBtn) playBtn.innerHTML = window.VBLOG_ICONS.pause;
+      }).catch(()=>{});
+    } else {
+      state.activeVid.pause();
+      if (playBtn) playBtn.innerHTML = window.VBLOG_ICONS.play;
+    }
+  };
+
+  window.playHistoryChunk = function(logId, targetIndex, isAutoAdvance = false) {
+    const state = window.ensureHistoryPlayerState(logId);
+    if (!state) return;
+    window.executeVblogChunkPlay(state, targetIndex, isAutoAdvance);
   };
 
   window.prevHistoryChunk = function(logId) {
-    const state = window.historyPlayerStates[logId];
-    if (state && state.currentIndex > 0) window.playHistoryChunk(logId, state.currentIndex - 1);
+    const state = window.ensureHistoryPlayerState(logId);
+    if (state && state.currentIndex > 0) window.playHistoryChunk(logId, state.currentIndex - 1, false);
   };
+
   window.nextHistoryChunk = function(logId) {
-    const state = window.historyPlayerStates[logId];
-    if (state && state.currentIndex < state.streamUrls.length - 1) window.playHistoryChunk(logId, state.currentIndex + 1);
+    const state = window.ensureHistoryPlayerState(logId);
+    if (state && state.currentIndex < state.streamUrls.length - 1) window.playHistoryChunk(logId, state.currentIndex + 1, false);
+  };
+
+  window.seekHistoryVideo = function(e, logId) {
+    const state = window.ensureHistoryPlayerState(logId);
+    const track = document.getElementById('history-progress-track-' + logId);
+    if (!state || !state.activeVid || !state.activeVid.duration || !track) return;
+    const rect = track.getBoundingClientRect();
+    const ratio = Math.min(1, Math.max(0, (e.clientX - rect.left) / rect.width));
+    state.activeVid.currentTime = ratio * state.activeVid.duration;
+  };
+
+  window.toggleHistoryMute = function(logId) {
+    const state = window.ensureHistoryPlayerState(logId);
+    if (!state) return;
+    const nextMuted = !state.activeVid.muted;
+    state.vidA.muted = nextMuted;
+    state.vidB.muted = nextMuted;
+    const muteBtn = document.getElementById(state.dom.muteBtnId);
+    if (muteBtn) muteBtn.innerHTML = nextMuted ? window.VBLOG_ICONS.mute : window.VBLOG_ICONS.vol;
   };
 
   
-  window.previewPlayerStates = window.previewPlayerStates || {};
-
-  window.initPreviewPlayer = async function(logId, autoPreloadOnly = false) {
+  window.ensurePreviewPlayerState = function(logId) {
     const urls = window.logPlaylists[logId];
-    if (!urls || urls.length === 0) return;
-    const statusEl = document.getElementById('preview-player-status');
+    if (!urls || urls.length === 0) return null;
     const vidA = document.getElementById('preview-playerA');
     const vidB = document.getElementById('preview-playerB');
-    
+    if (!vidA || !vidB) return null;
+
     let state = window.previewPlayerStates[logId];
-    if (!state) {
+    if (!state || state.vidA !== vidA) {
       state = {
+        logId: logId,
         currentIndex: 0,
         activeVid: vidA,
         nextVid: vidB,
+        vidA: vidA,
+        vidB: vidB,
         isTransitioning: false,
-        streamUrls: urls
+        hasStarted: false,
+        switchToken: 0,
+        preloadRunning: false,
+        streamUrls: urls,
+        dom: {
+          containerId: 'vblog-player-container-preview',
+          wrapperId: 'preview-wrapper',
+          loaderId: 'preview-loader',
+          progressFillId: 'preview-progress-fill',
+          playBtnId: 'preview-btn-play',
+          prevBtnId: 'preview-btn-prev',
+          nextBtnId: 'preview-btn-next',
+          muteBtnId: 'preview-btn-mute',
+          selectId: 'preview-select',
+          statusId: 'preview-player-status',
+          timeId: 'preview-time'
+        }
       };
       window.previewPlayerStates[logId] = state;
-      
-      function monitorPlayback(e) {
-        const v = e.target;
-        if (v !== state.activeVid) return; 
-        if (!v.duration) return;
-        state.nextVid.volume = state.activeVid.volume;
-        if (v.duration - v.currentTime <= 0.3 && !state.isTransitioning) {
-          state.isTransitioning = true;
-          if (state.currentIndex < state.streamUrls.length - 1) {
-            window.playPreviewChunk(logId, state.currentIndex + 1);
-          } else {
-            statusEl.innerText = '全片播放完畢';
-          }
-        }
-      }
-      vidA.addEventListener('timeupdate', monitorPlayback);
-      vidB.addEventListener('timeupdate', monitorPlayback);
-      
-      const onEnded = (e) => { 
-        if(e.target === state.activeVid && !state.isTransitioning && state.currentIndex < state.streamUrls.length - 1) {
-            window.playPreviewChunk(logId, state.currentIndex + 1); 
-        }
-      };
-      vidA.addEventListener('ended', onEnded);
-      vidB.addEventListener('ended', onEnded);
+      window.bindVblogStateEvents(state, (nextIdx, isAuto) => {
+        window.playPreviewChunk(logId, nextIdx, true, isAuto);
+      });
+      window.refreshVblogStateUI(state);
     }
-    
-    if (autoPreloadOnly) {
-       statusEl.innerText = '已就緒 (可點擊啟動聯播)';
-       return; 
-    }
-
-    vidA.play().catch(()=>{}); vidA.pause();
-    vidB.play().catch(()=>{}); vidB.pause();
-    window.playPreviewChunk(logId, 0, true);
+    return state;
   };
 
-  window.playPreviewChunk = async function(logId, targetIndex, forcePlay = false) {
-    const state = window.previewPlayerStates[logId];
-    const statusEl = document.getElementById('preview-player-status');
-    const selector = document.getElementById('preview-select');
+  window.initPreviewPlayer = async function(logId, autoPreloadOnly = false) {
+    const state = window.ensurePreviewPlayerState(logId);
     if (!state) return;
-    
-    state.currentIndex = targetIndex;
-    if (selector) selector.value = targetIndex;
-    statusEl.innerText = "雲端擷取中，請稍候...";
-    
-    const targetUrl = state.streamUrls[targetIndex];
-    const streamUrl = await window.fetchVideoChunkBase64(targetUrl);
-    
-    if (state.currentIndex !== targetIndex) return;
-    if (!streamUrl) {
-      statusEl.innerText = "載入失敗";
-      state.isTransitioning = false; return;
+    if (autoPreloadOnly) {
+      window.refreshVblogStateUI(state);
+      window.preloadAllChunksForState(state, 0);
+      return;
     }
-    
-    let videoEl = state.activeVid;
-    if (state.nextVid.dataset.chunkIndex == targetIndex && state.nextVid.src) {
-        const temp = state.activeVid;
-        state.activeVid = state.nextVid;
-        state.nextVid = temp;
-        videoEl = state.activeVid;
-    }
-    
-    videoEl.style.opacity = '1';
-    videoEl.style.zIndex = '2';
-    videoEl.controls = true;
-    
-    state.nextVid.style.opacity = '0';
-    state.nextVid.style.zIndex = '1';
-    state.nextVid.controls = false;
-    state.nextVid.pause();
-    
-    if (videoEl.src !== streamUrl) {
-      videoEl.src = streamUrl;
-      videoEl.load();
-    }
-    
-    const playVideo = () => {
-      const ratio = videoEl.videoWidth / videoEl.videoHeight;
-      const wrapper = videoEl.parentElement;
-      if (wrapper && !isNaN(ratio)) wrapper.style.aspectRatio = (ratio < 1) ? '9/16' : '16/9';
-      videoEl.currentTime = 0;
-      const playPromise = videoEl.play();
-      if (playPromise !== undefined) {
-        playPromise.then(() => {
-          statusEl.innerText = "播放中: 切片 " + (targetIndex + 1) + " / " + state.streamUrls.length;
-        }).catch(e => {
-          if (!forcePlay) statusEl.innerText = "已就緒，請點擊影片播放"; 
-        });
-      }
-    };
+    state.vidA.play().catch(()=>{}); state.vidA.pause();
+    state.vidB.play().catch(()=>{}); state.vidB.pause();
+    window.playPreviewChunk(logId, state.hasStarted ? state.currentIndex : 0, true, false);
+  };
 
-    if (videoEl.readyState >= 1) {
-      playVideo();
+  window.togglePreviewPlayPause = function(logId) {
+    const state = window.ensurePreviewPlayerState(logId);
+    if (!state) return;
+    if (!state.hasStarted) {
+      window.initPreviewPlayer(logId, false);
+      return;
+    }
+    const playBtn = document.getElementById(state.dom.playBtnId);
+    if (state.activeVid.paused) {
+      state.activeVid.play().then(() => {
+        if (playBtn) playBtn.innerHTML = window.VBLOG_ICONS.pause;
+      }).catch(()=>{});
     } else {
-      const onMeta = function() {
-        playVideo();
-        videoEl.removeEventListener('loadedmetadata', onMeta);
-      };
-      videoEl.addEventListener('loadedmetadata', onMeta);
+      state.activeVid.pause();
+      if (playBtn) playBtn.innerHTML = window.VBLOG_ICONS.play;
     }
-    
-    state.isTransitioning = false;
-    
-    if (targetIndex + 1 < state.streamUrls.length) {
-       window.fetchVideoChunkBase64(state.streamUrls[targetIndex + 1]).then(nextDataUrl => {
-         if (nextDataUrl && state.nextVid.dataset.chunkIndex != (targetIndex + 1)) {
-            state.nextVid.src = nextDataUrl;
-            state.nextVid.dataset.chunkIndex = targetIndex + 1;
-            state.nextVid.preload = "auto";
-         }
-       });
-    }
+  };
+
+  window.playPreviewChunk = function(logId, targetIndex, forcePlay = false, isAutoAdvance = false) {
+    const state = window.ensurePreviewPlayerState(logId);
+    if (!state) return;
+    window.executeVblogChunkPlay(state, targetIndex, isAutoAdvance);
   };
 
   window.prevPreviewChunk = function(logId) {
-    const state = window.previewPlayerStates[logId];
-    if (state && state.currentIndex > 0) window.playPreviewChunk(logId, state.currentIndex - 1);
+    const state = window.ensurePreviewPlayerState(logId);
+    if (state && state.currentIndex > 0) window.playPreviewChunk(logId, state.currentIndex - 1, true, false);
   };
+
   window.nextPreviewChunk = function(logId) {
-    const state = window.previewPlayerStates[logId];
-    if (state && state.currentIndex < state.streamUrls.length - 1) window.playPreviewChunk(logId, state.currentIndex + 1);
+    const state = window.ensurePreviewPlayerState(logId);
+    if (state && state.currentIndex < state.streamUrls.length - 1) window.playPreviewChunk(logId, state.currentIndex + 1, true, false);
+  };
+
+  window.seekPreviewVideo = function(e, logId) {
+    const state = window.ensurePreviewPlayerState(logId);
+    const track = document.getElementById('preview-progress-track');
+    if (!state || !state.activeVid || !state.activeVid.duration || !track) return;
+    const rect = track.getBoundingClientRect();
+    const ratio = Math.min(1, Math.max(0, (e.clientX - rect.left) / rect.width));
+    state.activeVid.currentTime = ratio * state.activeVid.duration;
+  };
+
+  window.togglePreviewMute = function(logId) {
+    const state = window.ensurePreviewPlayerState(logId);
+    if (!state) return;
+    const nextMuted = !state.activeVid.muted;
+    state.vidA.muted = nextMuted;
+    state.vidB.muted = nextMuted;
+    const muteBtn = document.getElementById(state.dom.muteBtnId);
+    if (muteBtn) muteBtn.innerHTML = nextMuted ? window.VBLOG_ICONS.mute : window.VBLOG_ICONS.vol;
   };
 
   window.assembleFullArticle = function() {
