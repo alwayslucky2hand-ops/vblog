@@ -954,6 +954,20 @@
       </div>
     </div>
 
+    <details class="history-accordion" style="margin-bottom: 20px; border-radius: 6px; box-shadow: 0 1px 3px rgba(0,0,0,0.02);">
+      <summary style="padding: 24px;">
+        <div class="settings-title" style="margin-bottom: 0;"><i data-lucide="key" style="width: 18px; height: 18px; color: var(--accent);"></i> 專屬 API Key 庫</div>
+        <span class="accordion-toggle-icon"><i data-lucide="chevron-down" style="width: 20px; height: 20px;"></i></span>
+      </summary>
+      <div class="accordion-body" style="padding: 24px;">
+        <div style="display: flex; justify-content: flex-end; gap: 8px; margin-bottom: 16px;">
+          <button type="button" class="action-btn-sm action-btn-icon" onclick="addApiKeyField()" title="新增"><i data-lucide="plus" style="width: 14px; height: 14px;"></i></button>
+          <button type="button" class="action-btn-sm action-btn-icon" style="color: var(--accent); border-color: var(--accent);" onclick="saveApiKeysToServer(this)" title="儲存"><i data-lucide="save" style="width: 14px; height: 14px;"></i></button>
+        </div>
+        <div id="apiKeysContainer" style="display: flex; flex-direction: column; gap: 12px;"></div>
+      </div>
+    </details>
+
     <div class="settings-section">
       <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
         <div class="settings-title" style="margin-bottom: 0;"><i data-lucide="bot" style="width: 18px; height: 18px; color: var(--accent);"></i> 指令設定區</div>
@@ -1157,6 +1171,7 @@
       loadUserAccountInfo(email);
       loadPrompts(email);
       loadAuthorProfile(email);
+      loadUserApiKeys(email);
 
       
       
@@ -1591,6 +1606,83 @@
       }
     }
   }
+
+  window.currentUserApiKeys = [];
+
+  async function loadUserApiKeys(email) {
+    try {
+      const res = await api({ action: "getUserApiKeys", email: email });
+      window.currentUserApiKeys = Array.isArray(res) ? res : [];
+      renderApiKeys();
+    } catch(e) { console.error("Load keys error", e); }
+  }
+
+  window.renderApiKeys = function() {
+    const container = document.getElementById('apiKeysContainer');
+    if (!container) return;
+    if (window.currentUserApiKeys.length === 0) {
+       container.innerHTML = '<div style="font-size:13px; color:var(--text-muted); text-align:center; padding:16px;">尚未設定 API Key。請點擊右上角新增。</div>';
+       return;
+    }
+    let html = '';
+    window.currentUserApiKeys.forEach((key, idx) => {
+       html += `
+         <div style="display: flex; align-items: center; gap: 8px;">
+           <span style="font-size: 12px; color: var(--text-muted); width: 24px; text-align: right;">${idx + 1}.</span>
+           <input type="password" class="login-input apiKeyInput" data-idx="${idx}" value="${escapeHtml(key)}" placeholder="貼上 Gemini API Key..." style="margin-bottom:0; flex:1;" oninput="window.currentUserApiKeys[${idx}] = this.value">
+           <button class="action-btn-sm action-btn-icon danger" onclick="removeApiKeyField(${idx})" title="刪除" style="flex-shrink:0;"><i data-lucide="trash-2" style="width:16px;height:16px;"></i></button>
+         </div>
+       `;
+    });
+    container.innerHTML = html;
+    lucide.createIcons();
+  };
+
+  window.addApiKeyField = function() {
+    if (window.currentUserApiKeys.length >= 20) {
+      showToast("最多只能設定 20 組 API Key");
+      return;
+    }
+    window.currentUserApiKeys.push("");
+    renderApiKeys();
+  };
+
+  window.removeApiKeyField = function(idx) {
+    window.currentUserApiKeys.splice(idx, 1);
+    renderApiKeys();
+  };
+
+  window.saveApiKeysToServer = async function(btn) {
+     const email = localStorage.getItem('bvlog_user_email');
+     if (!email) return;
+
+     const inputs = document.querySelectorAll('.apiKeyInput');
+     inputs.forEach(input => {
+        const idx = input.getAttribute('data-idx');
+        if (window.currentUserApiKeys[idx] !== undefined) {
+           window.currentUserApiKeys[idx] = input.value.trim();
+        }
+     });
+     const validKeys = window.currentUserApiKeys.filter(k => k !== "");
+     window.currentUserApiKeys = validKeys;
+     renderApiKeys();
+
+     const originalHtml = btn.innerHTML;
+     btn.innerHTML = '<i data-lucide="loader" class="spin" style="width:14px; height:14px;"></i>';
+     lucide.createIcons();
+     btn.disabled = true;
+
+     try {
+       await api({ action: "saveUserApiKeys", email: email, keys: validKeys });
+       showToast("API Keys 儲存成功");
+     } catch(e) {
+       alert(e.message);
+     } finally {
+       btn.innerHTML = originalHtml;
+       lucide.createIcons();
+       btn.disabled = false;
+     }
+  };
 
   window.currentCategories = [];
   window.currentLogPrompts = [];
@@ -4496,7 +4588,8 @@
            if (textEl) textEl.innerHTML = `<i data-lucide="loader" class="spin" style="width:14px; height:14px; margin-right:4px;"></i> 解析第 ${i + 1}/${state.urls.length} 段 (${Math.round((i/state.urls.length)*100)}%)`;
            lucide.createIcons();
            
-           const res = await api({ action: "reAnalyzeChunk", url: state.urls[i], chunkIndex: i + 1, logId: logId });
+           const email = localStorage.getItem('bvlog_user_email');
+           const res = await api({ action: "reAnalyzeChunk", url: state.urls[i], chunkIndex: i + 1, logId: logId, email: email });
            state.fullTranscripts.push(res.transcript);
            
            const currentContent = state.fullTranscripts.join('|||CHUNK_SPLIT|||');
