@@ -2138,11 +2138,8 @@
   function updateSourceIcon() {
     const icon = document.getElementById('iconSource');
     if (!icon) return;
-    if (currentSourceType === "screen") {
-      icon.setAttribute('data-lucide', 'camera');
-    } else {
-      icon.setAttribute('data-lucide', isMobile ? 'switch-camera' : 'monitor-up');
-    }
+    if (isMobile) icon.setAttribute('data-lucide', 'switch-camera');
+    else icon.setAttribute('data-lucide', currentSourceType === "camera" ? "monitor-up" : "camera");
     lucide.createIcons();
   }
 
@@ -2184,7 +2181,7 @@
 
       // 2. 取得視訊畫面來源
       let videoSourceStream = null;
-      if (currentSourceType === "screen") {
+      if (!isMobile && currentSourceType === "screen") {
         videoSourceStream = await navigator.mediaDevices.getDisplayMedia({ video: { frameRate: { ideal: cameraFps } }, audio: true });
         await ensureAudioMixer(videoSourceStream);
         videoSourceStream.getVideoTracks()[0].onended = async () => {
@@ -2236,19 +2233,8 @@
     if (!currentStream) {
       const prevSourceType = currentSourceType;
       const prevFacingMode = mobileFacingMode;
-      
-      if (isMobile) {
-        if (currentSourceType === "camera" && mobileFacingMode === "user") {
-          mobileFacingMode = "environment";
-        } else if (currentSourceType === "camera" && mobileFacingMode === "environment") {
-          currentSourceType = "screen";
-        } else {
-          currentSourceType = "camera";
-          mobileFacingMode = "user";
-        }
-      } else {
-        currentSourceType = (currentSourceType === "camera") ? "screen" : "camera";
-      }
+      if (isMobile) mobileFacingMode = (mobileFacingMode === "user") ? "environment" : "user";
+      else currentSourceType = (currentSourceType === "camera") ? "screen" : "camera";
 
       const success = await acquireStream();
       if (!success) { currentSourceType = prevSourceType; mobileFacingMode = prevFacingMode; await acquireStream(); }
@@ -2264,14 +2250,7 @@
     const prevFacingMode = mobileFacingMode;
 
     if (isMobile) {
-      if (currentSourceType === "camera" && mobileFacingMode === "user") {
-        mobileFacingMode = "environment";
-      } else if (currentSourceType === "camera" && mobileFacingMode === "environment") {
-        currentSourceType = "screen";
-      } else {
-        currentSourceType = "camera";
-        mobileFacingMode = "user";
-      }
+      mobileFacingMode = (mobileFacingMode === "user") ? "environment" : "user";
     } else {
       currentSourceType = (currentSourceType === "camera") ? "screen" : "camera";
     }
@@ -2289,7 +2268,7 @@
       }
 
       let newStream = null;
-      if (currentSourceType === "screen") {
+      if (!isMobile && currentSourceType === "screen") {
         newStream = await navigator.mediaDevices.getDisplayMedia({ video: { frameRate: { ideal: cameraFps } }, audio: true });
         await ensureAudioMixer(newStream);
         newStream.getVideoTracks()[0].onended = async () => {
