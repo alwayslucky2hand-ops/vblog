@@ -624,8 +624,7 @@
       <video id="mediaPlayer" autoplay muted playsinline></video>
 
       <div id="controlsIsland" class="controls-island" style="display: none;">
-        <button class="ctrl-btn" id="btnSource" onclick="switchMediaSource('cameraFlip')" title="切換鏡頭"><i data-lucide="switch-camera" id="iconSource"></i></button>
-        <button class="ctrl-btn" id="btnScreen" onclick="switchMediaSource('screenToggle')" title="分享螢幕"><i data-lucide="monitor-up" id="iconScreen"></i></button>
+        <button class="ctrl-btn" id="btnSource" onclick="switchMediaSource()" title="鏡頭"><i data-lucide="switch-camera" id="iconSource"></i></button>
         <button class="ctrl-btn" id="btnVideoTrack" onclick="toggleVideoTrack()" title="畫面"><i data-lucide="video" id="iconVideo"></i></button>
         <button class="ctrl-btn" id="btnFullscreen" onclick="toggleFullscreen()" title="全螢"><i data-lucide="maximize" id="iconFullscreen"></i></button>
         
@@ -2137,13 +2136,10 @@
   }
 
   function updateSourceIcon() {
-    const btnScreen = document.getElementById('btnScreen');
-    if (btnScreen) {
-      // 錄螢幕時按鈕顯示為 Active (藍底)，並變成相機圖示提示切回
-      btnScreen.classList.toggle('active', currentSourceType === "screen");
-      const iconScreen = document.getElementById('iconScreen');
-      if (iconScreen) iconScreen.setAttribute('data-lucide', currentSourceType === "screen" ? 'camera' : 'monitor-up');
-    }
+    const icon = document.getElementById('iconSource');
+    if (!icon) return;
+    if (isMobile) icon.setAttribute('data-lucide', 'switch-camera');
+    else icon.setAttribute('data-lucide', currentSourceType === "camera" ? "monitor-up" : "camera");
     lucide.createIcons();
   }
 
@@ -2185,11 +2181,11 @@
 
       // 2. 取得視訊畫面來源
       let videoSourceStream = null;
-      if (currentSourceType === "screen") {
+      if (!isMobile && currentSourceType === "screen") {
         videoSourceStream = await navigator.mediaDevices.getDisplayMedia({ video: { frameRate: { ideal: cameraFps } }, audio: true });
         await ensureAudioMixer(videoSourceStream);
         videoSourceStream.getVideoTracks()[0].onended = async () => {
-          if (currentSourceType === "screen") await switchMediaSource('screenToggle');
+          if (currentSourceType === "screen") await switchMediaSource();
         };
       } else {
         videoSourceStream = await requestCameraVideoStream(mobileFacingMode);
@@ -2231,19 +2227,14 @@
     wakeControls();
   }
 
-  async function switchMediaSource(actionType = 'cameraFlip') {
+  async function switchMediaSource() {
     if (isSwitchingSource) return;
 
     if (!currentStream) {
       const prevSourceType = currentSourceType;
       const prevFacingMode = mobileFacingMode;
-      
-      if (actionType === 'screenToggle') {
-        currentSourceType = (currentSourceType === "camera") ? "screen" : "camera";
-      } else {
-        mobileFacingMode = (mobileFacingMode === "user") ? "environment" : "user";
-        currentSourceType = "camera"; // 切換鏡頭時，強制退回相機模式
-      }
+      if (isMobile) mobileFacingMode = (mobileFacingMode === "user") ? "environment" : "user";
+      else currentSourceType = (currentSourceType === "camera") ? "screen" : "camera";
 
       const success = await acquireStream();
       if (!success) { currentSourceType = prevSourceType; mobileFacingMode = prevFacingMode; await acquireStream(); }
@@ -2253,34 +2244,35 @@
 
     isSwitchingSource = true;
     const btnSource = document.getElementById('btnSource');
-    const btnScreen = document.getElementById('btnScreen');
     if (btnSource) btnSource.disabled = true;
-    if (btnScreen) btnScreen.disabled = true;
 
     const prevSourceType = currentSourceType;
     const prevFacingMode = mobileFacingMode;
 
-    if (actionType === 'screenToggle') {
-      currentSourceType = (currentSourceType === "camera") ? "screen" : "camera";
-    } else {
+    if (isMobile) {
       mobileFacingMode = (mobileFacingMode === "user") ? "environment" : "user";
-      currentSourceType = "camera"; // 確保不會在螢幕分享模式下亂轉鏡頭
+    } else {
+      currentSourceType = (currentSourceType === "camera") ? "screen" : "camera";
     }
 
     try {
+      // 切換前先將最後一幀定格在畫布上，確保過渡期零黑屏
       drawVideoFrameToCanvas();
+
       const oldVideoTrack = currentStream.getVideoTracks()[0];
 
+      // 📱 手機版硬體特性：必須先釋放舊鏡頭，硬體才允許開啟另一顆鏡頭
+      // 因為 MediaRecorder 綁定的是 recordingCanvas 混流，停止舊鏡頭完全不會中斷錄製！
       if (isMobile && oldVideoTrack) {
         oldVideoTrack.stop();
       }
 
       let newStream = null;
-      if (currentSourceType === "screen") {
+      if (!isMobile && currentSourceType === "screen") {
         newStream = await navigator.mediaDevices.getDisplayMedia({ video: { frameRate: { ideal: cameraFps } }, audio: true });
         await ensureAudioMixer(newStream);
         newStream.getVideoTracks()[0].onended = async () => {
-          if (currentSourceType === "screen") await switchMediaSource('screenToggle');
+          if (currentSourceType === "screen") await switchMediaSource();
         };
       } else {
         newStream = await requestCameraVideoStream(mobileFacingMode);
@@ -2300,6 +2292,7 @@
         const player = document.getElementById('mediaPlayer');
         player.srcObject = currentStream;
         await player.play().catch(() => {});
+
         log("[系統] 畫面已無縫切換（錄製持續進行中）");
       }
 
@@ -2309,6 +2302,7 @@
       log("[錯誤] 切換取消或失敗: " + err.message);
       currentSourceType = prevSourceType;
       mobileFacingMode = prevFacingMode;
+      // 若手機端已先釋放舊鏡頭但新鏡頭開啟失敗，自動救回原鏡頭
       if (!currentStream.getVideoTracks()[0] || currentStream.getVideoTracks()[0].readyState === 'ended') {
         try {
           const fallbackStream = await requestCameraVideoStream(mobileFacingMode);
@@ -2324,7 +2318,6 @@
     } finally {
       isSwitchingSource = false;
       if (btnSource) btnSource.disabled = false;
-      if (btnScreen) btnScreen.disabled = false;
     }
   }
 
