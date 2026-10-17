@@ -2959,14 +2959,13 @@
           <form style="display: flex; flex-direction: column; gap: 12px;" onsubmit="event.preventDefault(); window.submitSubForm(this, 'home', '${p.email}');">
             <select required class="login-input" style="margin-bottom:0; background:#fff; font-weight: 700; color: var(--text);">
               <option value="一般會員(免費)">一般會員 (免費)</option>
-              <option value="享學會員(月繳NT$298)">享學會員 (月繳NT$298)</option>
             </select>
             <input type="email" placeholder="您的 Email (必填)" required class="login-input" style="margin-bottom:0; background:#fff;">
             <div style="display: flex; gap: 12px; flex-wrap: wrap;">
               <input type="text" placeholder="姓名 / 暱稱 (必填)" required class="login-input" style="margin-bottom:0; background:#fff; flex: 1; min-width: 120px;">
               <input type="text" placeholder="出生年月日 (必填)" onfocus="(this.type='date')" onblur="(this.value==''?this.type='text':this.type='date')" required class="login-input" style="margin-bottom:0; background:#fff; flex: 1; min-width: 120px;">
             </div>
-            <button type="submit" style="margin-top: 8px; padding: 12px; background: var(--text); color: #fff; border: none; border-radius: 4px; font-weight: 700; cursor: pointer; transition: background 0.2s;">送出申請並前往付款</button>
+            <button type="submit" style="margin-top: 8px; padding: 12px; background: var(--text); color: #fff; border: none; border-radius: 4px; font-weight: 700; cursor: pointer; transition: background 0.2s;">送出申請</button>
           </form>
         </div>
       </div>
@@ -2990,7 +2989,7 @@
         return; 
       }
     } else if (!isLogsFetched) {
-      // 無快取時的防呆轉圈
+      
       container.innerHTML = '<div style="text-align:center; color:var(--text-muted); padding:32px 0;"><i data-lucide="loader" class="spin"></i> 初次載入中...</div>';
       lucide.createIcons();
       await getSharedLogs(email);
