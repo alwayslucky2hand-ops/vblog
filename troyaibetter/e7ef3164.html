@@ -446,40 +446,15 @@ AI 偶爾出現的「**邏輯死胡同**」或跳針，其實是一面最誠實�
 讓ＡＩ為你效勞，讓工作不再過勞。
 我是特洛伊，一起用ＡＩ守住光陰。</div></noscript>
       
-    <div style="margin-top: 48px; border-top: 1px solid #e2e8f0; padding-top: 32px;">
-      <h3 style="font-size: 18px; font-weight: 800; margin-bottom: 16px;">專屬影音紀錄</h3>
-      <div id="vblog-player-container-e7ef3164" class="vblog-player-container is-horizontal-player">
-        <div class="vblog-video-wrapper is-horizontal">
-          <video id="videoPlayerA" playsinline preload="auto" controlsList="nodownload" oncontextmenu="return false;" style="position: absolute; inset: 0; width: 100%; height: 100%; z-index: 2; opacity: 1; background: #000; object-fit: contain;"></video>
-          <video id="videoPlayerB" playsinline preload="auto" controlsList="nodownload" oncontextmenu="return false;" style="position: absolute; inset: 0; width: 100%; height: 100%; z-index: 1; opacity: 0; background: #000; object-fit: contain;"></video>
-          <div id="vblogStageLoader" class="vblog-stage-loader" style="display: none;">
-            <svg class="vblog-spin" xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 1 1-6.219-8.56"/></svg>
-          </div>
+        <div style="margin-top: 48px; border-top: 1px solid #e2e8f0; padding-top: 32px;">
+          <h3 style="font-size: 18px; font-weight: 800; margin-bottom: 16px;">YouTube 影音紀錄</h3>
+          
+            <div class="vblog-player-container is-horizontal-player" style="margin-bottom: 16px;">
+              <div class="vblog-video-wrapper is-horizontal">
+                <iframe src="https://www.youtube.com/embed/URQhI1HLuPI?rel=0&playsinline=1" frameborder="0" allowfullscreen style="position:absolute; inset:0; width:100%; height:100%; display:block;"></iframe>
+              </div>
+            </div>
         </div>
-        <div id="vblogProgressTrack" class="vblog-progress-track">
-          <div id="vblogProgressFill" class="vblog-progress-fill"></div>
-        </div>
-        <div class="vblog-player-bar">
-          <div class="vblog-player-nav">
-            <button id="btnStartStream" class="vblog-btn-play" title="雲端載入 / 播放"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M4 14.899A7 7 0 1 1 15.71 8h1.79a4.5 4.5 0 0 1 2.5 8.242"/><polygon points="10 11 16 14.5 10 18 10 11"/></svg></button>
-            <button id="btnPrevChunk" class="vblog-player-btn" disabled title="上一段"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><polygon points="19 20 9 12 19 4 19 20"/><line x1="5" x2="5" y1="19" y2="5"/></svg></button>
-            <select id="chunkSelector" class="vblog-player-select" title="選擇播放切片">
-              <option value="0">片段 01</option>
-            </select>
-            <button id="btnNextChunk" class="vblog-player-btn" disabled title="下一段"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><polygon points="5 4 15 12 5 20 5 4"/><line x1="19" x2="19" y1="5" y2="19"/></svg></button>
-            <span id="vblogTimeDisplay" class="vblog-time-display">00:00 / 00:00</span>
-          </div>
-          <div class="vblog-player-right">
-            <span class="vblog-preload-pill" title="雲端切片預載進度">
-              <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M20 16.2A4.5 4.5 0 0 0 17.5 8h-1.8A7 7 0 1 0 4 14.9"/><polyline points="9 14 12 17 16 13"/></svg>
-              <span id="videoStatus" class="vblog-player-status">0 / 0</span>
-            </span>
-            <button id="btnMuteToggle" class="vblog-player-btn" title="音訊開關"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14"/></svg></button>
-            <button id="btnFsToggle" class="vblog-player-btn" title="全螢幕"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M8 3H5a2 2 0 0 0-2 2v3"/><path d="M21 8V5a2 2 0 0 0-2-2h-3"/><path d="M3 16v3a2 2 0 0 0 2 2h3"/><path d="M16 21h3a2 2 0 0 0 2-2v-3"/></svg></button>
-          </div>
-        </div>
-      </div>
-    </div>
     
       </main>
     </article>
@@ -1154,7 +1129,7 @@ AI 偶爾出現的「**邏輯死胡同**」或跳針，其實是一面最誠實�
         document.getElementById("content").innerHTML = marked.parse(rawMd);
       }
       
-      bindVideoLogic(["https://drive.google.com/file/d/11YN5BNurgn8Y30s80uKpmu232dAcvGUI/view?usp=drivesdk","https://drive.google.com/file/d/1YzWG7ORLx7anxzUVR5gYl4Z9IDDf6M2G/view?usp=drivesdk","https://drive.google.com/file/d/1pUaqt-UZtZ7I1srOmmB22_tXYFI-JD3k/view?usp=drivesdk","https://drive.google.com/file/d/1HgjUrATAA0h0H7oauaELu6dEwPnvvtgC/view?usp=drivesdk","https://drive.google.com/file/d/18a7ZBkboI6PGeTdoeZumM4Eg43qOqHwm/view?usp=drivesdk","https://drive.google.com/file/d/1VqwbWEI3CbKdzfsZaDGUpeXVij-p_aVG/view?usp=drivesdk","https://drive.google.com/file/d/1fb7ale0Mo8lrFqlnHlLJ26-DHerMH_6y/view?usp=drivesdk","https://drive.google.com/file/d/1o2DSkOxHQjmIjS5F6XoBYrCCcO1ctb6p/view?usp=drivesdk","https://drive.google.com/file/d/1QqV5u1wDcq4uRtYAp8omg7CldoaUDYSm/view?usp=drivesdk","https://drive.google.com/file/d/1xvnkYmX8bxHnN20rcBVokVB05Y-mlitY/view?usp=drivesdk","https://drive.google.com/file/d/1ErkVWqThkGrCLB8p0ti32PR7l_k4SWam/view?usp=drivesdk","https://drive.google.com/file/d/1R1v5q1UjH1JOMl4uVfcWdjwRygUl1v0Q/view?usp=drivesdk","https://drive.google.com/file/d/1vujrD0yMjznJ37GrGjdY40aLvALD4_yG/view?usp=drivesdk","https://drive.google.com/file/d/1XgtVpSYMQy_tSjX6Abt-PvGOxxv7V5mJ/view?usp=drivesdk","https://drive.google.com/file/d/1nU8zB0LspKxdhSr6mkzIL2SEjfnNAL4R/view?usp=drivesdk","https://drive.google.com/file/d/1gd2QCLbnOX4MHl76FAMuH9zLQinWULfH/view?usp=drivesdk","https://drive.google.com/file/d/1DC7C57EKfK1ooHMGDKMEUU3ba0Q6X552/view?usp=drivesdk","https://drive.google.com/file/d/1ZcZXiU7cTg7b5xaj9TxJoYdT_cMf5Rn7/view?usp=drivesdk","https://drive.google.com/file/d/1hjMM-LnQHLQcLYbKoE8l3U0nIU-hVZCY/view?usp=drivesdk","https://drive.google.com/file/d/1EEHIQyyBsrvuIt4UEoV4JBPBmKsYWz3j/view?usp=drivesdk","https://drive.google.com/file/d/1JUhEPelsF__M4TUY3wM8ZNjZ5LzIyC0G/view?usp=drivesdk","https://drive.google.com/file/d/1c71xdaz9OEQcQE6faz_Ak-N0KqGvm2_i/view?usp=drivesdk","https://drive.google.com/file/d/1QoviGIe5UZjHkn2hfaap_WITAP_t9Avb/view?usp=drivesdk","https://drive.google.com/file/d/1d5reBH5_l0AgFvU05PwLb9hnD4BOyeR_/view?usp=drivesdk","https://drive.google.com/file/d/1-zXcGxa2CWq8emzP2OdW3VjnJU5Ig9mq/view?usp=drivesdk","https://drive.google.com/file/d/1SftbD67PcyZGj837xiEyARxEewtPcC2L/view?usp=drivesdk","https://drive.google.com/file/d/1nP5eXS_NOEoVicQk_BREuopMkT3Q0YC2/view?usp=drivesdk","https://drive.google.com/file/d/1t3Kg2DgEg2AeqHZabpknHVXpcgExhtAo/view?usp=drivesdk","https://drive.google.com/file/d/1_kUiN_WH69gFhHJIGZre0o31QhyQsT27/view?usp=drivesdk","https://drive.google.com/file/d/17xLG_7QjxCmA4RV3-ao1LyrAOTSANXQ7/view?usp=drivesdk","https://drive.google.com/file/d/1Fda1qG_JMc80R8atTGASMAg8mHoX9_iv/view?usp=drivesdk","https://drive.google.com/file/d/1LmqRIgBZICtbBs9SDHHK-KDOd-e_mdi8/view?usp=drivesdk"]);
+      
       
       const wrapper = document.getElementById("salonIntroWrapper");
       const btn = document.getElementById("expandIntroBtn");
@@ -1218,9 +1193,9 @@ AI 偶爾出現的「**邏輯死胡同**」或跳針，其實是一面最誠實�
             document.getElementById("content").innerHTML = marked.parse(rawMd);
             
             if (res.data.urls && res.data.urls.length > 0) {
-              const vHtml = "\n    <div style=\"margin-top: 48px; border-top: 1px solid #e2e8f0; padding-top: 32px;\">\n      <h3 style=\"font-size: 18px; font-weight: 800; margin-bottom: 16px;\">專屬影音紀錄</h3>\n      <div id=\"vblog-player-container-e7ef3164\" class=\"vblog-player-container is-horizontal-player\">\n        <div class=\"vblog-video-wrapper is-horizontal\">\n          <video id=\"videoPlayerA\" playsinline preload=\"auto\" controlsList=\"nodownload\" oncontextmenu=\"return false;\" style=\"position: absolute; inset: 0; width: 100%; height: 100%; z-index: 2; opacity: 1; background: #000; object-fit: contain;\"></video>\n          <video id=\"videoPlayerB\" playsinline preload=\"auto\" controlsList=\"nodownload\" oncontextmenu=\"return false;\" style=\"position: absolute; inset: 0; width: 100%; height: 100%; z-index: 1; opacity: 0; background: #000; object-fit: contain;\"></video>\n          <div id=\"vblogStageLoader\" class=\"vblog-stage-loader\" style=\"display: none;\">\n            <svg class=\"vblog-spin\" xmlns=\"http://www.w3.org/2000/svg\" width=\"28\" height=\"28\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.75\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M21 12a9 9 0 1 1-6.219-8.56\"/></svg>\n          </div>\n        </div>\n        <div id=\"vblogProgressTrack\" class=\"vblog-progress-track\">\n          <div id=\"vblogProgressFill\" class=\"vblog-progress-fill\"></div>\n        </div>\n        <div class=\"vblog-player-bar\">\n          <div class=\"vblog-player-nav\">\n            <button id=\"btnStartStream\" class=\"vblog-btn-play\" title=\"雲端載入 / 播放\"><svg xmlns=\"http://www.w3.org/2000/svg\" width=\"16\" height=\"16\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.75\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M4 14.899A7 7 0 1 1 15.71 8h1.79a4.5 4.5 0 0 1 2.5 8.242\"/><polygon points=\"10 11 16 14.5 10 18 10 11\"/></svg></button>\n            <button id=\"btnPrevChunk\" class=\"vblog-player-btn\" disabled title=\"上一段\"><svg xmlns=\"http://www.w3.org/2000/svg\" width=\"16\" height=\"16\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.75\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><polygon points=\"19 20 9 12 19 4 19 20\"/><line x1=\"5\" x2=\"5\" y1=\"19\" y2=\"5\"/></svg></button>\n            <select id=\"chunkSelector\" class=\"vblog-player-select\" title=\"選擇播放切片\">\n              <option value=\"0\">片段 01</option>\n            </select>\n            <button id=\"btnNextChunk\" class=\"vblog-player-btn\" disabled title=\"下一段\"><svg xmlns=\"http://www.w3.org/2000/svg\" width=\"16\" height=\"16\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.75\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><polygon points=\"5 4 15 12 5 20 5 4\"/><line x1=\"19\" x2=\"19\" y1=\"5\" y2=\"19\"/></svg></button>\n            <span id=\"vblogTimeDisplay\" class=\"vblog-time-display\">00:00 / 00:00</span>\n          </div>\n          <div class=\"vblog-player-right\">\n            <span class=\"vblog-preload-pill\" title=\"雲端切片預載進度\">\n              <svg xmlns=\"http://www.w3.org/2000/svg\" width=\"13\" height=\"13\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.75\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M20 16.2A4.5 4.5 0 0 0 17.5 8h-1.8A7 7 0 1 0 4 14.9\"/><polyline points=\"9 14 12 17 16 13\"/></svg>\n              <span id=\"videoStatus\" class=\"vblog-player-status\">0 / 0</span>\n            </span>\n            <button id=\"btnMuteToggle\" class=\"vblog-player-btn\" title=\"音訊開關\"><svg xmlns=\"http://www.w3.org/2000/svg\" width=\"16\" height=\"16\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.75\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><polygon points=\"11 5 6 9 2 9 2 15 6 15 11 19 11 5\"/><path d=\"M15.54 8.46a5 5 0 0 1 0 7.07\"/><path d=\"M19.07 4.93a10 10 0 0 1 0 14.14\"/></svg></button>\n            <button id=\"btnFsToggle\" class=\"vblog-player-btn\" title=\"全螢幕\"><svg xmlns=\"http://www.w3.org/2000/svg\" width=\"16\" height=\"16\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.75\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M8 3H5a2 2 0 0 0-2 2v3\"/><path d=\"M21 8V5a2 2 0 0 0-2-2h-3\"/><path d=\"M3 16v3a2 2 0 0 0 2 2h3\"/><path d=\"M16 21h3a2 2 0 0 0 2-2v-3\"/></svg></button>\n          </div>\n        </div>\n      </div>\n    </div>";
+              const vHtml = "\n        <div style=\"margin-top: 48px; border-top: 1px solid #e2e8f0; padding-top: 32px;\">\n          <h3 style=\"font-size: 18px; font-weight: 800; margin-bottom: 16px;\">YouTube 影音紀錄</h3>\n          \n            <div class=\"vblog-player-container is-horizontal-player\" style=\"margin-bottom: 16px;\">\n              <div class=\"vblog-video-wrapper is-horizontal\">\n                <iframe src=\"https://www.youtube.com/embed/URQhI1HLuPI?rel=0&playsinline=1\" frameborder=\"0\" allowfullscreen style=\"position:absolute; inset:0; width:100%; height:100%; display:block;\"></iframe>\n              </div>\n            </div>\n        </div>";
               document.getElementById("dynamicVideoPlayerArea").innerHTML = vHtml;
-              bindVideoLogic(res.data.urls);
+              
             }
           } else {
             msg.innerText = res.message || "驗證失敗"; msg.style.color = "#ef4444";
