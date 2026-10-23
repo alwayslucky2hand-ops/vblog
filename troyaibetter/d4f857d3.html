@@ -610,6 +610,20 @@ https://docs.google.com/document/d/1xgjDabubaFISCVSvzr5-XS-6vZFgId1MM7Y01ajTftU/
         if (res && res.data && res.data.base64) {
           const blobUrl = window.base64ToBlobUrl(res.data.base64, res.data.mimeType);
           window.videoBlobCache[url] = blobUrl;
+          if (!window.vblogDurations) window.vblogDurations = {};
+          const tmp = document.createElement('video');
+          tmp.src = blobUrl;
+          tmp.onloadedmetadata = () => {
+            if (tmp.duration === Infinity) {
+              tmp.currentTime = 1e99;
+              tmp.ontimeupdate = () => {
+                window.vblogDurations[url] = tmp.duration;
+                tmp.ontimeupdate = null;
+              };
+            } else {
+              window.vblogDurations[url] = tmp.duration;
+            }
+          };
           return blobUrl;
         }
         return null;
@@ -659,7 +673,8 @@ https://docs.google.com/document/d/1xgjDabubaFISCVSvzr5-XS-6vZFgId1MM7Y01ajTftU/
       let preloadRunning = false;
 
       function formatTime(sec) {
-        if (!sec || isNaN(sec)) return '00:00';
+        // 🌟 修正：加入 !isFinite 防護，避免 Infinity 被拿去算數學
+        if (!sec || isNaN(sec) || !isFinite(sec)) return '00:00';
         const m = Math.floor(sec / 60);
         const s = Math.floor(sec % 60);
         return String(m).padStart(2, '0') + ':' + String(s).padStart(2, '0');
@@ -749,17 +764,29 @@ https://docs.google.com/document/d/1xgjDabubaFISCVSvzr5-XS-6vZFgId1MM7Y01ajTftU/
 
       function monitorPlayback(e) {
         const v = e.target;
-        if (v !== activeVid || !v.duration) return;
+        if (v !== activeVid) return;
+
+        const chunkUrl = streamUrls[currentIndex];
+        let actualDuration = (window.vblogDurations && window.vblogDurations[chunkUrl]) ? window.vblogDurations[chunkUrl] : null;
+
+        if (!actualDuration) {
+          actualDuration = v.duration;
+          if (!isFinite(actualDuration)) {
+              actualDuration = (v.buffered && v.buffered.length > 0) ? v.buffered.end(v.buffered.length - 1) : 30;
+          }
+        }
+        if (!actualDuration) return;
+
         if (progressFill) {
-          const pct = Math.min(100, Math.max(0, (v.currentTime / v.duration) * 100));
+          const pct = Math.min(100, Math.max(0, (v.currentTime / actualDuration) * 100));
           progressFill.style.width = pct + '%';
         }
         if (timeEl) {
-          timeEl.innerText = formatTime(v.currentTime) + ' / ' + formatTime(v.duration);
+          timeEl.innerText = formatTime(v.currentTime) + ' / ' + formatTime(actualDuration);
         }
         nextVid.volume = activeVid.volume;
         nextVid.muted = activeVid.muted;
-        if (v.duration - v.currentTime <= 0.12 && !isTransitioning) {
+        if (actualDuration - v.currentTime <= 0.12 && !isTransitioning) {
           isTransitioning = true;
           if (currentIndex < urls.length - 1) {
             playVideoChunk(currentIndex + 1, true);
@@ -915,10 +942,18 @@ https://docs.google.com/document/d/1xgjDabubaFISCVSvzr5-XS-6vZFgId1MM7Y01ajTftU/
 
       if (progressTrack) {
         progressTrack.addEventListener('click', function(e) {
-          if (!activeVid || !activeVid.duration) return;
+          if (!activeVid) return;
+          const chunkUrl = streamUrls[currentIndex];
+          let actualDuration = (window.vblogDurations && window.vblogDurations[chunkUrl]) ? window.vblogDurations[chunkUrl] : null;
+          if (!actualDuration) {
+            actualDuration = activeVid.duration;
+            if (!isFinite(actualDuration)) actualDuration = (activeVid.buffered && activeVid.buffered.length > 0) ? activeVid.buffered.end(activeVid.buffered.length - 1) : 30;
+          }
+          if (!actualDuration) return;
+
           const rect = progressTrack.getBoundingClientRect();
           const ratio = Math.min(1, Math.max(0, (e.clientX - rect.left) / rect.width));
-          activeVid.currentTime = ratio * activeVid.duration;
+          activeVid.currentTime = ratio * actualDuration;
         });
       }
 
