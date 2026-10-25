@@ -3792,21 +3792,35 @@
   };
 
   window.fetchVideoChunkBase64 = function(url) {
-    if (!url) return Promise.resolve(null);
-    if (url.includes('youtube.com') || url.includes('youtu.be')) return Promise.resolve(url);
-    if (window.videoBlobCache[url]) return Promise.resolve(window.videoBlobCache[url]);
-    if (window.videoFetchPromises[url]) return window.videoFetchPromises[url];
+      if (!url) return Promise.resolve(null);
+      if (url.includes('youtube.com') || url.includes('youtu.be')) return Promise.resolve(url);
+      if (window.videoBlobCache[url]) return Promise.resolve(window.videoBlobCache[url]);
+      if (window.videoFetchPromises[url]) return window.videoFetchPromises[url];
 
-    const p = api({ action: "getVideoChunk", url: url })
-      .then(res => {
-        if (res && res.base64) {
-          const blobUrl = window.base64ToBlobUrl(res.base64, res.mimeType);
-          window.videoBlobCache[url] = blobUrl;
-          return blobUrl;
-        }
-        return null;
-      })
-      .catch(e => {
+      const p = api({ action: "getVideoChunk", url: url })
+        .then(res => {
+          if (res && res.base64) {
+            const blobUrl = window.base64ToBlobUrl(res.base64, res.mimeType);
+            window.videoBlobCache[url] = blobUrl;
+            if (!window.vblogDurations) window.vblogDurations = {};
+            const tmp = document.createElement('video');
+            tmp.src = blobUrl;
+            tmp.onloadedmetadata = () => {
+              if (tmp.duration === Infinity) {
+                tmp.currentTime = 1e99;
+                tmp.ontimeupdate = () => {
+                  window.vblogDurations[url] = tmp.duration;
+                  tmp.ontimeupdate = null;
+                };
+              } else {
+                window.vblogDurations[url] = tmp.duration;
+              }
+            };
+            return blobUrl;
+          }
+          return null;
+        })
+        .catch(e => {
         console.error("載入切片失敗", e);
         return null;
       })
@@ -3819,7 +3833,7 @@
   };
 
   window.formatVblogTime = function(sec) {
-    if (!sec || isNaN(sec)) return '00:00';
+    if (!sec || isNaN(sec) || !isFinite(sec)) return '00:00';
     const m = Math.floor(sec / 60);
     const s = Math.floor(sec % 60);
     return String(m).padStart(2, '0') + ':' + String(s).padStart(2, '0');
@@ -4005,20 +4019,32 @@
 
     function monitorPlayback(e) {
       const v = e.target;
-      if (v !== state.activeVid || !v.duration) return;
+      if (v !== state.activeVid) return;
+
+      const chunkUrl = state.streamUrls[state.currentIndex];
+      let actualDuration = (window.vblogDurations && window.vblogDurations[chunkUrl]) ? window.vblogDurations[chunkUrl] : null;
+
+      if (!actualDuration) {
+        actualDuration = v.duration;
+        if (!isFinite(actualDuration)) {
+          actualDuration = (v.buffered && v.buffered.length > 0) ? v.buffered.end(v.buffered.length - 1) : 30;
+        }
+      }
+      if (!actualDuration) return;
+
       const fillEl = document.getElementById(state.dom.progressFillId);
       const timeEl = document.getElementById(state.dom.timeId);
       if (fillEl) {
-        const pct = Math.min(100, Math.max(0, (v.currentTime / v.duration) * 100));
+        const pct = Math.min(100, Math.max(0, (v.currentTime / actualDuration) * 100));
         fillEl.style.width = pct + '%';
       }
       if (timeEl) {
-        timeEl.innerText = window.formatVblogTime(v.currentTime) + ' / ' + window.formatVblogTime(v.duration);
+        timeEl.innerText = window.formatVblogTime(v.currentTime) + ' / ' + window.formatVblogTime(actualDuration);
       }
       state.nextVid.volume = state.activeVid.volume;
       state.nextVid.muted = state.activeVid.muted;
 
-      if (v.duration - v.currentTime <= 0.12 && !state.isTransitioning) {
+      if (actualDuration - v.currentTime <= 0.12 && !state.isTransitioning) {
         state.isTransitioning = true;
         if (state.currentIndex < state.streamUrls.length - 1) {
           onNextCallback(state.currentIndex + 1, true);
@@ -4161,10 +4187,20 @@
   window.seekHistoryVideo = function(e, logId) {
     const state = window.ensureHistoryPlayerState(logId);
     const track = document.getElementById('history-progress-track-' + logId);
-    if (!state || !state.activeVid || !state.activeVid.duration || !track) return;
+    if (!state || !state.activeVid || !track) return;
+    
+    const chunkUrl = state.streamUrls[state.currentIndex];
+    let actualDuration = (window.vblogDurations && window.vblogDurations[chunkUrl]) ? window.vblogDurations[chunkUrl] : null;
+
+    if (!actualDuration) {
+      actualDuration = state.activeVid.duration;
+      if (!isFinite(actualDuration)) actualDuration = (state.activeVid.buffered && state.activeVid.buffered.length > 0) ? state.activeVid.buffered.end(state.activeVid.buffered.length - 1) : 30;
+    }
+    if (!actualDuration) return;
+
     const rect = track.getBoundingClientRect();
     const ratio = Math.min(1, Math.max(0, (e.clientX - rect.left) / rect.width));
-    state.activeVid.currentTime = ratio * state.activeVid.duration;
+    state.activeVid.currentTime = ratio * actualDuration;
   };
 
   window.toggleHistoryMute = function(logId) {
@@ -4272,10 +4308,20 @@
   window.seekPreviewVideo = function(e, logId) {
     const state = window.ensurePreviewPlayerState(logId);
     const track = document.getElementById('preview-progress-track');
-    if (!state || !state.activeVid || !state.activeVid.duration || !track) return;
+    if (!state || !state.activeVid || !track) return;
+
+    const chunkUrl = state.streamUrls[state.currentIndex];
+    let actualDuration = (window.vblogDurations && window.vblogDurations[chunkUrl]) ? window.vblogDurations[chunkUrl] : null;
+
+    if (!actualDuration) {
+      actualDuration = state.activeVid.duration;
+      if (!isFinite(actualDuration)) actualDuration = (state.activeVid.buffered && state.activeVid.buffered.length > 0) ? state.activeVid.buffered.end(state.activeVid.buffered.length - 1) : 30;
+    }
+    if (!actualDuration) return;
+
     const rect = track.getBoundingClientRect();
     const ratio = Math.min(1, Math.max(0, (e.clientX - rect.left) / rect.width));
-    state.activeVid.currentTime = ratio * state.activeVid.duration;
+    state.activeVid.currentTime = ratio * actualDuration;
   };
 
   window.togglePreviewMute = function(logId) {
